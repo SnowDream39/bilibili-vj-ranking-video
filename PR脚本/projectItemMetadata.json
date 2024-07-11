@@ -1,0 +1,152 @@
+[
+    {
+        "ColumnID": "Column.PropertyText.Label",
+        "ColumnName": "标签",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "鸢尾花色"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.Name",
+        "ColumnName": "名称",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "10.mp4"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.MediaTimebase",
+        "ColumnName": "帧速率",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "29.99 fps"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.MediaStart",
+        "ColumnName": "媒体开始",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "0"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.MediaEnd",
+        "ColumnName": "媒体结束",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "41294448273592"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.MediaDuration",
+        "ColumnName": "媒体持续时间",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "41294448273592"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.VideoInPoint",
+        "ColumnName": "视频入点",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "13745055280566"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.VideoOutPoint",
+        "ColumnName": "视频出点",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "18826406585766"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.VideoDuration",
+        "ColumnName": "视频持续时间",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "5081351305200"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.AudioInPoint",
+        "ColumnName": "音频入点",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "13745055280566"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.AudioOutPoint",
+        "ColumnName": "音频出点",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "18826406585766"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.SubclipStart",
+        "ColumnName": "子剪辑开始",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.Intrinsic.SubclipEnd",
+        "ColumnName": "子剪辑结束",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.Intrinsic.SubclipDuration",
+        "ColumnName": "子剪辑持续时间",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.Intrinsic.VideoInfo",
+        "ColumnName": "视频信息",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "852 x 480 (1.0)"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.AudioInfo",
+        "ColumnName": "音频信息",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "48000 Hz - 已压缩 - 立体声"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.TapeName",
+        "ColumnName": "磁带名称",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.PropertyText.Description",
+        "ColumnName": "说明",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.Intrinsic.LogNote",
+        "ColumnName": "记录注释",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.PropertyText.Status",
+        "ColumnName": "状态",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "在线"
+    },
+    {
+        "ColumnID": "Column.PropertyText.Scene",
+        "ColumnName": "场景",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.PropertyText.Shot",
+        "ColumnName": "拍摄",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": ""
+    },
+    {
+        "ColumnID": "Column.PropertyBool.Good",
+        "ColumnName": "良好",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "false"
+    },
+    {
+        "ColumnID": "Column.PropertyBool.Hide",
+        "ColumnName": "隐藏",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "false"
+    },
+    {
+        "ColumnID": "Column.Intrinsic.TranscriptStatus",
+        "ColumnName": "转录状态",
+        "ColumnPath": "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/",
+        "ColumnValue": "未转录"
+    }
+]
