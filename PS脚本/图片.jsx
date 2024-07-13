@@ -1,6 +1,7 @@
 #include 'ps.jsx'
-#include '封面上传.jsx'
 #include '省流版封面上传.jsx'
+#include '封面.jsx'
+#include '封面上传.jsx'
 #include '副榜.jsx'
 #include '规则1.jsx'
 #include '新曲榜图片.jsx'

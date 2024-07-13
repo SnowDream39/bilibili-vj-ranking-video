@@ -4,6 +4,49 @@ var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
 var extend = 100;
 
+// 自定义的对象
+function MyTextLayer(textLayer) {
+    this.textLayer = textLayer;
+    this.textItem = textLayer.textItem;  // 简化访问，存储 textItem
+
+    this.setFormattedText = function(contents, size, font) {
+        if (contents !== undefined) {
+            this.textItem.contents = contents; // 直接操作 textItem
+        }
+        if (size !== undefined) {
+            this.textItem.size = size;
+        }
+        if (font !== undefined) {
+            this.textItem.font = font;
+        }
+    };
+
+    this.resizeText = function(width) {
+        this.textItem.horizontalScale = 90; // 初始设置
+        var textBounds = this.textLayer.bounds;
+        var textWidth = textBounds[2] - textBounds[0]; // 计算文本图层的宽度
+        if (textWidth > width) {
+            var scalePercent = (width / textWidth) * 90; // 使用 90% 的比例缩放文本
+            this.textItem.horizontalScale = scalePercent; // 修改 horizontalScale
+        }
+    };
+
+    this.setColor = function(color) {
+    var newColor = new SolidColor();
+    var colors = {
+        'red': [255, 0, 0],
+        'green': [0, 255, 0],
+        'blue': [0, 0, 255],
+        'black': [0, 0, 0]
+    };
+    newColor.rgb.red = colors[color][0];
+    newColor.rgb.green = colors[color][1];
+    newColor.rgb.blue = colors[color][2];
+    this.textItem.color = newColor;
+}
+}
+
+
 function readJSONFile(filepath) {
     var file = new File(filepath);
     if (file.exists) {

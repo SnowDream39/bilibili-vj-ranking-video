@@ -16,6 +16,14 @@ for (var i = 0; i < videoClips.numItems; i++) {
     var bvid = videoClip.name.substring(0, 12);
     var inPoint = videoClip.getInPoint().ticks;
     var outPoint = videoClip.getOutPoint().ticks;
+    if ( Number(outPoint) > Number(inPoint) + mainSeconds * ticks){
+        if (Number(inPoint) === 0) {
+            inPoint = String(Number(outPoint) - mainSeconds * ticks);
+        } else {
+            outPoint = String(Number(inPoint) + mainSeconds * ticks);
+        }
+
+    } 
     var found = false;
     for (var j = 0; j < clipPoints.length; j++) {
         if (bvid === clipPoints[j].bvid) {

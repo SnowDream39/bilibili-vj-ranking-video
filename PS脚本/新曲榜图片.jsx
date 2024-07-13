@@ -38,28 +38,34 @@ function newImages() {
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                layers.getByName("作者").textItem.contents = songData.author;
+                var authorLayer = new MyTextLayer(layers.getByName("作者"));
+                if (songData.author_language === "Korean") {
+                    var font = "MalgunGothicBold";
+                } else {
+                    var font = "MicrosoftYaHei-Bold";
+                }
+                authorLayer.setFormattedText(songData.author, 36, font);
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
-                var copyrightLayer = layers.getByName("copyright");
+                var copyrightLayer = new MyTextLayer(layers.getByName("copyright"));
                 if (songData.copyright == 1){
                     copyrightLayer.textItem.contents = "本家投稿";
                 } else {
                     copyrightLayer.textItem.contents = "搬运：" + songData.uploader;
                 }
-                resizeText(copyrightLayer, 250);
+                copyrightLayer.resizeText(250);
 
-                titleLayer = layers.getByName("标题")
+                var titleLayer = new MyTextLayer(layers.getByName("标题"));
                 titleLayer.textItem.contents = songData.title;
+                titleLayer.resizeText(1380);
 
                 $.writeln('完成新曲榜第' + (i+1) + "张图片");
-                resizeText(titleLayer, 1380);
                 savePic(doc, currentFolder + '新曲榜图片\\' + (i+1) + ".png");
 
             }
 
-            doc.close(SaveOptions.SAVECHANGES);
+            // doc.close(SaveOptions.SAVECHANGES);
         } else {
             $.writeln("读取 JSON 数据时出错");
         }

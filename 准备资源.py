@@ -188,7 +188,26 @@ async def download_thumbnail_special(bvid):
         print("图片下载失败，状态码：", response.status_code)
         exit()
 
-# 读取基本配置
+def detect_language(character):
+    code = ord(character)
+    if (0x4E00 <= code <= 0x9FFF) or (0x3400 <= code <= 0x4DBF):
+        return "Chinese"
+    elif (0xAC00 <= code <= 0xD7AF) or (0x1100 <= code <= 0x11FF) or (0x3130 <= code <= 0x318F):
+        return "Korean"
+    elif (0x3040 <= code <= 0x309F) or (0x30A0 <= code <= 0x30FF) or (0xFF00 <= code <= 0xFFEF):
+        return "Japanese"
+    elif (0x0041 <= code <= 0x005A) or (0x0061 <= code <= 0x007A):
+        return "English"
+    else:
+        return "Other"
+    
+today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
+    days=1
+)
+date = today.strftime("%Y.%m.%d")
+metadata = {"date": date}
+
+# 读取配置
 
 with open('基本配置.yaml', 'r', encoding='utf-8') as file:
     settings = yaml.safe_load(file)
@@ -196,17 +215,15 @@ with open('基本配置.yaml', 'r', encoding='utf-8') as file:
     extend = settings['extend']
     new = settings['new']
 
-today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
-    days=1
-)
-metadata = {"date": today.strftime("%Y.%m.%d")}
+with open('每日配置.yaml','r',encoding='utf-8') as file:
+    daily_preference = yaml.safe_load(file)[date]
 
 # 副榜BGM
 with open("BGM/副榜.yaml", 'r', encoding='utf-8') as file:
     bgm_data = yaml.safe_load(file)
 source_folder = r"D:\Music\VOCALOID传说曲"
-source_file =  bgm_data[metadata['date']]['filename'] + ".mp3"
-metadata['ED_title'] = bgm_data[metadata['date']]['title']
+source_file =  daily_preference['ED_filename'] + ".mp3"
+metadata['ED_title'] = daily_preference['ED_title']
 source_path = os.path.join(source_folder, source_file)
 destination_file = "BGM/副榜.mp3"
 destination_path = os.path.join(os.getcwd(), destination_file)
@@ -256,9 +273,6 @@ pics = {bvid: filename for bvid, filename in zip(pics_bvid, pics_filename)}
 
 download_list = []
 
-
-
-
 # 增删本地视频
 
 today_videos = []
@@ -266,11 +280,12 @@ for i in range(contain):
     bvid = songs_data_today.at[i, "bvid"]
     today_videos.append(bvid)
 file_path = f"视频/{(today - timedelta(days=2)).strftime('%Y%m%d')}下载视频.json"
-with open(file_path,'r') as file:
-    old_videos = json.load(file)
-for old_video in old_videos:
-    if old_video not in today_videos and os.path.exists(f"视频/{old_video}.mp4"):
-        os.remove(f"视频/{old_video}.mp4")
+if os.path.exists(file_path):
+    with open(file_path,'r') as file:
+        old_videos = json.load(file)
+    for old_video in old_videos:
+        if old_video not in today_videos and os.path.exists(f"视频/{old_video}.mp4"):
+            os.remove(f"视频/{old_video}.mp4")
 
 
 
@@ -280,6 +295,7 @@ for i in range(new):
     bvid = songs_data_new.at[i, "bvid"]
     if bvid + ".mp4" not in downloaded_videos:
         asyncio.get_event_loop().run_until_complete(download_video(bvid))
+        downloaded_videos.append(bvid + '.mp4')
         download_list.append(bvid)
 
 # 总榜
@@ -295,12 +311,13 @@ for i in range(extend):
     if bvid not in pics.keys():
         asyncio.get_event_loop().run_until_complete(download_thumbnail(bvid))
 
-# 最高新曲封面图片
-bvid = songs_data_today[songs_data_today["change"] == "new"].iloc[0]["bvid"]
-metadata["cover_thumbnail"] = bvid + ".png"
+# 封面图片
+bvid = daily_preference.get("thumbnail", songs_data_new.at[0,'bvid'])
+metadata["thumbnail"] = bvid + ".png"
 asyncio.get_event_loop().run_until_complete(download_thumbnail_special(bvid))
 
 if download_list:
+    file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"
     with open(file_path, "a") as file:
         json.dump(download_list, file, indent=4)
 
@@ -309,8 +326,25 @@ with open("基本信息数据.json", "w", encoding="utf-8") as file:
 
 print("现在清您去截取片段")
 
-insert_clip_points(songs_data_new, clip_points, new)
-insert_clip_points(songs_data_today, clip_points, contain)
+# 判断语言
+songs_data_new['author_language'] = 'default'
+for i in songs_data_new.index:
+    author = songs_data_new.at[i,'author']
+    for character in author:
+        if detect_language(character) == 'Korean':
+            songs_data_new.at[i,'author_language'] = 'Korean'
+            break
+
+songs_data_today['author_language'] = 'default'
+for i in songs_data_today.index:
+    author = songs_data_today.at[i,'author']
+    for character in author:
+        if detect_language(character) == 'Korean':
+            songs_data_today.at[i,'author_language'] = 'Korean'
+            break
+
+        
+
 
 songs_data_today.to_json("数据.json", force_ascii=False, orient="records", indent=4)
 songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)

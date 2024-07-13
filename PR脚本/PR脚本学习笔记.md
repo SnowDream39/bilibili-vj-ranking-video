@@ -56,3 +56,23 @@
     1. （旁路）
     2. 级别
 2. Internal Channel Volume Stereo
+
+## 诸多入点出点的区别
+
+### projectItem.getInPoint() / projectItem.getOutPoint()
+
+这是原视频的入点出点。也就是通过源监视器手动打的入点出点。
+
+`.getInPoint()`返回`time`对象，`.setOutPoint()`使用`ticks`。
+
+### trackItem.inPoint / trackItem.outPoint
+
+这是时间轴当中`clip`的内置入点和出点，关系到效果控件中的关键帧。这个时间流速正常，但是时间点和其他时间不同，具体怎么回事我还不清楚。
+
+两个都是时间对象，且可以直接读写。但是注意不要直接用`trackItem.outPoint.seconds += 3;`这样的方法，应该用新的时间对象来赋值。
+
+### trackItem.start / trackItem.end
+
+这是`clip`在时间轴上的开始和结束时间。关键帧的设置可以在这个范围之外。
+
+两个都是时间对象，同上。

@@ -83,7 +83,9 @@ function mainImages() {
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                layers.getByName("作者").textItem.contents = songData.author;
+                var authorText = layers.getByName("作者").textItem;
+                authorText.contents = songData.author;
+                authorText.font = "MicrosoftYaHei-Bold";
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
