@@ -1,15 +1,5 @@
 #include 'ps.jsx'
 
-function fillData(songData, layers, keys) {
-    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
-    layers.getByName("修正").textItem.contents = '×' + songData[keys[1]].toFixed(2);
-    layers.getByName("位次").textItem.contents = songData[keys[2]] + '位';
-    if (songData[keys[2]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
-        setColor(layers.getByName("位次").textItem, 'red');
-    } else {
-        setColor(layers.getByName("位次").textItem, 'black');
-    }
-}
 
 function newImages() {
     var fileRef = new File(currentFolder + "新曲榜图片\\新曲榜样式1.psd");
@@ -38,13 +28,10 @@ function newImages() {
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                var authorLayer = new MyTextLayer(layers.getByName("作者"));
-                if (songData.author_language === "Korean") {
-                    var font = "MalgunGothicBold";
-                } else {
-                    var font = "MicrosoftYaHei-Bold";
-                }
-                authorLayer.setFormattedText(songData.author, 36, font);
+                var otherInfoLayer = layers.getByName("其他信息");
+                var otherInfo = songData.author + " | 引擎：" + songData.synthesizer + " | 歌手：" + songData.vocal;
+                setFormattedText(textLayer = otherInfoLayer, contents = otherInfo, size = 36, font = "MicrosoftYaHei-Bold");
+                resizeText(otherInfoLayer, 1380);
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
@@ -65,7 +52,7 @@ function newImages() {
 
             }
 
-            // doc.close(SaveOptions.SAVECHANGES);
+            doc.close(SaveOptions.SAVECHANGES);
         } else {
             $.writeln("读取 JSON 数据时出错");
         }

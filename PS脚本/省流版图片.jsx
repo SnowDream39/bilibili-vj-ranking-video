@@ -1,25 +1,5 @@
 #include 'ps.jsx'
 
-function fillData(songData, layers, keys) {
-    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
-    layers.getByName("修正").textItem.contents = '×' + songData[keys[1]].toFixed(2);
-    layers.getByName("位次").textItem.contents = songData[keys[2]] + '位';
-    if (songData[keys[2]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
-        setColor(layers.getByName("位次").textItem, 'red');
-    } else {
-        setColor(layers.getByName("位次").textItem, 'black');
-    }
-}
-
-function fillDataExtend(songData, layers, keys) {
-    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
-    layers.getByName("位次").textItem.contents = songData[keys[1]] + '位';
-    if (songData[keys[1]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
-        setColor(layers.getByName("位次").textItem, 'red');
-    } else {
-        setColor(layers.getByName("位次").textItem, 'black');
-    }
-}
 
 function quickImages() {
     var fileRef = new File(currentFolder + "省流版图片\\竖屏版样式1.psd");
@@ -141,9 +121,14 @@ function quickImages() {
                     fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                     fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                    var authorLayer = layers.getByName("作者");
-                    authorLayer.textItem.contents = songData.author;
-                    resizeText(authorLayer, 300);
+                    var authorLayer = new MyTextLayer(layers.getByName("作者"));
+                    if (songData.author_language === "Korean") {
+                        var font = "MalgunGothicBold";
+                    } else {
+                        var font = "MicrosoftYaHei-Bold";
+                    }
+                    authorLayer.setFormattedText(songData.author, 36, font);
+                    authorLayer.resizeText(300);
                     layers.getByName("BV号").textItem.contents = songData.bvid;
                     layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
 

@@ -7,7 +7,7 @@ var extend = 100;
 // 自定义的对象
 function MyTextLayer(textLayer) {
     this.textLayer = textLayer;
-    this.textItem = textLayer.textItem;  // 简化访问，存储 textItem
+    this.textItem = textLayer.textItem; // 简化访问，存储 textItem
 
     this.setFormattedText = function(contents, size, font) {
         if (contents !== undefined) {
@@ -32,18 +32,18 @@ function MyTextLayer(textLayer) {
     };
 
     this.setColor = function(color) {
-    var newColor = new SolidColor();
-    var colors = {
-        'red': [255, 0, 0],
-        'green': [0, 255, 0],
-        'blue': [0, 0, 255],
-        'black': [0, 0, 0]
-    };
-    newColor.rgb.red = colors[color][0];
-    newColor.rgb.green = colors[color][1];
-    newColor.rgb.blue = colors[color][2];
-    this.textItem.color = newColor;
-}
+        var newColor = new SolidColor();
+        var colors = {
+            'red': [255, 0, 0],
+            'green': [0, 255, 0],
+            'blue': [0, 0, 255],
+            'black': [0, 0, 0]
+        };
+        newColor.rgb.red = colors[color][0];
+        newColor.rgb.green = colors[color][1];
+        newColor.rgb.blue = colors[color][2];
+        this.textItem.color = newColor;
+    }
 }
 
 
@@ -102,7 +102,6 @@ function movePosition(layer, x, y) {
 }
 
 function importImage(filePath, name, layers, relativeObject, insertionLocation, size, position) {
-    $.writeln('现在准备导入',name)
     var file = new File(filePath);
     if (file.exists) {
         // 检查当前文档是否存在
@@ -116,7 +115,6 @@ function importImage(filePath, name, layers, relativeObject, insertionLocation, 
         for (var j = 0; j < layers.length; j++) {
             if (layers[j].name == name) {
                 layers[j].remove();
-                $.writeln("成功移除",name);
                 break; // 找到后移除一次即可跳出循环
             }
         }
@@ -173,4 +171,49 @@ function setColor(textItem, color) {
     newColor.rgb.green = colors[color][1];
     newColor.rgb.blue = colors[color][2];
     textItem.color = newColor;
+}
+
+function fillDataExtend(songData, layers, keys) {
+    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
+    layers.getByName("位次").textItem.contents = songData[keys[1]] + '位';
+    if (songData[keys[1]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
+        setColor(layers.getByName("位次").textItem, 'red');
+    } else {
+        setColor(layers.getByName("位次").textItem, 'black');
+    }
+}
+
+function fillData(songData, layers, keys) {
+    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
+    layers.getByName("修正").textItem.contents = '×' + songData[keys[1]].toFixed(2);
+    if (
+        (keys[0] === 'view' && songData[keys[1]] < 1) ||
+        (keys[0] === 'favorite' && songData[keys[1]] < 10) ||
+        (keys[0] === 'coin' && songData[keys[1]] < 20) ||
+        (keys[0] === 'like' && songData[keys[1]] < 2)
+    ) {
+        $.writeln("blue");
+        setColor(layers.getByName("修正").textItem, 'blue');
+    } else {
+        $.writeln("black");
+        setColor(layers.getByName("修正").textItem, 'black');
+    }
+    layers.getByName("位次").textItem.contents = songData[keys[2]] + '位';
+    if (songData[keys[2]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
+        setColor(layers.getByName("位次").textItem, 'red');
+    } else {
+        setColor(layers.getByName("位次").textItem, 'black');
+    }
+}
+
+function setFormattedText(textLayer, contents, size, font) {
+    if (contents !== undefined) {
+        textLayer.textItem.contents = contents;
+    }
+    if (size !== undefined) {
+        textLayer.textItem.size = size;
+    }
+    if (font !== undefined) {
+        textLayer.textItem.font = font;
+    }
 }

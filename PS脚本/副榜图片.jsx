@@ -1,14 +1,5 @@
 #include 'ps.jsx'
 
-function fillDataExtend(songData, layers, keys) {
-    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
-    layers.getByName("位次").textItem.contents = songData[keys[1]] + '位';
-    if (songData[keys[1]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
-        setColor(layers.getByName("位次").textItem, 'red');
-    } else {
-        setColor(layers.getByName("位次").textItem, 'black');
-    }
-}
 
 
 function extendImages() {

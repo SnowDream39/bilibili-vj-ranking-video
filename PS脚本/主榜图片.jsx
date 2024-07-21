@@ -1,15 +1,5 @@
 #include 'ps.jsx'
 
-function fillData(songData, layers, keys) {
-    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
-    layers.getByName("修正").textItem.contents = '×' + songData[keys[1]].toFixed(2);
-    layers.getByName("位次").textItem.contents = songData[keys[2]] + '位';
-    if (songData[keys[2]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
-        setColor(layers.getByName("位次").textItem, 'red');
-    } else {
-        setColor(layers.getByName("位次").textItem, 'black');
-    }
-}
 
 function mainImages() {
     var fileRef = new File(currentFolder + "主榜图片\\主榜样式1.psd");
@@ -54,7 +44,7 @@ function mainImages() {
                         var positionFix = [-13, 0];
                     } else if (songData.change == "down") {
                         var filePath = currentFolder + "其他图片\\小部件\\down.png";
-                        var positionFix = [0, -13];
+                        var positionFix = [0, -16];
                     }
 
                     if (songData.point_before == 0) {
@@ -83,25 +73,26 @@ function mainImages() {
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                var authorText = layers.getByName("作者").textItem;
-                authorText.contents = songData.author;
-                authorText.font = "MicrosoftYaHei-Bold";
+                var otherInfoLayer = layers.getByName("其他信息");
+                var otherInfo = songData.author + " | 引擎：" + songData.synthesizer + " | 歌手：" + songData.vocal;
+                setFormattedText(textLayer = otherInfoLayer, contents = otherInfo, size = 36, font = "MicrosoftYaHei-Bold");
+                resizeText(otherInfoLayer, 1380);
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
                 var copyrightLayer = layers.getByName("copyright");
-                if (songData.copyright == 1){
+                if (songData.copyright == 1) {
                     copyrightLayer.textItem.contents = "本家投稿";
                 } else {
                     copyrightLayer.textItem.contents = "搬运：" + songData.uploader;
                 }
                 resizeText(copyrightLayer, 250);
-                titleLayer = layers.getByName("标题")
+                titleLayer = layers.getByName("标题");
                 titleLayer.textItem.contents = songData.title;
-
+                resizeText(titleLayer, 1380);
 
                 $.writeln('完成第' + i + "张图片");
-                resizeText(titleLayer, 1380);
+
                 savePic(doc, currentFolder + '主榜图片\\' + (i + 1) + ".png");
             }
 
