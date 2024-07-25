@@ -97,10 +97,8 @@ function extendImages() {
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
 
-                titleLayer = layers.getByName("标题")
-                titleLayer.textItem.contents = songData.title;
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=48, font = "SourceHanSansCN-Regular", width = 1200);
                 $.writeln('完成第' + (i + 1) + "位");
-                resizeText(titleLayer, 1200);
                 if (i % 4 == 3) {
                     savePic(doc, currentFolder + '副榜图片\\' + (i - 19) / 4 + ".png");
                 }

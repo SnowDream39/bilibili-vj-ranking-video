@@ -124,5 +124,5 @@ for (var i = 0; i < clips.numItems; i++) {
     var clip = clips[i];
     audioFadeout(clip, 1);
 }
-
+project.save();
 

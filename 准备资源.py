@@ -6,6 +6,7 @@ from bilibili_api import video, Credential, HEADERS, sync
 import requests
 from PIL import Image
 from io import BytesIO
+import aiohttp
 import httpx
 import yaml
 import os
@@ -35,17 +36,13 @@ except:
 
 async def download_url(url: str, out: str, info: str):
     # 下载函数
-    async with httpx.AsyncClient(headers=HEADERS) as sess:
+    async with httpx.AsyncClient(headers=HEADERS, verify=False) as sess:
         resp = await sess.get(url)
-        length = resp.headers.get("content-length")
-        with open(out, "wb") as f:
+        length = resp.headers.get('content-length')
+        with open(out, 'wb') as f:
             process = 0
+            print(f'{info} {length}')
             for chunk in resp.iter_bytes(1024):
-                if not chunk:
-                    break
-
-                process += len(chunk)
-                print(f"下载 {info} {process} / {length}")
                 f.write(chunk)
 
 
@@ -205,6 +202,16 @@ def detect_language(character):
         return "Other"
 
 
+def delete_videos(days):
+    file_path = f"视频/{(today - timedelta(days=2)).strftime('%Y%m%d')}下载视频.json"
+    if os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            old_videos = json.load(file)
+        for old_video in old_videos:
+            if old_video not in today_videos and os.path.exists(f"视频/{old_video}.mp4"):
+                os.remove(f"视频/{old_video}.mp4")
+
+
 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
     days=1
 )
@@ -276,10 +283,13 @@ pics = {bvid: filename for bvid, filename in zip(pics_bvid, pics_filename)}
 # 加入其他数据
 insert_before(songs_data_today, songs_data_before)
 
-# 判断语言
+# 判断语言，目前暂时不用
+songs_data_new["author_language"] = "Chinese"
+songs_data_today["author_language"] = "Chinese"
+'''
 songs_data_new["author_language"] = "default"
 for i in songs_data_new.index:
-    author = songs_data_new.at[i, "author"]
+    author = str(songs_data_new.at[i, "author"])
     for character in author:
         if detect_language(character) == "Korean":
             songs_data_new.at[i, "author_language"] = "Korean"
@@ -292,7 +302,7 @@ for i in songs_data_today.index:
         if detect_language(character) == "Korean":
             songs_data_today.at[i, "author_language"] = "Korean"
             break
-
+'''
 # 下载封面
 for i in range(extend):
     bvid = songs_data_today.at[i, "bvid"]
@@ -316,13 +326,10 @@ today_videos = []
 for i in range(contain):
     bvid = songs_data_today.at[i, "bvid"]
     today_videos.append(bvid)
-file_path = f"视频/{(today - timedelta(days=2)).strftime('%Y%m%d')}下载视频.json"
-if os.path.exists(file_path):
-    with open(file_path, "r") as file:
-        old_videos = json.load(file)
-    for old_video in old_videos:
-        if old_video not in today_videos and os.path.exists(f"视频/{old_video}.mp4"):
-            os.remove(f"视频/{old_video}.mp4")
+delete_videos(2)
+delete_videos(20)
+
+
 
 # 关于新曲的文件
 file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"
@@ -336,16 +343,14 @@ else:
 insert_clip_points(songs_data_new, clip_points, new)
 for i in range(new):
     bvid = songs_data_new.at[i, "bvid"]
-    if bvid + ".mp4" not in downloaded_videos:
-        downloaded_videos.append(bvid + ".mp4")
+    if bvid + ".mp4" not in downloaded_videos and bvid  not in download_list:
         download_list.append(bvid)
 
 # 找下载主榜视频
 insert_clip_points(songs_data_today, clip_points, contain)
 for i in range(contain):
     bvid = songs_data_today.at[i, "bvid"]
-    if bvid + ".mp4" not in downloaded_videos:
-        downloaded_videos.append(bvid + ".mp4")
+    if bvid + ".mp4" not in downloaded_videos and bvid  not in download_list:
         download_list.append(bvid)
 
 file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"
@@ -354,7 +359,9 @@ with open(file_path, "w") as file:
 
 total = len(download_list)
 for i in range(total):
-    asyncio.get_event_loop().run_until_complete(download_video(download_list[i]))
-    print(f"下载进度：{i+1}/{total}")
+    bvid = download_list[i]
+    if bvid + ".mp4" not in downloaded_videos:
+        asyncio.get_event_loop().run_until_complete(download_video(bvid=bvid))
+        print(f"下载进度：{i+1}/{total}")
 
 print("现在清您去截取片段")

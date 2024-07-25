@@ -8,4 +8,6 @@
 #include '主榜图片.jsx'
 #include '副榜图片.jsx'
 #include '省流版图片.jsx'
+#include '封面.jsx'
+#include '封面上传.jsx'
 #include '省流版封面上传.jsx'

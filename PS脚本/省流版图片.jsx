@@ -101,12 +101,9 @@ function quickImages() {
                 // layers.getByName("作者").textItem.contents = songData.author;
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
-
-                titleLayer = layers.getByName("标题")
-                titleLayer.textItem.contents = songData.title;
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=36, font = "SourceHanSansCN-Regular", width = 950);
                 $.writeln('完成第' + (i + 1) + "位");
-                titleLayer.textItem.horizontalScale = 90;
-                resizeText(titleLayer, 950);
+
                 
 
                 if (i % 4 == 3) {
@@ -121,22 +118,13 @@ function quickImages() {
                     fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                     fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                    var authorLayer = new MyTextLayer(layers.getByName("作者"));
-                    if (songData.author_language === "Korean") {
-                        var font = "MalgunGothicBold";
-                    } else {
-                        var font = "MicrosoftYaHei-Bold";
-                    }
-                    authorLayer.setFormattedText(songData.author, 36, font);
-                    authorLayer.resizeText(300);
+                    var otherInfoLayer = layers.getByName("其他信息");
+                    var otherInfo = songData.author + " | 引擎：" + songData.synthesizer + " | 歌手：" + songData.vocal;
+                    setFormattedText(textLayer = otherInfoLayer, contents = otherInfo, size = 30, font = "MicrosoftYaHei-Bold", width=950);
                     layers.getByName("BV号").textItem.contents = songData.bvid;
                     layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
-
-                    titleLayer = layers.getByName("标题")
-                    titleLayer.textItem.contents = songData.title;
-
+                    setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=36, font = "SourceHanSansCN-Regular", width = 950);
                     $.writeln('完成新曲榜第' + (i + 1) + "张图片");
-                    resizeText(titleLayer, 950);
                     savePic(doc, currentFolder + '省流版图片\\' + ((i + 1) / 4) + ".png");
                 }
 

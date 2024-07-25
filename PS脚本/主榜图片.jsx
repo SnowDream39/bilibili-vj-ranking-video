@@ -87,9 +87,7 @@ function mainImages() {
                     copyrightLayer.textItem.contents = "搬运：" + songData.uploader;
                 }
                 resizeText(copyrightLayer, 250);
-                titleLayer = layers.getByName("标题");
-                titleLayer.textItem.contents = songData.title;
-                resizeText(titleLayer, 1380);
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title,size = 48,  font = "SourceHanSansCN-Regular", width = 1380);
 
                 $.writeln('完成第' + i + "张图片");
 

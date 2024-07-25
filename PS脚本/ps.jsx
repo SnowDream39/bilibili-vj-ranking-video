@@ -4,7 +4,7 @@ var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
 var extend = 100;
 
-// 自定义的对象
+// 自定义的对象，已弃用
 function MyTextLayer(textLayer) {
     this.textLayer = textLayer;
     this.textItem = textLayer.textItem; // 简化访问，存储 textItem
@@ -206,14 +206,18 @@ function fillData(songData, layers, keys) {
     }
 }
 
-function setFormattedText(textLayer, contents, size, font) {
+function setFormattedText(textLayer, contents, size, font, width) {
     if (contents !== undefined) {
         textLayer.textItem.contents = contents;
+    }
+    if (font !== undefined) {
+        textLayer.textItem.font = font;
     }
     if (size !== undefined) {
         textLayer.textItem.size = size;
     }
-    if (font !== undefined) {
-        textLayer.textItem.font = font;
+
+    if (width !== undefined) {
+        resizeText(textLayer, width);
     }
 }

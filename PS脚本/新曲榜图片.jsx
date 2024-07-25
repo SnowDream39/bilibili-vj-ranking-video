@@ -30,7 +30,7 @@ function newImages() {
 
                 var otherInfoLayer = layers.getByName("其他信息");
                 var otherInfo = songData.author + " | 引擎：" + songData.synthesizer + " | 歌手：" + songData.vocal;
-                setFormattedText(textLayer = otherInfoLayer, contents = otherInfo, size = 36, font = "MicrosoftYaHei-Bold");
+                setFormattedText(textLayer = otherInfoLayer, contents = otherInfo, size = 36, font = "MicrosoftYaHei-Bold", width=1380);
                 resizeText(otherInfoLayer, 1380);
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
@@ -42,10 +42,8 @@ function newImages() {
                     copyrightLayer.textItem.contents = "搬运：" + songData.uploader;
                 }
                 copyrightLayer.resizeText(250);
-
-                var titleLayer = new MyTextLayer(layers.getByName("标题"));
-                titleLayer.textItem.contents = songData.title;
-                titleLayer.resizeText(1380);
+                var titleLayer = layers.getByName("标题");
+                setFormattedText(textLayer = titleLayer, contents = songData.title, size = 48, font = "SourceHanSansCN-Regular", width=1380);
 
                 $.writeln('完成新曲榜第' + (i+1) + "张图片");
                 savePic(doc, currentFolder + '新曲榜图片\\' + (i+1) + ".png");
