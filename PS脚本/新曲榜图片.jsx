@@ -2,7 +2,7 @@
 
 
 function newImages() {
-    var fileRef = new File(currentFolder + "新曲榜图片\\新曲榜样式1.psd");
+    var fileRef = new File(currentFolder + "新曲榜图片\\新曲榜样式2.psd");
     if (fileRef.exists) {
         app.open(fileRef);
     } else {
@@ -28,26 +28,23 @@ function newImages() {
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                var otherInfoLayer = layers.getByName("其他信息");
-                var otherInfo = songData.author + " | 引擎：" + songData.synthesizer + " | 歌手：" + songData.vocal;
-                setFormattedText(textLayer = otherInfoLayer, contents = otherInfo, size = 36, font = "MicrosoftYaHei-Bold", width=1380);
-                resizeText(otherInfoLayer, 1380);
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 60, font = "SourceHanSansSC-Bold", width=1330);
+                setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansSC-Bold", width=650);
+                setFormattedText(textLayer = layers.getByName("歌手"), contents = songData.vocal, size = 36, font = "SourceHanSansCN-Bold", width=650);
+                setFormattedText(textLayer = layers.getByName("引擎"), contents = songData.synthesizer, size = 36, font = "SourceHanSansCN-Bold", width=650);
+
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
-                var copyrightLayer = new MyTextLayer(layers.getByName("copyright"));
-                if (songData.copyright == 1){
-                    copyrightLayer.textItem.contents = "本家投稿";
+                if (songData.copyright === 1){
+                    var contents = "本家投稿";
                 } else {
-                    copyrightLayer.textItem.contents = "搬运：" + songData.uploader;
+                    var contents = "搬运：" + songData.uploader;
                 }
-                copyrightLayer.resizeText(250);
-                var titleLayer = layers.getByName("标题");
-                setFormattedText(textLayer = titleLayer, contents = songData.title, size = 48, font = "SourceHanSansCN-Regular", width=1380);
+                setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=350);
 
                 $.writeln('完成新曲榜第' + (i+1) + "张图片");
                 savePic(doc, currentFolder + '新曲榜图片\\' + (i+1) + ".png");
-
             }
 
             doc.close(SaveOptions.SAVECHANGES);

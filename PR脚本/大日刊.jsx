@@ -36,7 +36,7 @@ var videoTime = new Time();
 var audioTime = new Time();
 
 // 开头
-var openingImages = ["封面.png", "规则1.png", "规则2.png", "规则3.png", "新曲榜.png"];
+var openingImages = ["16比9封面.png", "规则1.png", "规则2.png", "规则3.png", "新曲榜.png"];
 var openingLength = [3, 5, 5, 5, 3];
 
 for (var i = 0; i < openingImages.length; i++) {
@@ -115,7 +115,7 @@ project.save();
 var clips = videoTrack.clips;
 for (var i = 0; i < clips.numItems; i++) {
     var clip = clips[i];
-    videoSizeFit(clip, [1440, 810], [0.3875, 0.3965]);
+    videoSizeFit(clip, [1347.8, 758.2], [0.3802, 0.3991]);
 }
 
 // 音频关键帧处理

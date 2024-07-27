@@ -173,3 +173,4 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
     project.save();
     return videoTime;
 }
+

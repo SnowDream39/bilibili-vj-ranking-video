@@ -38,7 +38,7 @@ audioTime.ticks = videoTime.ticks;
 var clips = videoTrack.clips;
 for (var i = 0; i < clips.numItems; i++) {
     var clip = clips[i];
-    videoSizeFit(clip, [1080, 607.5], [0.5, 0.2745]);
+    videoSizeFit(clip, [1080, 607.5], [0.5, 0.2245]);
 }
 
 // 音频关键帧处理

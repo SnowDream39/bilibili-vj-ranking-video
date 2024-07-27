@@ -3,22 +3,16 @@
 
 
 function extendImages() {
-    var fileRef = new File(currentFolder + "副榜图片\\副榜样式1.psd")
+    var fileRef = new File(currentFolder + "副榜图片\\副榜样式2.psd")
     app.open(fileRef);
 
     if (app.documents.length > 0) {
         var doc = app.activeDocument;
         var thumbPositions = [
-            [25, 23],
-            [25, 296],
-            [25, 567],
-            [25, 838]
-        ];
-        var changePositions = [
-            [492, 45],
-            [492, 318],
-            [492, 587],
-            [492, 860]
+            [125, 38],
+            [125, 305],
+            [125, 572],
+            [125, 838]
         ];
         var dataToday = readJSONFile(currentFolder + "数据.json");
 
@@ -30,8 +24,8 @@ function extendImages() {
                 var songData = dataToday[i];
                 var layers = doc.layers[i % 4].layers;
 
-                layers.getByName("排名").textItem.contents = String(i + 1);
-                layers.getByName("得分").textItem.contents = comma(songData.point) + ' pts';
+                layers.getByName("排名").textItem.contents = songData.rank;
+                layers.getByName("得分").textItem.contents = comma(songData.point);
 
                 // 导入封面
 
@@ -43,26 +37,25 @@ function extendImages() {
                 var thumbnailLayer = importImage(filePath, "封面", layers, relativeObject, insertionLocation, size, position);
 
                 // 导入变化数据
+
+                var changeLayers = layers.getByName("变化").layers;
+                changeLayers.getByName("变化平").visible = false;
+                changeLayers.getByName("变化升").visible = false;
+                changeLayers.getByName("变化降").visible = false;
                 if (songData.change == "new") {
                     layers.getByName("前日排名").textItem.contents = "";
                     layers.getByName("前日").visible = false;
                     layers.getByName("new").visible = true;
-
-                    var filePath = currentFolder + "其他图片\\小部件\\up.png";
-                    var positionFix = [0, -18];
+                    changeLayers.getByName("变化升").visible = true;
                 } else {
                     layers.getByName("前日").visible = true;
                     layers.getByName("new").visible = false;
-
                     if (songData.change == "up") {
-                        var filePath = currentFolder + "其他图片\\小部件\\up.png";
-                        var positionFix = [0, -18];
+                        changeLayers.getByName("变化升").visible = true;
                     } else if (songData.change == "cont") {
-                        var filePath = currentFolder + "其他图片\\小部件\\cont.png";
-                        var positionFix = [-14, 0];
+                        changeLayers.getByName("变化平").visible = true;
                     } else if (songData.change == "down") {
-                        var filePath = currentFolder + "其他图片\\小部件\\down.png";
-                        var positionFix = [0, -18];
+                        changeLayers.getByName("变化降").visible = true;
                     }
 
                     if (songData.point_before == 0) {
@@ -71,20 +64,6 @@ function extendImages() {
                         layers.getByName("前日排名").textItem.contents = songData.rank_before;
                     }
                 }
-
-                // 导入变化指示
-
-                var position = changePositions[i % 4];
-                var relativeObject = layers.getByName("new");
-                var insertionLocation = ElementPlacement.PLACEBEFORE;
-                var name = "变化";
-                var size = [31.6, 31.6]
-                var x = position[0] + positionFix[0];
-                var y = position[1] + positionFix[1];
-                var position = [x, y];
-
-                importImage(filePath, "变化", layers, relativeObject, insertionLocation, size, position);
-
 
                 // var dataItems = ['播放', '收藏', '硬币', '点赞'];
 
@@ -97,7 +76,7 @@ function extendImages() {
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
 
-                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=48, font = "SourceHanSansCN-Regular", width = 1200);
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=42.82, font = "SourceHanSansCN-Bold", width = 1100);
                 $.writeln('完成第' + (i + 1) + "位");
                 if (i % 4 == 3) {
                     savePic(doc, currentFolder + '副榜图片\\' + (i - 19) / 4 + ".png");

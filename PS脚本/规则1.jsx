@@ -11,13 +11,11 @@ function rule1() {
 
         // 确保读取的 JSON 数据有效
         if (metadata) {
-            layers.getByName("作者").textItem.contents = metadata.OP_author;
-            var titleLayer = layers.getByName("标题")
-            titleLayer.textItem.contents = metadata.OP_title;
-            resizeText(titleLayer, 1100);
+            setFormattedText(textLayer = layers.getByName("标题"), contents = metadata.OP_title, size = 48, font = "SourceHanSansSC-Bold", width=1000);
+            setFormattedText(textLayer = layers.getByName("作者"), contents = metadata.OP_author, size = 48, font = "SourceHanSansSC-Regular", width=1000);
 
             var position = [217, 206];
-            var size = [100, 100];
+            var size = [117, 117];
             var relativeObject = layers.getByName("作者");
             var insertionLocation = ElementPlacement.PLACEBEFORE;
             var thumbLayer = importImage(currentFolder + '封面\\' + metadata.OP_bvid + '.png', "封面", layers, relativeObject, insertionLocation, size, position);

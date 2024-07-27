@@ -12,6 +12,7 @@ function extendTitle() {
 
         // 确保读取的 JSON 数据有效
         if (metadata) {
+            setFormattedText(textLayer = layers.getByName("BGM"), contents = metadata.ED_title, size = undefined, font = "SourceHanSansSC-Bold", width=1200);
             layers.getByName("BGM").textItem.contents = "BGM：" + metadata.ED_title;
             savePic(doc, currentFolder + '其他图片\\副榜.png');
             doc.close(SaveOptions.SAVECHANGES);

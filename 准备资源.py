@@ -6,7 +6,6 @@ from bilibili_api import video, Credential, HEADERS, sync
 import requests
 from PIL import Image
 from io import BytesIO
-import aiohttp
 import httpx
 import yaml
 import os
@@ -38,10 +37,10 @@ async def download_url(url: str, out: str, info: str):
     # 下载函数
     async with httpx.AsyncClient(headers=HEADERS, verify=False) as sess:
         resp = await sess.get(url)
-        length = resp.headers.get('content-length')
-        with open(out, 'wb') as f:
+        length = resp.headers.get("content-length")
+        with open(out, "wb") as f:
             process = 0
-            print(f'{info} {length}')
+            print(f"{info} {length}")
             for chunk in resp.iter_bytes(1024):
                 f.write(chunk)
 
@@ -146,7 +145,7 @@ async def download_thumbnail(bvid):
         right = image.width
 
     cropped_image = image.crop((left, top, right, bottom))
-    resized_image = cropped_image.resize((391, 220))
+    resized_image = cropped_image.resize((352, 199))
 
     resized_image.save("封面/" + bvid + ".png", "PNG")
     print("已保存：", bvid)
@@ -160,6 +159,8 @@ async def download_thumbnail_special(bvid):
     response = requests.get(image_url)
     if response.status_code == 200:
         image = Image.open(BytesIO(response.content))
+
+        # 4比3裁剪
         if image.width / image.height > 4 / 3:
             left = image.width / 2 - image.height / 3 * 2
             right = image.width / 2 + image.height / 3 * 2
@@ -172,9 +173,26 @@ async def download_thumbnail_special(bvid):
             right = image.width
 
         cropped_image = image.crop((left, top, right, bottom))
-        resized_image = cropped_image.resize((800, 600))
+        resized_image = cropped_image.resize((1920, 1440))
+        resized_image.save("其他图片/最高新曲封面4比3.png", "PNG")
 
-        resized_image.save("其他图片/最高新曲封面.png", "PNG")
+        # 16比9裁剪
+        if image.width / image.height > 16 / 9:
+            left = image.width / 2 - image.height / 9 * 8
+            right = image.width / 2 + image.height / 9 * 8
+            top = 0
+            bottom = image.height
+        else:
+            top = image.height / 2 - image.width / 32 * 9
+            bottom = image.height / 2 + image.width / 32 * 9
+            left = 0
+            right = image.width
+
+        cropped_image = image.crop((left, top, right, bottom))
+        resized_image = cropped_image.resize((1920, 1080))
+        resized_image.save("其他图片/最高新曲封面16比9.png", "PNG")
+
+        
     else:
         print("图片下载失败，状态码：", response.status_code)
         exit()
@@ -208,15 +226,36 @@ def delete_videos(days):
         with open(file_path, "r") as file:
             old_videos = json.load(file)
         for old_video in old_videos:
-            if old_video not in today_videos and os.path.exists(f"视频/{old_video}.mp4"):
+            if old_video not in today_videos and os.path.exists(
+                f"视频/{old_video}.mp4"
+            ):
                 os.remove(f"视频/{old_video}.mp4")
 
 
 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
     days=1
 )
-date = today.strftime("%Y.%m.%d")
-metadata = {"date": date}
+full_date = today.strftime("%Y.%m.%d")
+total_phase = (today - datetime(year=2024,month=7,day=2)).days
+themes = {
+    0: "周日主题色",
+    1: "周一主题色",
+    2: "周二主题色",
+    3: "周三主题色",
+    4: "周四主题色",
+    5: "周五主题色",
+    6: "周六主题色",
+}
+metadata = {
+    "full_date": today.strftime("%Y.%m.%d"),
+    "year": today.year,
+    "month": today.month,
+    "day": today.day,
+    "weekday": today.weekday()+1,
+    "theme": themes[today.weekday()+1],
+    "total_phase": total_phase,
+    "phase": total_phase
+}
 
 # 读取配置
 
@@ -227,7 +266,7 @@ with open("基本配置.yaml", "r", encoding="utf-8") as file:
     new = settings["new"]
 
 with open("每日配置.yaml", "r", encoding="utf-8") as file:
-    daily_preference = yaml.safe_load(file)[date]
+    daily_preference = yaml.safe_load(file)[full_date]
 
 # 副榜BGM
 source_folder = r"D:\Music\VOCALOID传说曲"
@@ -272,6 +311,7 @@ metadata["OP_bvid"] = songs_data_before.at[0, "bvid"]
 metadata["OP_title"] = songs_data_before.at[0, "title"]
 metadata["OP_author"] = songs_data_before.at[0, "author"]
 
+
 with open("截取片段.json", "r", encoding="utf-8") as file:
     clip_points = json.load(file)
 
@@ -283,10 +323,7 @@ pics = {bvid: filename for bvid, filename in zip(pics_bvid, pics_filename)}
 # 加入其他数据
 insert_before(songs_data_today, songs_data_before)
 
-# 判断语言，目前暂时不用
-songs_data_new["author_language"] = "Chinese"
-songs_data_today["author_language"] = "Chinese"
-'''
+# 判断作者名字的语言，待完善
 songs_data_new["author_language"] = "default"
 for i in songs_data_new.index:
     author = str(songs_data_new.at[i, "author"])
@@ -302,7 +339,7 @@ for i in songs_data_today.index:
         if detect_language(character) == "Korean":
             songs_data_today.at[i, "author_language"] = "Korean"
             break
-'''
+
 # 下载封面
 for i in range(extend):
     bvid = songs_data_today.at[i, "bvid"]
@@ -330,7 +367,6 @@ delete_videos(2)
 delete_videos(20)
 
 
-
 # 关于新曲的文件
 file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"
 if os.path.exists(file_path):
@@ -343,14 +379,14 @@ else:
 insert_clip_points(songs_data_new, clip_points, new)
 for i in range(new):
     bvid = songs_data_new.at[i, "bvid"]
-    if bvid + ".mp4" not in downloaded_videos and bvid  not in download_list:
+    if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
         download_list.append(bvid)
 
 # 找下载主榜视频
 insert_clip_points(songs_data_today, clip_points, contain)
 for i in range(contain):
     bvid = songs_data_today.at[i, "bvid"]
-    if bvid + ".mp4" not in downloaded_videos and bvid  not in download_list:
+    if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
         download_list.append(bvid)
 
 file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"

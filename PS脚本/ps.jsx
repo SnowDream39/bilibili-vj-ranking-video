@@ -161,23 +161,24 @@ function importImage(filePath, name, layers, relativeObject, insertionLocation, 
 
 function setColor(textItem, color) {
     var newColor = new SolidColor();
-    var colors = {
-        'red': [255, 0, 0],
-        'green': [0, 255, 0],
-        'blue': [0, 0, 255],
-        'black': [0, 0, 0]
+    var presetColors = {
+        'red': "ff0000",
+        "green": "00ff00",
+        'blue': "0000ff",
+        'black': "000000"
     };
-    newColor.rgb.red = colors[color][0];
-    newColor.rgb.green = colors[color][1];
-    newColor.rgb.blue = colors[color][2];
+    if(presetColors.hasOwnProperty(color)){
+        color = presetColors[color];
+    }
+    newColor.rgb.hexValue = color;
     textItem.color = newColor;
 }
 
 function fillDataExtend(songData, layers, keys) {
     layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
-    layers.getByName("位次").textItem.contents = songData[keys[1]] + '位';
+    layers.getByName("位次").textItem.contents = songData[keys[1]];
     if (songData[keys[1]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
-        setColor(layers.getByName("位次").textItem, 'red');
+        setColor(layers.getByName("位次").textItem, 'e06445');
     } else {
         setColor(layers.getByName("位次").textItem, 'black');
     }
@@ -185,7 +186,7 @@ function fillDataExtend(songData, layers, keys) {
 
 function fillData(songData, layers, keys) {
     layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
-    layers.getByName("修正").textItem.contents = '×' + songData[keys[1]].toFixed(2);
+    layers.getByName("补正").textItem.contents = '×' + songData[keys[1]].toFixed(2);
     if (
         (keys[0] === 'view' && songData[keys[1]] < 1) ||
         (keys[0] === 'favorite' && songData[keys[1]] < 10) ||
@@ -193,14 +194,14 @@ function fillData(songData, layers, keys) {
         (keys[0] === 'like' && songData[keys[1]] < 2)
     ) {
         $.writeln("blue");
-        setColor(layers.getByName("修正").textItem, 'blue');
+        setColor(layers.getByName("补正").textItem, '3494a8');
     } else {
         $.writeln("black");
-        setColor(layers.getByName("修正").textItem, 'black');
+        setColor(layers.getByName("补正").textItem, 'black');
     }
-    layers.getByName("位次").textItem.contents = songData[keys[2]] + '位';
+    layers.getByName("位次").textItem.contents = songData[keys[2]];
     if (songData[keys[2]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
-        setColor(layers.getByName("位次").textItem, 'red');
+        setColor(layers.getByName("位次").textItem, 'e06445');
     } else {
         setColor(layers.getByName("位次").textItem, 'black');
     }
@@ -220,4 +221,16 @@ function setFormattedText(textLayer, contents, size, font, width) {
     if (width !== undefined) {
         resizeText(textLayer, width);
     }
+}
+
+function padNumber(num, length) {
+    // 将数字转换为字符串
+    var str = num.toString();
+
+    // 在字符串前面添加零，直到长度达到指定值
+    while (str.length < length) {
+        str = '0' + str;
+    }
+
+    return str;
 }

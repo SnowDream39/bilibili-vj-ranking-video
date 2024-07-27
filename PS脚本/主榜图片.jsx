@@ -2,7 +2,7 @@
 
 
 function mainImages() {
-    var fileRef = new File(currentFolder + "主榜图片\\主榜样式1.psd");
+    var fileRef = new File(currentFolder + "主榜图片\\主榜样式2.psd");
     if (fileRef.exists) {
         app.open(fileRef);
     } else {
@@ -20,31 +20,32 @@ function mainImages() {
             for (var i = 0; i < contain; i++) {
                 var songData = dataToday[i];
 
-                layers.getByName("排名").textItem.contents = String(i + 1);
+                layers.getByName("排名").textItem.contents = songData.rank;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
-
+                var changeLayers = layers.getByName("变化").layers;
+                changeLayers.getByName("变化平").visible = false;
+                changeLayers.getByName("变化升").visible = false;
+                changeLayers.getByName("变化降").visible = false;
                 if (songData.change == "new") {
                     layers.getByName("前日排名").textItem.contents = "";
                     layers.getByName("前日得分").textItem.contents = "";
                     layers.getByName("new").visible = true;
-                    for (var j = 0; j < layers.length; j++) {
-                        if (layers[j].name == "变化") {
-                            layers[j].remove();
-                        }
-                    }
-                    var filePath = currentFolder + "其他图片\\小部件\\up.png";
-                    var positionFix = [0, -16];
+                    changeLayers.getByName("变化升").visible = true;
                 } else {
                     layers.getByName("new").visible = false;
+                    var bgLayers = layers.getByName("背景").layers.getByName("背景色").layers;
+                    bgLayers.getByName("上").visible = false;
+                    bgLayers.getByName("下").visible = false;
+                    bgLayers.getByName("平").visible = false;
                     if (songData.change == "up") {
-                        var filePath = currentFolder + "其他图片\\小部件\\up.png";
-                        var positionFix = [0, -16];
+                        changeLayers.getByName("变化升").visible = true;
+                        bgLayers.getByName("上").visible = true;
                     } else if (songData.change == "cont") {
-                        var filePath = currentFolder + "其他图片\\小部件\\cont.png";
-                        var positionFix = [-13, 0];
+                        changeLayers.getByName("变化平").visible = true;
+                        bgLayers.getByName("平").visible = true;
                     } else if (songData.change == "down") {
-                        var filePath = currentFolder + "其他图片\\小部件\\down.png";
-                        var positionFix = [0, -16];
+                        changeLayers.getByName("变化降").visible = true;
+                        bgLayers.getByName("下").visible = true;
                     }
 
                     if (songData.point_before == 0) {
@@ -57,15 +58,6 @@ function mainImages() {
 
                 }
 
-                // 导入变化指示
-
-                var position = [1516, 334];
-                var size = [27, 27];
-                var relativeObject = layers.getByName("new");
-                var insertionLocation = ElementPlacement.PLACEAFTER;
-                var name = "变化"
-                var changeLayer = importImage(filePath, name, layers, relativeObject, insertionLocation, size, position);
-
                 // var dataItems = ['播放', '收藏', '硬币', '点赞']; 
 
                 fillData(songData, layers.getByName("播放").layers, ["view", "viewR", "view_rank"]);
@@ -73,25 +65,24 @@ function mainImages() {
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                var otherInfoLayer = layers.getByName("其他信息");
-                var otherInfo = songData.author + " | 引擎：" + songData.synthesizer + " | 歌手：" + songData.vocal;
-                setFormattedText(textLayer = otherInfoLayer, contents = otherInfo, size = 36, font = "MicrosoftYaHei-Bold");
-                resizeText(otherInfoLayer, 1380);
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 60, font = "SourceHanSansSC-Bold", width=1330);
+                setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansSC-Bold", width=650);
+                setFormattedText(textLayer = layers.getByName("歌手"), contents = songData.vocal, size = 36, font = "SourceHanSansCN-Bold", width=650);
+                setFormattedText(textLayer = layers.getByName("引擎"), contents = songData.synthesizer, size = 36, font = "SourceHanSansCN-Bold", width=650);
+
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
-                var copyrightLayer = layers.getByName("copyright");
-                if (songData.copyright == 1) {
-                    copyrightLayer.textItem.contents = "本家投稿";
+                if (songData.copyright === 1){
+                    var contents = "本家投稿";
                 } else {
-                    copyrightLayer.textItem.contents = "搬运：" + songData.uploader;
+                    var contents = "搬运：" + songData.uploader;
                 }
-                resizeText(copyrightLayer, 250);
-                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title,size = 48,  font = "SourceHanSansCN-Regular", width = 1380);
+                setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=350);
 
-                $.writeln('完成第' + i + "张图片");
+                $.writeln('完成主榜第' + (i+1) + "张图片");
+                savePic(doc, currentFolder + '主榜图片\\' + (i+1) + ".png");
 
-                savePic(doc, currentFolder + '主榜图片\\' + (i + 1) + ".png");
             }
 
             doc.close(SaveOptions.SAVECHANGES);
