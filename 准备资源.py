@@ -252,7 +252,7 @@ metadata = {
     "month": today.month,
     "day": today.day,
     "weekday": today.weekday()+1,
-    "theme": themes[today.weekday()+1],
+    "theme": themes[(today.weekday()+1)%7],
     "total_phase": total_phase,
     "phase": total_phase
 }
