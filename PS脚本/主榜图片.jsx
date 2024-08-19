@@ -26,17 +26,18 @@ function mainImages() {
                 changeLayers.getByName("变化平").visible = false;
                 changeLayers.getByName("变化升").visible = false;
                 changeLayers.getByName("变化降").visible = false;
+                var bgLayers = layers.getByName("背景").layers.getByName("背景色").layers;
+                bgLayers.getByName("上").visible = false;
+                bgLayers.getByName("下").visible = false;
+                bgLayers.getByName("平").visible = false;
                 if (songData.change == "new") {
                     layers.getByName("前日排名").textItem.contents = "";
                     layers.getByName("前日得分").textItem.contents = "";
                     layers.getByName("new").visible = true;
                     changeLayers.getByName("变化升").visible = true;
+                    bgLayers.getByName("上").visible = true;
                 } else {
                     layers.getByName("new").visible = false;
-                    var bgLayers = layers.getByName("背景").layers.getByName("背景色").layers;
-                    bgLayers.getByName("上").visible = false;
-                    bgLayers.getByName("下").visible = false;
-                    bgLayers.getByName("平").visible = false;
                     if (songData.change == "up") {
                         changeLayers.getByName("变化升").visible = true;
                         bgLayers.getByName("上").visible = true;
@@ -66,20 +67,22 @@ function mainImages() {
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
                 setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 60, font = "SourceHanSansSC-Bold", width=1330);
-                setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansSC-Bold", width=650);
-                setFormattedText(textLayer = layers.getByName("歌手"), contents = songData.vocal, size = 36, font = "SourceHanSansCN-Bold", width=650);
-                setFormattedText(textLayer = layers.getByName("引擎"), contents = songData.synthesizer, size = 36, font = "SourceHanSansCN-Bold", width=650);
+                setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansSC-Bold", width=700);
+                setFormattedText(textLayer = layers.getByName("歌手"), contents = songData.vocal, size = 36, font = "SourceHanSansCN-Bold", width=700);
+                setFormattedText(textLayer = layers.getByName("引擎"), contents = songData.synthesizer, size = 36, font = "SourceHanSansCN-Bold", width=700);
 
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
+                layers.getByName("类型").textItem.contents = songData.type;
+
                 if (songData.copyright === 1){
                     var contents = "本家投稿";
                 } else {
                     var contents = "搬运：" + songData.uploader;
                 }
-                setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=350);
-
+                setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=600);
+                layers.getByName("入榜次数").textItem.contents = "入榜次数：" + songData.count;
                 $.writeln('完成主榜第' + (i+1) + "张图片");
                 savePic(doc, currentFolder + '主榜图片\\' + (i+1) + ".png");
 

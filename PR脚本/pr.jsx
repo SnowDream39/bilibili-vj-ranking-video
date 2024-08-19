@@ -8,7 +8,6 @@ var mainSeconds = 20;
 var ticks = 254016000000;
 
 
-
 // 读取 JSON 文件的函数
 function readJSONFile(filepath) {
     var file = new File(filepath);
@@ -139,6 +138,7 @@ function importVideosToTrack(files, bin, track, lengths, time, data) {
             currentFile.setOutPoint(outPoint, 4);
         }
         //加入到序列
+        $.writeln(track,currentFile,time.ticks);
         track.overwriteClip(currentFile, String(time.ticks));
         var trackItem = track.clips[track.clips.length - 1];
         time.seconds += lengths[i];

@@ -126,13 +126,10 @@ function importImage(filePath, name, layers, relativeObject, insertionLocation, 
             return null;
         }
 
-        // 复制图像内容到剪贴板
-        image.selection.selectAll();
-        image.selection.copy();
+        // 创建图像副本到目标文档 
+        var curLayer = image.layers[0];
+        curLayer.duplicate(relativeObject, insertionLocation);
         image.close(SaveOptions.DONOTSAVECHANGES);
-
-        // 粘贴图像到目标文档
-        targetDoc.paste();
         var changeLayer = targetDoc.activeLayer;
 
         // 检查是否成功粘贴
@@ -165,7 +162,8 @@ function setColor(textItem, color) {
         'red': "ff0000",
         "green": "00ff00",
         'blue': "0000ff",
-        'black': "000000"
+        'black': "000000",
+        'grey': "808080"
     };
     if(presetColors.hasOwnProperty(color)){
         color = presetColors[color];

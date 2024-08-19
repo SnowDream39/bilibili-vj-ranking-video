@@ -17,7 +17,7 @@ function newImages() {
 
         // 确保读取的 JSON 数据有效
         if (dataTodayNew) {
-            for (var i = 0; i < dataTodayNew.length && i < 10; i++) {
+            for (var i = 6; i < 7; i++) {
                 var songData = dataTodayNew[i];
 
                 layers.getByName("新曲排名").textItem.contents = songData.day;

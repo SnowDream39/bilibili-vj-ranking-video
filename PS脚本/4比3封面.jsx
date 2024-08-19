@@ -1,6 +1,6 @@
 #include 'ps.jsx'
 
-function thumbnail() {
+function thumbnail4to3() {
     var fileRef = new File(currentFolder + "其他图片\\4比3封面.psd")
     app.open(fileRef);
     // 确保有活动文档
@@ -39,12 +39,10 @@ function thumbnail() {
         var thumbLayer = importImage(currentFolder + '其他图片\\最高新曲封面4比3.png', "封面", layers, relativeObject, insertionLocation, size, position);
         layers.getByName("竖屏省流版").visible = false;
         savePic(doc, currentFolder + '其他图片\\4比3封面.png');
-        layers.getByName("竖屏省流版").visible = true;
-        savePic(doc, currentFolder + '其他图片\\4比3封面省流.png');
         doc.close(SaveOptions.SAVECHANGES);
     } else {
         $.writeln("没有活动文档");
     }
 }
 
-thumbnail();
+thumbnail4to3();

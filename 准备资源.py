@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import json
 import asyncio
 from datetime import datetime, timedelta
@@ -52,7 +53,11 @@ async def download_video(bvid):
     download_url_data = await v.get_download_url(0)
     # 解析视频下载信息
     detecter = video.VideoDownloadURLDataDetecter(data=download_url_data)
-    streams = detecter.detect_best_streams(video_max_quality=video.VideoQuality._1080P,audio_max_quality=video.AudioQuality._192K, codecs=[video.VideoCodecs.AVC, video.VideoCodecs.HEV, video.VideoCodecs.AV1])
+    streams = detecter.detect_best_streams(
+        video_max_quality=video.VideoQuality._1080P,
+        audio_max_quality=video.AudioQuality._192K,
+        codecs=[video.VideoCodecs.AVC, video.VideoCodecs.HEV, video.VideoCodecs.AV1],
+    )
     # 有 MP4 流 / FLV 流两种可能
     if detecter.check_flv_stream() == True:
         # FLV 流下载
@@ -67,7 +72,7 @@ async def download_video(bvid):
         await download_url(streams[1].url, "视频/audio_temp.m4s", "音频流")
         # 混流
         os.system(
-            f'{FFMPEG_PATH} -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy 视频/{bvid}.mp4'
+            f"{FFMPEG_PATH} -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy 视频/{bvid}.mp4"
         )
         # 删除临时文件
         os.remove("视频/video_temp.m4s")
@@ -192,7 +197,6 @@ async def download_thumbnail_special(bvid):
         resized_image = cropped_image.resize((1920, 1080))
         resized_image.save("其他图片/最高新曲封面16比9.png", "PNG")
 
-        
     else:
         print("图片下载失败，状态码：", response.status_code)
         exit()
@@ -231,12 +235,132 @@ def delete_videos(days):
             ):
                 os.remove(f"视频/{old_video}.mp4")
 
+def top_count(counts, number):
+    top_tuple = sorted(counts.items(), key=lambda item: item[1], reverse=True)
+    top_tuple = tuple((k,v) for (k,v) in top_tuple if v>1)
+    top_list = []
+    rank = 0
+    name = top_tuple[0][0]
+    count = top_tuple[0][1]
+    index = 1
+    while rank<number:
+        if index < len(top_tuple) and top_tuple[index][1] == count:
+            name = name + '、' + top_tuple[index][0]
+            
+        elif index == len(top_tuple) :
+
+            top_list.append({'name':name,'count':count})
+            break
+        else:
+
+            top_list.append({'name':name,'count':count})
+            rank += 1
+            name = top_tuple[index][0]
+            count =  top_tuple[index][1]
+        index += 1
+    return top_list
+
+
+def make_statistics(
+    songs_data_today, songs_data_before, songs_data_new, songs_data_new_before
+):
+    statistics = pd.DataFrame(
+        np.zeros((3, 8)),
+        columns=[
+            "10w",
+            "2w",
+            "1w",
+            "main_point",
+            "extend_point",
+            "new_point",
+            "main_news",
+            "extend_news",
+        ],
+        index=["today", "before", "change"],
+        dtype=int,
+    )
+
+    vocals_count = {}
+    synthesizers_count = {}
+
+    points_today = songs_data_today.point
+    dates_today = songs_data_today.pubdate
+    vocals_today = songs_data_today.vocal
+    synthesizers_today = songs_data_today.synthesizer
+    statistics_today = statistics.loc["today"]
+    statistics_today["main_point"] = points_today[19]
+    statistics_today["extend_point"] = points_today[99]
+    statistics_today["new_point"] = songs_data_new.at[9, "point"]
+    for i in range(20):
+        if datetime.strptime(dates_today[i], "%Y-%m-%d %H:%M:%S") >= (
+            today - timedelta(days=4)
+        ):
+            statistics_today["main_news"] += 1
+        for name in vocals_today[i].split('、'):
+            vocals_count[name] = vocals_count.get(name,0) + 1
+        for name in synthesizers_today[i].split('、'):
+            synthesizers_count[name] = synthesizers_count.get(name,0) + 1
+    for i in range(100):
+        if points_today[i] >= 100000:
+            statistics_today["10w"] += 1
+        if points_today[i] >= 20000:
+            statistics_today["2w"] += 1
+        if points_today[i] >= 10000:
+            statistics_today["1w"] += 1
+        if datetime.strptime(dates_today[i], "%Y-%m-%d %H:%M:%S") >= (
+            today - timedelta(days=4)
+        ):
+            statistics_today["extend_news"] += 1
+
+
+
+    points_before = songs_data_before.point
+    dates_before = songs_data_before.pubdate
+    statistics_before = statistics.loc["before"]
+    statistics_before["main_point"] = points_before[19]
+    statistics_before["extend_point"] = points_before[99]
+    statistics_before["new_point"] = songs_data_new_before.at[9, "point"]
+    for i in range(20):
+        if datetime.strptime(dates_before[i], "%Y-%m-%d %H:%M:%S") >= (
+            today - timedelta(days=4)
+        ):
+            statistics_before["main_news"] += 1
+    for i in range(100):
+        if points_before[i] >= 100000:
+            statistics_before["10w"] += 1
+        if points_before[i] >= 20000:
+            statistics_before["2w"] += 1
+        if points_before[i] >= 10000:
+            statistics_before["1w"] += 1
+        if datetime.strptime(dates_before[i], "%Y-%m-%d %H:%M:%S") >= (
+            today - timedelta(days=5)
+        ):
+            statistics_before["extend_news"] += 1
+
+    statistics.loc["change"] = statistics_today - statistics_before
+    statistics = statistics.to_dict()
+
+    top_vocals = top_count(vocals_count,3)
+    top_synthesizers = top_count(synthesizers_count,3)
+    
+    statistics.update({'top_vocals':top_vocals,'top_synthesizers':top_synthesizers})
+    with open('统计.json','w',encoding='utf-8') as file:
+        json.dump(statistics, file, ensure_ascii=False, indent=4)
+
+def insert_main_rank(songs_data_new, songs_data_today):
+    songs_data_new['main_rank'] = '--'
+    for i in range(new):
+        song_data_main = songs_data_today[songs_data_today['name'] == songs_data_new.at[i, 'name']]
+        if not song_data_main.empty:
+            main_rank = song_data_main.iloc[0]['rank']
+            songs_data_new.at[i,'main_rank'] = main_rank
+
 
 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
     days=1
 )
 full_date = today.strftime("%Y.%m.%d")
-total_phase = (today - datetime(year=2024,month=7,day=2)).days
+total_phase = (today - datetime(year=2024, month=7, day=2)).days
 themes = {
     0: "周日主题色",
     1: "周一主题色",
@@ -251,10 +375,10 @@ metadata = {
     "year": today.year,
     "month": today.month,
     "day": today.day,
-    "weekday": today.weekday()+1,
-    "theme": themes[(today.weekday()+1)%7],
+    "weekday": today.weekday() + 1,
+    "theme": themes[(today.weekday() + 1) % 7],
     "total_phase": total_phase,
-    "phase": total_phase
+    "phase": total_phase,
 }
 
 # 读取配置
@@ -298,14 +422,23 @@ file_new = (
     + today.strftime("%Y%m%d")
     + ".xlsx"
 )
+file_new_yesterday = (
+    "新曲"
+    + today.strftime("%Y%m%d")
+    + "与新曲"
+    + (today - timedelta(days=1)).strftime("%Y%m%d")
+    + ".xlsx"
+)
 
 songs_data_today = pd.read_excel("数据/" + file_today, dtype={"pubdate": str})
-songs_data_today = songs_data_today.head(extend)
 songs_data_today["pic"] = songs_data_today["bvid"] + ".png"
 songs_data_before = pd.read_excel("数据/" + file_yesterday, dtype={"pubdate": str})
-songs_data_new = pd.read_excel("数据/" + file_new, dtype={"pubdate": str})
-songs_data_new["rank"]
-songs_data_new = songs_data_new.head(new)
+songs_data_new = pd.read_excel("数据/" + file_new, dtype={"pubdate": str}, nrows=new)
+insert_main_rank(songs_data_new,songs_data_today)
+songs_data_today = songs_data_today.head(extend)
+songs_data_new_before = pd.read_excel(
+    "数据/" + file_new_yesterday, dtype={"pubdate": str}, nrows=new
+)
 
 metadata["OP_bvid"] = songs_data_before.at[0, "bvid"]
 metadata["OP_title"] = songs_data_before.at[0, "title"]
@@ -322,6 +455,9 @@ pics = {bvid: filename for bvid, filename in zip(pics_bvid, pics_filename)}
 
 # 加入其他数据
 insert_before(songs_data_today, songs_data_before)
+make_statistics(
+    songs_data_today, songs_data_before, songs_data_new, songs_data_new_before
+)
 
 # 判断作者名字的语言，待完善
 songs_data_new["author_language"] = "default"
@@ -388,6 +524,9 @@ for i in range(contain):
     bvid = songs_data_today.at[i, "bvid"]
     if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
         download_list.append(bvid)
+
+songs_data_today.to_json("数据.json", force_ascii=False, orient="records", indent=4)
+songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)
 
 file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"
 with open(file_path, "w") as file:

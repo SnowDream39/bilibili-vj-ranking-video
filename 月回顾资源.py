@@ -52,7 +52,7 @@ async def download_video(bvid):
     download_url_data = await v.get_download_url(0)
     # 解析视频下载信息
     detecter = video.VideoDownloadURLDataDetecter(data=download_url_data)
-    streams = detecter.detect_best_streams()
+    streams = detecter.detect_best_streams(video_max_quality=video.VideoQuality._1080P,audio_max_quality=video.AudioQuality._192K, codecs=[video.VideoCodecs.AVC, video.VideoCodecs.HEV, video.VideoCodecs.AV1])
     # 有 MP4 流 / FLV 流两种可能
     if detecter.check_flv_stream() == True:
         # FLV 流下载
@@ -67,7 +67,7 @@ async def download_video(bvid):
         await download_url(streams[1].url, "视频/audio_temp.m4s", "音频流")
         # 混流
         os.system(
-            f"{FFMPEG_PATH} -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -c:v libx264 -c:a aac -strict experimental 视频/{bvid}.mp4"
+            f'{FFMPEG_PATH} -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy 视频/{bvid}.mp4'
         )
         # 删除临时文件
         os.remove("视频/video_temp.m4s")
@@ -257,8 +257,8 @@ current_day = first_day_of_last_month
 all_columns = ['title','bvid','name','author','uploader','copyright','synthesizer','vocal','pubdate','duration','view','favorite','coin','like','viewR','favoriteR','coinR','likeR','point']
 top_datas = pd.DataFrame(columns=all_columns)
 
-while current_day < today:
-    filename = "月回顾数据/"+ current_day.strftime("%Y%m%d")+"与"+(current_day - timedelta(days=1)).strftime("%Y%m%d")+".xlsx"
+while current_day <= last_day_of_last_month:
+    filename = "月回顾数据/"+ (current_day + timedelta(days=1)).strftime("%Y%m%d")+"与"+current_day.strftime("%Y%m%d")+".xlsx"
     current_song_data = pd.read_excel(filename,nrows=1,dtype={"pubdate": str})
     if current_day < datetime(2024,7,12):
         update_algorithm(current_song_data)
@@ -266,10 +266,29 @@ while current_day < today:
     top_datas = pd.concat([top_datas, current_song_data],ignore_index=True)
     current_day += timedelta(days=1)
 
-top_datas['view_rank'] = top_datas['view'].rank(ascending=False,method='min')
-top_datas['favorite_rank'] = top_datas['favorite'].rank(ascending=False,method='min')
-top_datas['coin_rank'] = top_datas['coin'].rank(ascending=False,method='min')
-top_datas['like_rank'] = top_datas['like'].rank(ascending=False,method='min')
+top_datas['day'] = top_datas.index + 1
+top_datas['view_rank'] = top_datas['view'].rank(ascending=False,method='min').astype(int)
+top_datas['favorite_rank'] = top_datas['favorite'].rank(ascending=False,method='min').astype(int)
+top_datas['coin_rank'] = top_datas['coin'].rank(ascending=False,method='min').astype(int)
+top_datas['like_rank'] = top_datas['like'].rank(ascending=False,method='min').astype(int)
 
 top_datas.to_excel("月回顾数据.xlsx",index=False)
 top_datas.to_json("月回顾数据.json", force_ascii=False, orient="records", indent=4)
+
+# 下载视频
+downloaded_videos = os.listdir("./视频")
+download_list = []
+for bvid in top_datas["bvid"]:
+    if bvid + ".mp4" not in downloaded_videos and bvid + ".mp4" not in download_list:
+        download_list.append(bvid)
+
+file_path = f"视频/7月下载视频.json"
+with open(file_path, "w") as file:
+    json.dump(download_list, file, ensure_ascii=False, indent=4)
+
+total = len(download_list)
+for i in range(total):
+    bvid = download_list[i]
+    if bvid + ".mp4" not in downloaded_videos:
+        asyncio.get_event_loop().run_until_complete(download_video(bvid=bvid))
+        print(f"下载进度：{i+1}/{total}")

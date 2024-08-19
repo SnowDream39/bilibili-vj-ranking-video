@@ -16,6 +16,7 @@ var allData = readJSONFile(currentFolder + "数据.json");
 var newData = readJSONFile(currentFolder + '新曲数据.json');
 
 
+
 var audioTracks = sequence.audioTracks;
 var musicTrack = audioTracks[0];
 var songTrack = audioTracks[1];
@@ -23,7 +24,7 @@ var videoTracks = sequence.videoTracks;
 var imageTrack = videoTracks[0];
 var videoTrack = videoTracks[1];
 
-var cutBin = refreshBin(rootItem, '截取片段用视频');
+refreshBin(rootItem, '截取片段用视频');
 var mainImageBin = refreshBin(rootItem, '主榜图片');
 var subImageBin = refreshBin(rootItem, '副榜图片');
 var newImageBin = refreshBin(rootItem, '新曲榜图片');
@@ -93,11 +94,11 @@ audioTime.seconds += Number(extendTime) / ticks;
 clip.end = audioTime;
 
 // 导入副榜前图片
-var endingImages = ["制作.png", "副榜.png"];
+var endingImages = ["统计.png", "制作.png", "副榜.png"];
 for (var i = 0; i < endingImages.length; i++) {
     project.importFiles([currentFolder + "其他图片\\" + endingImages[i]], false, otherImageBin, false);
 }
-var endingLength = [3, 3];
+var endingLength = [6, 3, 3];
 videoTime = importClips(otherImageBin, endingImages, endingLength, imageTrack, videoTime, 1);
 
 // 导入副榜图片

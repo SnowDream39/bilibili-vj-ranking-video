@@ -1,8 +1,9 @@
 #include 'pr.jsx'
 
-var sequenceName = "小日刊";
 var project = app.project;
 var rootItem = project.rootItem;
+var sequenceName = "小日刊";
+
 
 var sequences = project.sequences;
 for (var i = 0; i < sequences.length; i++) {
@@ -21,12 +22,12 @@ var videoTracks = sequence.videoTracks;
 var imageTrack = videoTracks[0];
 var videoTrack = videoTracks[1];
 
-var cutBin = refreshBin(rootItem, '截取片段用视频');
+
 var newImageBin = refreshBin(rootItem, '新曲榜图片');
-var shortImageBin = refreshBin(rootItem, '省流版图片');
 var otherImageBin = refreshBin(rootItem, '其他图片');
 var newVideoBin = refreshBin(rootItem, '新曲榜视频');
-
+var musicBin = refreshBin(rootItem, '音乐');
+var shortImageBin = refreshBin(rootItem, '省流版图片');
 var videoTime = new Time();
 var audioTime = new Time();
 
