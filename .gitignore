@@ -8,6 +8,7 @@
 新曲榜图片/
 月回顾图片/
 主榜图片/
+统计数据/
 BGM/
 
 *.mp4
@@ -16,6 +17,10 @@ BGM/
 *.json
 *.prproj
 *.prlock
+*.html
+
 PS脚本/test.jsx
 PR脚本/test.jsx
 每日配置.yaml
+账号验证.yaml
+排除歌手.yaml

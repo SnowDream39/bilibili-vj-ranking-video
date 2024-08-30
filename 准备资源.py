@@ -13,26 +13,83 @@ import os
 import shutil
 
 
-contain = 20
-extend = 100
-new = 10
 
-SESSDATA = "c17c6918%2C1735996419%2Ca5015%2A72CjArPmcRcNPy0x_fO4fdMqtFjEqdZ-F6tKqMOF5IWEmdxlP5MLT6-o8nSc5YZledGV4SVnlKWlRmT2NhNEgtU2J3VWZ1OG9LRkZJbFN3a056ZjhrRm9SckdQWWFIbl9hUURfMUxtXzFpZXFoN29KRHdHeC1aQTU3b3RBT1F1RFlFVEtZTnpKTkpnIIEC"
-BILI_JCT = "4c9f3874cdcc31ae90931826dee881e4"
-BUVID3 = "421282EF-A860-65A1-218B-83A1EC3EA78A31062infoc"
-AC_TIME_VALUE = "98d89026646ab79e213bfa5195bbff72"
+
 FFMPEG_PATH = "D:/Tool/ffmpeg-2024-07-07-git-0619138639-full_build/bin/ffmpeg.exe"
 
-credential = Credential(
-    sessdata=SESSDATA, bili_jct=BILI_JCT, buvid3=BUVID3, ac_time_value=AC_TIME_VALUE
-)
+with open("账号验证.yaml", 'r') as file:
+    cred_data = yaml.safe_load(file)
+    credential = Credential(**cred_data)
 
 try:
     if sync(credential.check_refresh()):
         sync(credential.refresh())
-except:
-    pass
+except Exception as e:
+    print(e)
 
+today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
+    days=1
+)
+full_date = today.strftime("%Y.%m.%d")
+total_phase = (today - datetime(year=2024, month=7, day=2)).days
+themes = {
+    0: "周日主题色",
+    1: "周一主题色",
+    2: "周二主题色",
+    3: "周三主题色",
+    4: "周四主题色",
+    5: "周五主题色",
+    6: "周六主题色",
+}
+metadata = {
+    "full_date": today.strftime("%Y.%m.%d"),
+    "year": today.year,
+    "month": today.month,
+    "day": today.day,
+    "weekday": today.weekday() + 1,
+    "theme": themes[(today.weekday() + 1) % 7],
+    "total_phase": total_phase,
+    "phase": total_phase,
+}
+
+# 读取配置
+
+with open("基本配置.yaml", "r", encoding="utf-8") as file:
+    settings = yaml.safe_load(file)
+    contain = settings["contain"]
+    extend = settings["extend"]
+    new = settings["new"]
+
+with open("每日配置.yaml", "r", encoding="utf-8") as file:
+    daily_preference = yaml.safe_load(file)[full_date]
+
+file_yesterday = (
+    today.strftime("%Y%m%d")
+    + "与"
+    + (today - timedelta(days=1)).strftime("%Y%m%d")
+    + ".xlsx"
+)
+file_today = (
+    (today + timedelta(days=1)).strftime("%Y%m%d")
+    + "与"
+    + today.strftime("%Y%m%d")
+    + ".xlsx"
+)
+
+file_new = (
+    "新曲"
+    + (today + timedelta(days=1)).strftime("%Y%m%d")
+    + "与新曲"
+    + today.strftime("%Y%m%d")
+    + ".xlsx"
+)
+file_new_yesterday = (
+    "新曲"
+    + today.strftime("%Y%m%d")
+    + "与新曲"
+    + (today - timedelta(days=1)).strftime("%Y%m%d")
+    + ".xlsx"
+)
 
 async def download_url(url: str, out: str, info: str):
     # 下载函数
@@ -54,7 +111,7 @@ async def download_video(bvid):
     # 解析视频下载信息
     detecter = video.VideoDownloadURLDataDetecter(data=download_url_data)
     streams = detecter.detect_best_streams(
-        video_max_quality=video.VideoQuality._1080P,
+        video_max_quality=video.VideoQuality._720P,
         audio_max_quality=video.AudioQuality._192K,
         codecs=[video.VideoCodecs.AVC, video.VideoCodecs.HEV, video.VideoCodecs.AV1],
     )
@@ -261,89 +318,123 @@ def top_count(counts, number):
     return top_list
 
 
-def make_statistics(
-    songs_data_today, songs_data_before, songs_data_new, songs_data_new_before
-):
-    statistics = pd.DataFrame(
-        np.zeros((3, 8)),
-        columns=[
-            "10w",
-            "2w",
-            "1w",
-            "main_point",
-            "extend_point",
-            "new_point",
-            "main_news",
-            "extend_news",
-        ],
-        index=["today", "before", "change"],
-        dtype=int,
-    )
-
-    vocals_count = {}
-    synthesizers_count = {}
-
-    points_today = songs_data_today.point
-    dates_today = songs_data_today.pubdate
-    vocals_today = songs_data_today.vocal
-    synthesizers_today = songs_data_today.synthesizer
-    statistics_today = statistics.loc["today"]
-    statistics_today["main_point"] = points_today[19]
-    statistics_today["extend_point"] = points_today[99]
-    statistics_today["new_point"] = songs_data_new.at[9, "point"]
-    for i in range(20):
-        if datetime.strptime(dates_today[i], "%Y-%m-%d %H:%M:%S") >= (
-            today - timedelta(days=4)
-        ):
-            statistics_today["main_news"] += 1
-        for name in vocals_today[i].split('、'):
-            vocals_count[name] = vocals_count.get(name,0) + 1
-        for name in synthesizers_today[i].split('、'):
-            synthesizers_count[name] = synthesizers_count.get(name,0) + 1
-    for i in range(100):
-        if points_today[i] >= 100000:
-            statistics_today["10w"] += 1
-        if points_today[i] >= 20000:
-            statistics_today["2w"] += 1
-        if points_today[i] >= 10000:
-            statistics_today["1w"] += 1
-        if datetime.strptime(dates_today[i], "%Y-%m-%d %H:%M:%S") >= (
-            today - timedelta(days=4)
-        ):
-            statistics_today["extend_news"] += 1
-
-
-
-    points_before = songs_data_before.point
-    dates_before = songs_data_before.pubdate
-    statistics_before = statistics.loc["before"]
-    statistics_before["main_point"] = points_before[19]
-    statistics_before["extend_point"] = points_before[99]
-    statistics_before["new_point"] = songs_data_new_before.at[9, "point"]
-    for i in range(20):
-        if datetime.strptime(dates_before[i], "%Y-%m-%d %H:%M:%S") >= (
-            today - timedelta(days=4)
-        ):
-            statistics_before["main_news"] += 1
-    for i in range(100):
-        if points_before[i] >= 100000:
-            statistics_before["10w"] += 1
-        if points_before[i] >= 20000:
-            statistics_before["2w"] += 1
-        if points_before[i] >= 10000:
-            statistics_before["1w"] += 1
-        if datetime.strptime(dates_before[i], "%Y-%m-%d %H:%M:%S") >= (
-            today - timedelta(days=5)
-        ):
-            statistics_before["extend_news"] += 1
-
-    statistics.loc["change"] = statistics_today - statistics_before
-    statistics = statistics.to_dict()
-
-    top_vocals = top_count(vocals_count,3)
-    top_synthesizers = top_count(synthesizers_count,3)
+def make_statistics_today():
+    def high_points():
+        counts = {'10w':0, '2w':0,'1w':0}
+        points_today = songs_data_today['point']
+        for i in range(len(points_today)):
+            if points_today[i] >= 100000:
+                counts['10w'] += 1
+            if points_today[i] >= 20000:
+                counts['2w'] += 1
+            if points_today[i] >= 10000:
+                counts["1w"] += 1
+        return counts
     
-    statistics.update({'top_vocals':top_vocals,'top_synthesizers':top_synthesizers})
+    def start_points():
+        return {
+            'main': int(songs_data_today.at[19,'point']),
+            'extend': int(songs_data_today.at[99, 'point']),
+            'new': int(songs_data_new.at[9,'point'])
+        }
+
+    def new_songs():
+        counts = {'main':0, 'extend':0}
+        for i in range(100):
+            pubdate = songs_data_today.at[i, 'pubdate']
+            if datetime.strptime(pubdate,  "%Y-%m-%d %H:%M:%S") >= (
+                today - timedelta(days=4)
+            ):
+                if i<20:
+                    counts['main'] += 1
+                counts['extend'] += 1
+        return counts
+
+    def count_names(key):
+        with open("排除歌手.yaml",'r',encoding='utf-8') as file:
+            removed_vocals = yaml.safe_load(file)
+        counts = {}
+        for names in songs_data_today[key]:
+            for name in names.split('、'):
+                counts[name] = counts.get(name, 0) + 1
+        
+
+        counts = [{"name":k, "count":v} for (k,v) in counts.items() if k not in removed_vocals]
+        counts = sorted(counts, key = lambda item: item["count"], reverse=True)
+        
+        #计算排名
+
+        rank=1
+        prev_value = None
+        prev_rank = None
+
+        for i in range(len(counts)):
+            value = counts[i]["count"]
+            rank = i+1
+            if value != prev_value:
+                counts[i]['rank'] = rank
+                prev_rank = rank
+            else:
+                counts[i]['rank'] = prev_rank
+            prev_value = value
+        
+        
+        counts = tuple(counts)
+        return counts
+
+
+
+    counts = {'high_points':high_points() , 'start_points':start_points() ,'new_songs': new_songs(), 'top_vocals': count_names('vocal'),'top_synthesizers': count_names('synthesizer')}
+    with open(f"统计数据/{today.strftime('%Y%m%d')}.json",'w',encoding='utf-8') as file:
+        json.dump(counts, file, ensure_ascii=False, indent=4)
+    return counts
+
+    
+def make_statistics():
+    def compare(dict1, dict2):
+        diff = {}
+        for key in ['high_points','start_points','new_songs']:
+
+            sub_dict1 = dict1[key]
+            sub_dict2 = dict2[key]
+
+            diff[key] = {}
+
+            for sub_key in sub_dict1:
+                diff[key][sub_key] = {'today': sub_dict1[sub_key], 'before':sub_dict2[sub_key], 'change': sub_dict1[sub_key] - sub_dict2[sub_key]}
+        
+        for key in ['top_vocals','top_synthesizers']:
+
+            sub_dict1 = dict1[key]
+            diff[key] = []
+            p=0
+            q=0
+            while q < len(sub_dict1) and sub_dict1[q]['rank']<=11:
+                if sub_dict1[p]['rank'] < sub_dict1[q]['rank']:
+                    while p<q:
+                        diff[key].append(sub_dict1[p])
+                        p+=1
+                q+=1
+                
+            sub_dict2 = dict2[key]
+            for i in range(len(diff[key])):
+                for item in sub_dict2:
+                    if item['name'] == diff[key][i]['name']:
+                        diff[key][i]['change'] = sub_dict1[i]['count'] - item['count']
+                        break
+                else:
+                    diff[key][i]['count_change'] = sub_dict1[i]['count']
+
+
+        return diff
+
+    statistics_today = make_statistics_today()
+    with open(f'统计数据/{(today - timedelta(days=1)).strftime("%Y%m%d")}.json', 'r', encoding='utf-8') as file:
+        statistics_before = json.load(file)
+    
+    statistics = compare(statistics_today, statistics_before)
+
+    
     with open('统计.json','w',encoding='utf-8') as file:
         json.dump(statistics, file, ensure_ascii=False, indent=4)
 
@@ -356,41 +447,6 @@ def insert_main_rank(songs_data_new, songs_data_today):
             songs_data_new.at[i,'main_rank'] = main_rank
 
 
-today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
-    days=1
-)
-full_date = today.strftime("%Y.%m.%d")
-total_phase = (today - datetime(year=2024, month=7, day=2)).days
-themes = {
-    0: "周日主题色",
-    1: "周一主题色",
-    2: "周二主题色",
-    3: "周三主题色",
-    4: "周四主题色",
-    5: "周五主题色",
-    6: "周六主题色",
-}
-metadata = {
-    "full_date": today.strftime("%Y.%m.%d"),
-    "year": today.year,
-    "month": today.month,
-    "day": today.day,
-    "weekday": today.weekday() + 1,
-    "theme": themes[(today.weekday() + 1) % 7],
-    "total_phase": total_phase,
-    "phase": total_phase,
-}
-
-# 读取配置
-
-with open("基本配置.yaml", "r", encoding="utf-8") as file:
-    settings = yaml.safe_load(file)
-    contain = settings["contain"]
-    extend = settings["extend"]
-    new = settings["new"]
-
-with open("每日配置.yaml", "r", encoding="utf-8") as file:
-    daily_preference = yaml.safe_load(file)[full_date]
 
 # 副榜BGM
 source_folder = r"D:\Music\VOCALOID传说曲"
@@ -401,34 +457,6 @@ destination_file = "BGM/副榜.mp3"
 destination_path = os.path.join(os.getcwd(), destination_file)
 shutil.copyfile(source_path, destination_path)
 
-
-file_yesterday = (
-    today.strftime("%Y%m%d")
-    + "与"
-    + (today - timedelta(days=1)).strftime("%Y%m%d")
-    + ".xlsx"
-)
-file_today = (
-    (today + timedelta(days=1)).strftime("%Y%m%d")
-    + "与"
-    + today.strftime("%Y%m%d")
-    + ".xlsx"
-)
-
-file_new = (
-    "新曲"
-    + (today + timedelta(days=1)).strftime("%Y%m%d")
-    + "与新曲"
-    + today.strftime("%Y%m%d")
-    + ".xlsx"
-)
-file_new_yesterday = (
-    "新曲"
-    + today.strftime("%Y%m%d")
-    + "与新曲"
-    + (today - timedelta(days=1)).strftime("%Y%m%d")
-    + ".xlsx"
-)
 
 songs_data_today = pd.read_excel("数据/" + file_today, dtype={"pubdate": str})
 songs_data_today["pic"] = songs_data_today["bvid"] + ".png"
@@ -456,7 +484,6 @@ pics = {bvid: filename for bvid, filename in zip(pics_bvid, pics_filename)}
 # 加入其他数据
 insert_before(songs_data_today, songs_data_before)
 make_statistics(
-    songs_data_today, songs_data_before, songs_data_new, songs_data_new_before
 )
 
 # 判断作者名字的语言，待完善

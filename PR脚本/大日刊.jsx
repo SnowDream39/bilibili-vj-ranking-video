@@ -94,11 +94,11 @@ audioTime.seconds += Number(extendTime) / ticks;
 clip.end = audioTime;
 
 // 导入副榜前图片
-var endingImages = ["统计.png", "制作.png", "副榜.png"];
+var endingImages = ["统计1.png", "统计2.png", "制作.png", "副榜.png"];
 for (var i = 0; i < endingImages.length; i++) {
     project.importFiles([currentFolder + "其他图片\\" + endingImages[i]], false, otherImageBin, false);
 }
-var endingLength = [6, 3, 3];
+var endingLength = [5, 5, 3, 3];
 videoTime = importClips(otherImageBin, endingImages, endingLength, imageTrack, videoTime, 1);
 
 // 导入副榜图片
