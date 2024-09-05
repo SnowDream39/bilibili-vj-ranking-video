@@ -41,7 +41,7 @@ for (var i = 0; i < data.length; i++) {
 project.importFiles(videoFiles,false, monthReviewVideoBin,false)
 var videoTime = new Time();
 videoTime.seconds = 0;
-videoTime = importVideosToTrack(imageFiles, monthReviewBin, imageTrack, lengths, videoTime, null);
+videoTime = importVideosToTrack(imageFiles, monthReviewVideoBin, imageTrack, lengths, videoTime, null);
 
 var videoItems = monthReviewVideoBin.children;
 for(var i=0; i<videoItems.length; i++){

@@ -72,7 +72,9 @@ function easyMainImages() {
                 fillDataExtend(songData, layers.getByName("硬币").layers, ["coin", "coin_rank"]);
                 fillDataExtend(songData, layers.getByName("点赞").layers, ["like", "like_rank"]);
 
-                // layers.getByName("作者").textItem.contents = songData.author;
+                layers.getByName("作者").textItem.contents = songData.author;
+                layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
+                layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
 

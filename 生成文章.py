@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup
 import json
 
 def new_tag(tag_name, text=None, **attributes):
@@ -69,21 +69,25 @@ for i in range(9,-1,-1):
     song_box.append(new_tag("p", f"硬币：{song_data['coin']}（×{song_data['coinR']}） {song_data['coin_rank']}位"))
     song_box.append(new_tag("p", f"点赞：{song_data['like']}（×{song_data['likeR']}） {song_data['like_rank']}位"))
     song_box.append(new_tag("p", f"得分：{song_data['point']}"))
+    song_box.append(new_tag("p", f"总榜排名：{song_data['main_rank']}"))
     song_box.append(new_tag("p", f"链接：{song_data['bvid']}"))
     soup.append(song_box)
 
 soup.append(BeautifulSoup(f"\n<strong><p class='font-size-23'>主榜</p></strong>\n", 'html.parser'))
 
 soup.append(new_tag("h1", "关于图文版"))
-soup.append("""\n
-Q：为什么不做视频版了？
+soup.append("""\n\n\n
+Q：为什么不做视频版日刊了？
+
 A：视频版每天需要制作半小时左右，自己时间不足了。
 
-Q：什么情况下可以恢复视频版制作？
-A：有人愿意帮忙做视频就能恢复。有电脑就行，一个小时学会。
+Q：以后也不做了吗？
 
-Q：怎样参与日刊制作？
-A：加入日刊QQ群974585468。
+A：以后也不做了。改成做周刊和月刊。图文版应该还会继续发。不过还是需要有更多人来帮忙。
+
+Q：怎样可以帮忙制作视频？
+
+A：加入术力口数据库QQ群974585468。
 """)
 html_output = str(soup)
 with open("专栏文本.html", 'w', encoding='utf-8') as file:

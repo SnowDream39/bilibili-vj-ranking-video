@@ -17,7 +17,7 @@ function newImages() {
 
         // 确保读取的 JSON 数据有效
         if (dataTodayNew) {
-            for (var i = 6; i < 7; i++) {
+            for (var i = 0; i < dataTodayNew.length; i++) {
                 var songData = dataTodayNew[i];
 
                 layers.getByName("新曲排名").textItem.contents = songData.day;
@@ -35,6 +35,7 @@ function newImages() {
 
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
+                layers.getByName("类型").textItem.contents = songData.type;
                 layers.getByName("时长").textItem.contents = songData.duration;
                 if (songData.copyright === 1){
                     var contents = "本家投稿";

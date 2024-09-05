@@ -282,7 +282,7 @@ for bvid in top_datas["bvid"]:
     if bvid + ".mp4" not in downloaded_videos and bvid + ".mp4" not in download_list:
         download_list.append(bvid)
 
-file_path = f"视频/7月下载视频.json"
+file_path = f"视频/月下载视频.json"
 with open(file_path, "w") as file:
     json.dump(download_list, file, ensure_ascii=False, indent=4)
 
