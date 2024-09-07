@@ -11,6 +11,11 @@
 统计数据/
 简易主榜图片/
 月回顾数据/
+日刊/
+周刊/
+月刊/
+月回顾/
+图片/
 Adobe Premiere Pro Audio Previews/
 BGM/
 
@@ -24,6 +29,5 @@ BGM/
 
 PS脚本/test.jsx
 PR脚本/test.jsx
-每日配置.yaml
 账号验证.yaml
 排除歌手.yaml

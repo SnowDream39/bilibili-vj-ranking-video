@@ -1,7 +1,13 @@
 #include "ps.jsx"
 
 function rule1() {
-    var fileRef = new File(currentFolder + "其他图片\\规则1.psd");
+    if (MODE == 'daily'){
+        var fileRef = new File(currentFolder + "其他图片\\日刊\\规则1.psd")
+    } else if(MODE === 'weekly'){
+        var fileRef = new File(currentFolder + "其他图片\\周刊\\规则1.psd");
+    } else if(MODE === 'monthly'){
+        var fileRef = new File(currentFolder + "其他图片\\月刊\\规则1.psd");
+    }
     app.open(fileRef)
     // 确保有活动文档
     if (app.documents.length > 0) {

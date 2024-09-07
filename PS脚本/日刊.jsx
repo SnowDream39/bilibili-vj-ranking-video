@@ -1,6 +1,8 @@
 #include 'ps.jsx'
-#include '4比3封面.jsx'
-#include '16比9封面.jsx'
+
+var MODE = 'daily';
+
+#include '封面.jsx'
 #include '专栏封面.jsx'
 #include '副榜.jsx'
 #include '统计1.jsx'

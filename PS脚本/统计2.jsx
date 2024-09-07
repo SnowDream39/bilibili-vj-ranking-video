@@ -31,7 +31,12 @@ function fillTops(topLayers, tops){
 
 
 function statistics2(){
-    var fileRef = new File(currentFolder + "其他图片\\统计2.psd")
+    if (MODE in ['daily', 'weekly']){
+        var fileRef = new File(currentFolder + "其他图片\\统计2.psd");
+    } else {
+        var fileRef = new File(currentFolder + "其他图片\\月刊\\统计2.psd");
+    }
+
     app.open(fileRef);
 
     var doc = app.activeDocument;

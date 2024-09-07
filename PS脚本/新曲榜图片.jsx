@@ -2,7 +2,11 @@
 
 
 function newImages() {
-    var fileRef = new File(currentFolder + "新曲榜图片\\新曲榜样式2.psd");
+    if (MODE in ['daily', 'weekly']){
+        var fileRef = new File(currentFolder + "新曲榜图片\\日刊样式.psd");
+    } else {
+        var fileRef = new File(currentFolder + "新曲榜图片\\月刊样式.psd");
+    }
     if (fileRef.exists) {
         app.open(fileRef);
     } else {

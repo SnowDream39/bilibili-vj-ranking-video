@@ -2,7 +2,11 @@
 
 
 function mainImages() {
-    var fileRef = new File(currentFolder + "主榜图片\\主榜样式2.psd");
+    if (MODE in ['daily', 'weekly']){
+        var fileRef = new File(currentFolder + "主榜图片\\日刊样式.psd");
+    } else {
+        var fileRef = new File(currentFolder + "主榜图片\\月刊样式.psd");
+    }
     if (fileRef.exists) {
         app.open(fileRef);
     } else {

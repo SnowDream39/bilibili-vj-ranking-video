@@ -1,8 +1,10 @@
 #include 'pr.jsx'
 
+var MODE = 'weekly';
+
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
 
-var sequenceName = "大日刊";
+var sequenceName = "完整刊";
 var project = app.project;
 var rootItem = project.rootItem;
 
@@ -37,8 +39,20 @@ var videoTime = new Time();
 var audioTime = new Time();
 
 // 开头
-var openingImages = ["16比9封面.png", "规则1.png", "规则2.png", "规则3.png", "新曲榜.png"];
-var openingLength = [3, 5, 5, 5, 3];
+if (MODE === 'daily'){
+
+    var openingImages = ["16比9封面.png", "规则1.png", "规则2.png", "规则3.png", "新曲榜.png"];
+    var openingLength = [3, 5, 5, 5, 3];
+} else if (MODE === 'weekly') {
+
+    var openingImages = ["16比9封面.png", "规则1.png",  "规则1.5.png", "规则2.png", "规则3.png", "新曲榜.png"];
+    var openingLength = [3, 5, 5, 5, 5, 3];
+} else if (MODE === 'monthly') {
+
+    var openingImages = ["16比9封面.png", "规则1.png",  "规则2.png", "规则3.png", "新曲榜.png"];
+    var openingLength = [3, 5, 5, 5, 3];
+}
+
 
 for (var i = 0; i < openingImages.length; i++) {
     project.importFiles([currentFolder + "其他图片\\" + openingImages[i]], false, otherImageBin, false);

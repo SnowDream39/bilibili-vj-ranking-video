@@ -1,0 +1,6 @@
+#include 'ps.jsx'
+#include '16比9封面.jsx'
+#include '专栏封面.jsx'
+#include '统计1.jsx'
+#include '统计2.jsx'
+#include '简易主榜图片.jsx'

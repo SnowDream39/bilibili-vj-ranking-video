@@ -2,6 +2,11 @@
 
 
 function extendTitle() {
+    if (MODE in ['daily', 'weekly']){
+        var fileRef = new File(currentFolder + "其他图片\\副榜.psd");
+    } else {
+        var fileRef = new File(currentFolder + "其他图片\\月刊\\副榜.psd");
+    }
     var fileRef = new File(currentFolder + "其他图片\\副榜.psd")
     app.open(fileRef);
     // 确保有活动文档
