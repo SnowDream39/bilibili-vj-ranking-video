@@ -41,11 +41,11 @@ var audioTime = new Time();
 // 开头
 if (MODE === 'daily'){
 
-    var openingImages = ["16比9封面.png", "规则1.png", "规则2.png", "规则3.png", "新曲榜.png"];
+    var openingImages = ["16比9封面.png", "日刊\\规则1.png", "日刊\\规则2.png", "日刊\\规则3.png", "新曲榜.png"];
     var openingLength = [3, 5, 5, 5, 3];
 } else if (MODE === 'weekly') {
 
-    var openingImages = ["16比9封面.png", "规则1.png",  "规则1.5.png", "规则2.png", "规则3.png", "新曲榜.png"];
+    var openingImages = ["16比9封面.png", "规则1.png",  "规则1.5.png", "周刊\\规则2.png", "周刊\\规则3.png", "新曲榜.png"];
     var openingLength = [3, 5, 5, 5, 5, 3];
 } else if (MODE === 'monthly') {
 
@@ -55,6 +55,7 @@ if (MODE === 'daily'){
 
 
 for (var i = 0; i < openingImages.length; i++) {
+    $.writeln(i);
     project.importFiles([currentFolder + "其他图片\\" + openingImages[i]], false, otherImageBin, false);
 }
 
@@ -107,25 +108,25 @@ var clip = musicTrack.clips[1];
 audioTime.seconds += Number(extendTime) / ticks;
 clip.end = audioTime;
 
-// 导入副榜前图片
-var endingImages = ["统计1.png", "统计2.png", "制作.png", "副榜.png"];
-for (var i = 0; i < endingImages.length; i++) {
-    project.importFiles([currentFolder + "其他图片\\" + endingImages[i]], false, otherImageBin, false);
-}
-var endingLength = [5, 5, 3, 3];
-videoTime = importClips(otherImageBin, endingImages, endingLength, imageTrack, videoTime, 1);
+// 导入副榜和前后图片
+var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计2.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
+var subLengths = [5, 5, 3, 3];
 
-// 导入副榜图片
-var subImageFiles = [];
-var lengths = [];
-var extendSeconds = ((Number(extendTime) / ticks + 1) - sum(endingLength)) / 20;
+var extendSeconds = ((Number(extendTime) / ticks + 1) - sum(subLengths) - 3) / 20;
 for (var i = 0; i < (extend - contain) / 4; i++) {
-    subImageFiles.push(currentFolder + '副榜图片\\' + (i + 1) + '.png');
-    lengths.push(extendSeconds);
+    subImages.push(currentFolder + '副榜图片\\' + (i + 1) + '.png');
+    subLengths.push(extendSeconds);
 }
-videoTime = importVideosToTrack(subImageFiles, subImageBin, imageTrack, lengths, videoTime, null);
-project.save();
 
+subImages.push(currentFolder + '其他图片\\结尾1.png' );
+subLengths.push(3);
+
+project.importFiles(subImages, false, subImageBin, false);
+
+
+
+videoTime = importClips(subImageBin, subImages, subLengths, imageTrack, videoTime, 1);
+project.save();
 // 设置视频位置和缩放
 var clips = videoTrack.clips;
 for (var i = 0; i < clips.numItems; i++) {

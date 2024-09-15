@@ -3,7 +3,7 @@
 
 
 function easyMainImages() {
-    var fileRef = new File(currentFolder + "副榜图片\\副榜样式2.psd")
+    var fileRef = new File(currentFolder + "副榜图片\\日刊样式.psd")
     app.open(fileRef);
 
     if (app.documents.length > 0) {
@@ -19,7 +19,7 @@ function easyMainImages() {
         // 确保读取的 JSON 数据有效
         if (dataToday) {
             $.writeln("已读取数据");
-            for (var i = 0; i < contain; i++) {
+            for (var i = 0; i < 40; i++) {
                 $.writeln("开始处理",i);
                 var songData = dataToday[i];
                 var layers = doc.layers[i % 4].layers;
@@ -43,12 +43,12 @@ function easyMainImages() {
                 changeLayers.getByName("变化升").visible = false;
                 changeLayers.getByName("变化降").visible = false;
                 if (songData.change == "new") {
-                    layers.getByName("前日排名").textItem.contents = "";
-                    layers.getByName("前日").visible = false;
+                    layers.getByName("上期排名").textItem.contents = "";
+                    layers.getByName("上期").visible = false;
                     layers.getByName("new").visible = true;
                     changeLayers.getByName("变化升").visible = true;
                 } else {
-                    layers.getByName("前日").visible = true;
+                    layers.getByName("上期").visible = true;
                     layers.getByName("new").visible = false;
                     if (songData.change == "up") {
                         changeLayers.getByName("变化升").visible = true;
@@ -59,9 +59,9 @@ function easyMainImages() {
                     }
 
                     if (songData.point_before == 0) {
-                        layers.getByName("前日排名").textItem.contents = "--";
+                        layers.getByName("上期排名").textItem.contents = "--";
                     } else {
-                        layers.getByName("前日排名").textItem.contents = songData.rank_before;
+                        layers.getByName("上期排名").textItem.contents = songData.rank_before;
                     }
                 }
 

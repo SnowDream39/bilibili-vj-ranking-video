@@ -1,6 +1,8 @@
 #include 'json2.js'
 #include 'ps.jsx'
 
+// var MODE = 'daily';
+
 function fillChange(textItem, change){
     if (change>0) {
         textItem.contents = '（+' + comma(change) + ')';
@@ -31,7 +33,7 @@ function fillTops(topLayers, tops){
 
 
 function statistics2(){
-    if (MODE in ['daily', 'weekly']){
+    if (MODE == 'daily' || MODE == 'weekly'){
         var fileRef = new File(currentFolder + "其他图片\\统计2.psd");
     } else {
         var fileRef = new File(currentFolder + "其他图片\\月刊\\统计2.psd");

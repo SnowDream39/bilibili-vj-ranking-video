@@ -61,7 +61,7 @@ for i in range(9,-1,-1):
     song_box.append( BeautifulSoup(f"<strong><p class='font-size-20'>第{song_data['rank']}位\n</p></strong>", 'html.parser'))
     song_box.append(new_tag('div', f"\n\n![]({song_data['image_url']})"))
     song_box.append(new_tag("p", song_data['title']))
-    song_box.append(new_tag("p", f"P主：{song_data['author']}  {'本家投稿' if song_data['copyright'] == 1 else '搬运：' + song_data['uploader']} {song_data['type']}", class_ = "font-size-12"))
+    song_box.append(new_tag("p", f"P主：{song_data['author']} {'本家投稿' if song_data['copyright'] == 1 else '搬运：' + song_data['uploader']} {song_data['type']}", class_ = "font-size-12"))
     song_box.append(new_tag("p", f"歌手：{song_data['vocal']}", class_ = "font-size-12"))
     song_box.append(new_tag("p", f"引擎：{song_data['synthesizer']}", class_='font-size-12'))
     song_box.append(new_tag("p", f"播放：{song_data['view']}（×{song_data['viewR']}） {song_data['view_rank']}位"))

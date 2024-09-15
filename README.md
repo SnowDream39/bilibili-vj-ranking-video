@@ -6,10 +6,10 @@
 
 ## 运行环境
 
-- VSCode
+- VSCode + ExtendScript Debugger
 - Python 3.7以上
 - Adobe Premiere Pro
-- Adobe Photoshop
+- Adobe Photoshop 25.11以下
 
 ## 视频制作方法
 

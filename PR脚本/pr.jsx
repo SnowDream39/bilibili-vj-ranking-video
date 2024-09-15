@@ -23,6 +23,7 @@ function readJSONFile(filepath) {
     }
 }
 
+// 写入JSON文件
 function writeJSONFile(filepath, content) {
     var file = new File(filepath);
     file.encoding = "UTF-8";
@@ -31,6 +32,7 @@ function writeJSONFile(filepath, content) {
     file.close();
 }
 
+// 在素材箱中查找素材
 function getByName(bin, name) {
     if (bin) {
         for (var i = 0; i < bin.children.numItems; i++) {
@@ -44,6 +46,7 @@ function getByName(bin, name) {
     return null; // 如果未找到则返回 null
 }
 
+// 按照某个键值对查找项
 function jsonGet(data, searchKey, searchValue) {
     for (var i = 0; i < data.length; i++) {
         if (data[i][searchKey] === searchValue) {
@@ -61,9 +64,11 @@ function sum(items) {
     return s;
 }
 
+
+//  将素材箱中的素材添加到序列
 function importClips(bin, items, lengths, track, time, type) {
     for (var i = 0; i < items.length; i++) {
-        var currentItem = getByName(bin, items[i]);
+        var currentItem = getByName(bin, items[i].split("\\")[items[i].split("\\").length-1]);
         currentItem.setOutPoint(lengths[i] * ticks, type);
         // 将图片加入到序列
         track.overwriteClip(currentItem, String(time.ticks));
@@ -122,6 +127,7 @@ function videoSizeFit(clip, size, _position) {
 
 }
 
+// 导入文件，先导入到工程，再加入到序列
 function importVideosToTrack(files, bin, track, lengths, time, data) {
     project.importFiles(files, false, bin, false);
 

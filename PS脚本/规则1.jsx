@@ -1,5 +1,7 @@
 #include "ps.jsx"
 
+var MODE = 'weekly';
+
 function rule1() {
     if (MODE == 'daily'){
         var fileRef = new File(currentFolder + "其他图片\\日刊\\规则1.psd")

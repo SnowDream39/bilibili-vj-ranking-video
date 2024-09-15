@@ -1,8 +1,9 @@
 #include 'ps.jsx'
 
+// var MODE = 'weekly';
 
 function mainImages() {
-    if (MODE in ['daily', 'weekly']){
+    if (MODE == 'daily' || MODE == 'weekly'){
         var fileRef = new File(currentFolder + "主榜图片\\日刊样式.psd");
     } else {
         var fileRef = new File(currentFolder + "主榜图片\\月刊样式.psd");

@@ -1,6 +1,8 @@
 #include 'ps.jsx'
 
-function extendTitle() {
+// var MODE = 'weekly';
+
+function extendTitle15() {
     if (MODE == 'weekly'){
         var fileRef = new File(currentFolder + "其他图片\\周刊\\规则1.5.psd");
     }
@@ -24,4 +26,4 @@ function extendTitle() {
     }
 }
 
-extendTitle();
+extendTitle15();

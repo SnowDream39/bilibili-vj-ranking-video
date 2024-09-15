@@ -481,7 +481,6 @@ class RankingMaker:
         statistics_today = self.make_statistics_today()
         statistics_before = read_statistics_before()
         statistics = compare(statistics_today, statistics_before)
-
         
         with open('统计.json','w',encoding='utf-8') as file:
             json.dump(statistics, file, ensure_ascii=False, indent=4)
@@ -670,7 +669,7 @@ class RankingMaker:
         for i in range(self.extend):
             bvid = self.songs_data_today.at[i, "bvid"]
             if bvid not in pics.keys():
-                asyncio.get_event_loop().run_until_complete(download_thumbnail(bvid))
+                asyncio.run(download_thumbnail(bvid))
 
     def cover_thumbnail(self):
         if self.mode in ('daily', 'daily-text'):
