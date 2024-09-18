@@ -657,7 +657,7 @@ class RankingMaker:
             song_data_main = songs_data_today[songs_data_today['name'] == songs_data_new.at[i, 'name']]
             if not song_data_main.empty:
                 main_rank = song_data_main.iloc[0]['rank']
-                songs_data_new.at[i,'main_rank'] = main_rank
+                songs_data_new.at[i,'main_rank'] = int(main_rank)
 
     def local_thumbnails(self):
 

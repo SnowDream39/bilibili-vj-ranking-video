@@ -6,15 +6,107 @@
 
 ## 运行环境
 
-- VSCode + ExtendScript Debugger
+- VSCode
 - Python 3.7以上
 - Adobe Premiere Pro
 - Adobe Photoshop 25.11以下
 
+## 初始化配置方法（VSCode）
+
+1. 下载项目代码
+2. 根据需求创建一些目录，并把一些PS文件放进去：
+```
+/项目根目录
+│
+├── /PS脚本 
+│
+├── /PR脚本
+│
+├── /主榜图片           # 视频版使用
+│   ├── 日刊样式.psd 
+│   └── 月刊样式.psd 
+│
+├── /副榜图片           # 视频版使用
+│   ├── 日刊样式.psd 
+│   └── 月刊样式.psd 
+│
+├── /简易主榜图片       # 图文版使用
+│   ├── 日刊样式.psd 
+│   └── 月刊样式.psd 
+│
+├── /其他图片          # 除了榜单本体以外的图片都放在这里
+│   ├── /日刊          # 视频版使用，内容略
+│   ├── /周刊          # 视频版使用，内容略
+│   ├── /月刊          # 视频版使用，内容略
+│   ├── 4比3封面.psd 
+│   ├── 16比9封面.psd 
+│   ├── 统计1.psd
+│   ...
+│   
+│
+├── /日刊              
+│   ├── /数据          # 存放原始数据文件，包括总榜和新曲榜
+│   └── /统计          # 存放生成的统计文件
+│
+├── /周刊              
+│   ├── /数据  
+│   └── /统计  
+│
+├── /月刊              
+│   ├── /数据
+│   └── /统计 
+│
+├── 准备数据.py
+...
+```
+3. `ps.jsx`和`pr.jsx`两个文件当中的`currentFolder`变量需要在第一次使用前手动更改为当前项目目录。
+4. VSCode打开`launch.json`，添加以下内容：
+
+```json
+"configurations": [
+    {
+        "name": "日刊",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "args": ["--mode", "daily"],
+        "console": "integratedTerminal"
+    },
+        {
+        "name": "日刊图文版",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "args": ["--mode", "daily-text"],
+        "console": "integratedTerminal"
+    },
+
+    {
+        "name": "周刊",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "args": ["--mode", "weekly"],
+        "console": "integratedTerminal"
+    },
+
+    {
+        "name": "月刊",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "${file}",
+        "args": ["--mode", "monthly"],
+        "console": "integratedTerminal"
+    },
+]
+```
+
+5. 在VSCode扩展商店中下载`ExtendScript Debugger`
+
 ## 视频制作方法
 
 1. 将数据文件放入文件夹
-2. 运行`准备资源.py`，使用对应的模式（日刊、图文版、周刊、月刊）
+2. 打开`准备资源.py`，选择`使用 launch.json 进行调试`，使用对应的模式（日刊、图文版、周刊、月刊）
 3. 打开PS，运行`PS脚本`文件夹中对应的图片脚本
 4. 打开PR，打开`完整刊.prproj`，导入新视频到`截取片段视频`素材箱当中，进行打点，然后运行`提取截取片段.jsx`
 5. 打开`PR脚本/完整刊.jsx`文件，手动修改开头的`MODE`（`daily`或`weekly`或`monthly`），然后运行
@@ -48,4 +140,3 @@
 
 不过要想制作日刊，还需要PS和PR工程文件（用作模板）以及数据文件，也就是说仅靠这个仓库你是做不出视频的。想要工程文件请联系SnowDream39。关于数据脚本，请前往[SnowDream39/bilibili_vj_ranking](https://github.com/SnowDream39/bilibili_vj_ranking)。
 
-注意`ps.jsx`和`pr.jsx`两个文件当中的`currentFolder`变量需要在第一次使用前手动更改。

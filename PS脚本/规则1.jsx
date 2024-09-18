@@ -1,6 +1,6 @@
 #include "ps.jsx"
 
-var MODE = 'weekly';
+//var MODE = 'weekly';
 
 function rule1() {
     if (MODE == 'daily'){
