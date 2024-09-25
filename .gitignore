@@ -26,6 +26,8 @@ BGM/
 *.prproj
 *.prlock
 *.html
+*.zip
+*.csv
 
 PS脚本/test.jsx
 PR脚本/test.jsx

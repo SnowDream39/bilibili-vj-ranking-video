@@ -75,20 +75,6 @@ for i in range(9,-1,-1):
 
 soup.append(BeautifulSoup(f"\n<strong><p class='font-size-23'>主榜</p></strong>\n", 'html.parser'))
 
-soup.append(new_tag("h1", "关于图文版"))
-soup.append("""\n\n\n
-Q：为什么不做视频版日刊了？
-
-A：视频版每天需要制作半小时左右，自己时间不足了。
-
-Q：以后也不做了吗？
-
-A：以后也不做了。改成做周刊和月刊。图文版应该还会继续发。不过还是需要有更多人来帮忙。
-
-Q：怎样可以帮忙制作视频？
-
-A：加入术力口数据库QQ群974585468。
-""")
 html_output = str(soup)
 with open("专栏文本.html", 'w', encoding='utf-8') as file:
     file.write(html_output)

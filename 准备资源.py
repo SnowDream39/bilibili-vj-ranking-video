@@ -19,9 +19,7 @@ import argparse
 FFMPEG_PATH = "D:/Tool/ffmpeg-2024-07-07-git-0619138639-full_build/bin/ffmpeg.exe"
 
 
-now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-today = now - timedelta(days=1)
-full_date = today.strftime("%Y.%m.%d")
+
 themes = {
     0: "周日主题色",
     1: "周一主题色",
@@ -157,24 +155,26 @@ async def download_thumbnail_special(bvid):
 
 
 class RankingMaker:
-    def __init__(self, mode):
+    def __init__(self, now: datetime, mode: str):
+        self.now = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        self.today = self.now - timedelta(days=1)
+        full_date = self.today.strftime("%Y.%m.%d")
         self.mode = mode
-
 
         if mode == "daily" or mode == "daily-text":
             self.folder = "日刊/"
-            total_phase = (today - datetime(year=2024, month=7, day=2)).days
+            total_phase = (self.today - datetime(year=2024, month=7, day=2)).days
 
             metadata = {
-                "full_date": today.strftime("%Y.%m.%d"),
-                "year": today.year,
-                "month": today.month,
-                "day": today.day,
-                "weekday": today.weekday() + 1,
-                "theme": themes[(today.weekday() + 1) % 7],
+                "full_date": self.today.strftime("%Y.%m.%d"),
+                "year": self.today.year,
+                "month": self.today.month,
+                "day": self.today.day,
+                "weekday": self.today.weekday() + 1,
+                "theme": themes[(self.today.weekday() + 1) % 7],
                 "total_phase": total_phase,
                 "phase": total_phase,
-                "time_range": f"{today.strftime('%Y.%m.%d')} 00:00 —— {(today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
+                "time_range": f"{self.today.strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
             }
             with open("日刊/基本配置.yaml", "r", encoding="utf-8") as file:
                 settings = yaml.safe_load(file)
@@ -182,46 +182,46 @@ class RankingMaker:
                 self.extend = settings["extend"]
                 self.new = settings["new"]
             self.file_before = (
-                today.strftime("%Y%m%d")
+                self.today.strftime("%Y%m%d")
                 + "与"
-                + (today - timedelta(days=1)).strftime("%Y%m%d")
+                + (self.today - timedelta(days=1)).strftime("%Y%m%d")
                 + ".xlsx"
             )
             self.file_today = (
-                (today + timedelta(days=1)).strftime("%Y%m%d")
+                (self.today + timedelta(days=1)).strftime("%Y%m%d")
                 + "与"
-                + today.strftime("%Y%m%d")
+                + self.today.strftime("%Y%m%d")
                 + ".xlsx"
             )
 
             self.file_new = (
                 "新曲榜"
-                + (today + timedelta(days=1)).strftime("%Y%m%d")
+                + (self.today + timedelta(days=1)).strftime("%Y%m%d")
                 + "与"
-                + today.strftime("%Y%m%d")
+                + self.today.strftime("%Y%m%d")
                 + ".xlsx"
             )
             self.file_new_before = (
                 "新曲榜"
-                + today.strftime("%Y%m%d")
+                + self.today.strftime("%Y%m%d")
                 + "与"
-                + (today - timedelta(days=1)).strftime("%Y%m%d")
+                + (self.today - timedelta(days=1)).strftime("%Y%m%d")
                 + ".xlsx"
             )
         elif mode == "weekly":
             self.folder = "周刊/"
-            total_phase = (now - datetime(2024,8,31)).days // 7
+            total_phase = (self.now - datetime(2024,8,31)).days // 7
 
             metadata = {
-                "full_date": now.strftime("%Y.%m.%d"),
-                "year": now.year,
-                "month": now.month,
-                "day": now.day,
-                "weekday": now.weekday() + 1,
-                "theme": themes[(now.weekday() + 1) % 7],
+                "full_date": self.now.strftime("%Y.%m.%d"),
+                "year": self.now.year,
+                "month": self.now.month,
+                "day": self.now.day,
+                "weekday": self.now.weekday() + 1,
+                "theme": themes[(self.now.weekday() + 1) % 7],
                 "total_phase": total_phase,
                 "phase": total_phase,
-                "time_range": f"{(now - timedelta(days=7)).strftime('%Y.%m.%d')} 00:00 —— {now.strftime('%Y.%m.%d')} 00:00"  
+                "time_range": f"{(self.now - timedelta(days=7)).strftime('%Y.%m.%d')} 00:00 —— {self.now.strftime('%Y.%m.%d')} 00:00"  
             }
             with open("周刊/基本配置.yaml", "r", encoding="utf-8") as file:
                 settings = yaml.safe_load(file)
@@ -232,38 +232,38 @@ class RankingMaker:
                 self.preferences = yaml.safe_load(file)[full_date]
 
             self.file_before = (
-                (now - timedelta(days=7)).strftime("%Y-%m-%d")
+                (self.now - timedelta(days=7)).strftime("%Y-%m-%d")
                 + ".xlsx"
             )
             self.file_today = (
-                now.strftime("%Y-%m-%d")
+                self.now.strftime("%Y-%m-%d")
                 + ".xlsx"
             )
 
             self.file_new = (
                 "新曲"
-                + now.strftime("%Y-%m-%d")
+                + self.now.strftime("%Y-%m-%d")
                 + ".xlsx"
             )
             self.file_new_before = (
                 "新曲"
-                + (now - timedelta(days=7)).strftime("%Y-%m-%d")
+                + (self.now - timedelta(days=7)).strftime("%Y-%m-%d")
                 + ".xlsx"
             )
         elif mode == "monthly":
             self.folder = "月刊/"
-            total_phase = ( now.year - 2024)*12 + now.month - 6
+            total_phase = ( self.now.year - 2024)*12 + self.now.month - 6
 
             metadata = {
-                "full_date": today.strftime("%Y.%m.%d"),
-                "year": today.year,
-                "month": today.month,
-                "day": today.day,
-                "weekday": today.weekday() + 1,
-                "theme": themes[(today.weekday() + 1) % 7],
+                "full_date": self.today.strftime("%Y.%m.%d"),
+                "year": self.today.year,
+                "month": self.today.month,
+                "day": self.today.day,
+                "weekday": self.today.weekday() + 1,
+                "theme": themes[(self.today.weekday() + 1) % 7],
                 "total_phase": total_phase,
                 "phase": total_phase,
-                "time_range": f"{(today - timedelta(days=today.day-1)).strftime('%Y.%m.%d')} 00:00 —— {(today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
+                "time_range": f"{(self.today - timedelta(days=self.today.day-1)).strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
             }
             with open("月刊/基本配置.yaml", "r", encoding="utf-8") as file:
                 settings = yaml.safe_load(file)
@@ -274,32 +274,32 @@ class RankingMaker:
                 self.preferences = yaml.safe_load(file)[full_date]
 
             self.file_before = (
-                (today - timedelta(days=today.day)).strftime("%Y-%m")
+                (self.today - timedelta(days=self.today.day)).strftime("%Y-%m")
                 + ".xlsx"
             )
             self.file_today = (
-                today.strftime("%Y-%m")
+                self.today.strftime("%Y-%m")
                 + ".xlsx"
             )
 
             self.file_new = (
                 "新曲"
-                + (today - timedelta(days=today.day)).strftime("%Y-%m")
+                + (self.today - timedelta(days=self.today.day)).strftime("%Y-%m")
                 + ".xlsx"
             )
             self.file_new_before = (
                 "新曲"
-                + today.strftime("%Y-%m")
+                + self.today.strftime("%Y-%m")
                 + ".xlsx"
             )
 
 
-        self.songs_data_today = pd.read_excel(self.folder + "数据/" + self.file_today, dtype={"pubdate": str})
+        self.songs_data_today = pd.read_excel(self.folder + "数据/" + self.file_today, dtype={"author":str, "pubdate": str})
         self.songs_data_today["pic"] = self.songs_data_today["bvid"] + ".png"
-        self.songs_data_before = pd.read_excel(self.folder + "数据/" + self.file_before, dtype={"pubdate": str})
-        self.songs_data_new = pd.read_excel(self.folder + "数据/" + self.file_new, dtype={"pubdate": str}, nrows=self.new)
+        self.songs_data_before = pd.read_excel(self.folder + "数据/" + self.file_before, dtype={"author":str,"pubdate": str})
+        self.songs_data_new = pd.read_excel(self.folder + "数据/" + self.file_new, dtype={"author":str,"pubdate": str}, nrows=self.new)
         self.songs_data_new_before = pd.read_excel(
-            self.folder + "数据/" + self.file_new_before, dtype={"pubdate": str}, nrows=self.new
+            self.folder + "数据/" + self.file_new_before, dtype={"author":str,"pubdate": str}, nrows=self.new
         )
 
         if mode in ('daily', 'weekly','monthly'):
@@ -365,11 +365,11 @@ class RankingMaker:
 
         def new_songs():
             if self.mode in ('daily','daily-text'):
-                start_time = today - timedelta(days=4)
+                start_time = self.today - timedelta(days=4)
             elif self.mode == 'weekly':
-                start_time = today - timedelta(days=13)
+                start_time = self.today - timedelta(days=13)
             elif self.mode == 'monthly':
-                start_time = today.replace(day=1)
+                start_time = self.today.replace(day=1)
             counts = {'main':0, 'extend':0}
             for i in range(self.extend):
                 pubdate = songs_data_today.at[i, 'pubdate']
@@ -385,8 +385,9 @@ class RankingMaker:
                 removed_vocals = yaml.safe_load(file)
             counts = {}
             for names in songs_data_today[key]:
-                for name in names.split('、'):
-                    counts[name] = counts.get(name, 0) + 1
+                if pd.notna(names):
+                    for name in names.split('、'):
+                        counts[name] = counts.get(name, 0) + 1
             
 
             counts = [{"name":k, "count":v} for (k,v) in counts.items() if k not in removed_vocals]
@@ -414,15 +415,15 @@ class RankingMaker:
 
         def output_counts():
             if self.mode in ('daily', 'daily-text'):
-                file_path = f"统计/{today.strftime('%Y%m%d')}.json"
+                file_path = f"统计/{self.today.strftime('%Y%m%d')}.json"
             elif self.mode == 'weekly':
-                file_path = f"统计/{today.strftime('%Y-%m-%d')}.json"
+                file_path = f"统计/{self.today.strftime('%Y-%m-%d')}.json"
             elif self.mode == 'monthly':
-                file_path = f"统计/{today.strftime('%Y-%m')}.json"
+                file_path = f"统计/{self.today.strftime('%Y-%m')}.json"
             with open(self.folder + file_path,'w',encoding='utf-8') as file:
                 json.dump(counts, file, ensure_ascii=False, indent=4)
     
-        songs_data_today = self.songs_data_today
+        songs_data_today = self.songs_data_today.head(self.extend)
         songs_data_new = self.songs_data_new
         counts = {'high_points':high_points() , 'start_points':start_points() ,'new_songs': new_songs(), 'top_vocals': count_names('vocal'),'top_synthesizers': count_names('synthesizer')}
         output_counts()
@@ -462,22 +463,28 @@ class RankingMaker:
                             diff[key][i]['change'] = sub_dict1[i]['count'] - item['count']
                             break
                     else:
-                        diff[key][i]['count_change'] = sub_dict1[i]['count']
+                        diff[key][i]['change'] = sub_dict1[i]['count']
 
 
             return diff
 
-        def read_statistics_before():
+        def read_statistics_before():  #目前仅加入日刊统计补齐功能
             if self.mode in ('daily', 'daily-text'):
-                file_path = f'统计/{(today - timedelta(days=1)).strftime("%Y%m%d")}.json'
+                file_path = f'统计/{(self.today - timedelta(days=1)).strftime("%Y%m%d")}.json'
             elif self.mode == 'weekly':
-                file_path = f'统计/{(today - timedelta(days=7)).strftime("%Y-%m-%d")}.json'
+                file_path = f'统计/{(self.today - timedelta(days=7)).strftime("%Y-%m-%d")}.json'
             elif self.mode == 'monthly':
-                file_path = f'统计/{(today - timedelta(days=today.day)).strftime("%Y-%m")}.json'
-            with open(self.folder + file_path, 'r', encoding='utf-8') as file:
-                statistics_before = json.load(file)
+                file_path = f'统计/{(self.today - timedelta(days=self.today.day)).strftime("%Y-%m")}.json'
+            if os.path.exists(self.folder + file_path):
+                with open(self.folder + file_path, 'r', encoding='utf-8') as file:
+                    statistics_before = json.load(file)
+            else:
+                if self.mode in ('daily', 'daily-text'):
+                    temp_ranking_maker = RankingMaker(self.now - timedelta(days=1),'daily-text')
+                    temp_ranking_maker.make_statistics()
+                    statistics_before = read_statistics_before()
             return statistics_before
-        
+    
         statistics_today = self.make_statistics_today()
         statistics_before = read_statistics_before()
         statistics = compare(statistics_today, statistics_before)
@@ -498,11 +505,11 @@ class RankingMaker:
 
     def insert_before(self):
         if self.mode in ('daily','daily-text'):
-            start_time = today
+            start_time = self.today
         elif self.mode == 'weekly':
-            start_time = today - timedelta(days=6)
+            start_time = self.today - timedelta(days=6)
         elif self.mode == 'monthly':
-            start_mode = today.replace(day=1)
+            start_mode = self.today.replace(day=1)
         songs_data_today = self.songs_data_today
         songs_data_before = self.songs_data_before
         
@@ -542,7 +549,7 @@ class RankingMaker:
     def local_videos(self):
 
         def delete_videos(days, today_videos):
-            file_path = f"视频/{(today - timedelta(days=days)).strftime('%Y%m%d')}下载视频.json"
+            file_path = f"视频/{(self.today - timedelta(days=days)).strftime('%Y%m%d')}下载视频.json"
             if os.path.exists(file_path):
                 with open(file_path, "r") as file:
                     old_videos = json.load(file)
@@ -565,7 +572,7 @@ class RankingMaker:
         delete_videos(7, today_videos)
 
 
-        file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"
+        file_path = f"视频/{self.today.strftime('%Y%m%d')}下载视频.json"
         if os.path.exists(file_path):
             with open(file_path, "r") as file:
                 download_list = json.load(file)
@@ -587,7 +594,7 @@ class RankingMaker:
 
 
 
-        file_path = f"视频/{today.strftime('%Y%m%d')}下载视频.json"
+        file_path = f"视频/{self.today.strftime('%Y%m%d')}下载视频.json"
         with open(file_path, "w") as file:
             json.dump(download_list, file, ensure_ascii=False, indent=4)
 
@@ -711,5 +718,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    ranking = RankingMaker(args.mode)
+    ranking = RankingMaker(datetime.now() - timedelta(1),args.mode)
     ranking.make_resources()

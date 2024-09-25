@@ -28,7 +28,7 @@ function rule1() {
             var insertionLocation = ElementPlacement.PLACEBEFORE;
             var thumbLayer = importImage(currentFolder + '封面\\' + metadata.OP_bvid + '.png', "封面", layers, relativeObject, insertionLocation, size, position);
             savePic(doc, currentFolder + '其他图片\\规则1.png');
-            doc.close(SaveOptions.SAVECHANGES);
+            // doc.close(SaveOptions.SAVECHANGES);
         } else {
             $.writeln("读取 JSON 数据时出错");
         }

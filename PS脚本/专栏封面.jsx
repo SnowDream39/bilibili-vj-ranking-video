@@ -1,5 +1,6 @@
 #include 'ps.jsx'
 
+// var MODE = 'daily';
 function thumbnail16to9() {
     var fileRef = new File(currentFolder + "其他图片\\专栏封面.psd")
     app.open(fileRef);

@@ -1,5 +1,7 @@
 #include 'ps.jsx'
 
+// var MODE = 'daily';
+
 function thumbnail() {
     if(MODE === 'daily'){
         var name = '日刊虚拟歌手';
