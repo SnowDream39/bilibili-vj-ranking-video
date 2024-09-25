@@ -718,5 +718,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    ranking = RankingMaker(datetime.now() - timedelta(1),args.mode)
+    ranking = RankingMaker(datetime.now(),args.mode)
     ranking.make_resources()
