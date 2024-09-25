@@ -1,6 +1,6 @@
 #include 'ps.jsx'
 
-// var MODE = 'daily';
+var MODE = 'daily';
 
 function thumbnail() {
     if(MODE === 'daily'){
@@ -33,7 +33,7 @@ function thumbnail() {
                 for (var j = 0; j < themes.length; j++) {
                     if (j == weekday%7) {
                         layers.getByName(themes[j]).visible = true;
-                        setColor(layers.getByName("期数").textItem, colors[i]);
+                        setColor(layers.getByName("期数").textItem, colors[j]);
                     } else {
                         layers.getByName(themes[j]).visible = false;
                     }
