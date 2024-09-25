@@ -29,6 +29,7 @@ BGM/
 *.html
 *.zip
 *.csv
+*.psd
 
 PS脚本/test.jsx
 PR脚本/test.jsx

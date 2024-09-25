@@ -67,7 +67,7 @@ function singerStatistics() {
         } else {
             $.writeln("读取 JSON 数据时出错");
         }
-        savePic(doc, currentFolder + '其他图片\\统计歌手.png");
+        savePic(doc, currentFolder + '其他图片\\统计歌手.png');
         doc.close(SaveOptions.SAVECHANGES);
     } else {
         $.writeln("没有活动文档");
