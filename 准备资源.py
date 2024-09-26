@@ -432,7 +432,7 @@ class RankingMaker:
 
 
 
-        songs_data_today = self.songs_data_today.head(self.extend)
+        songs_data_today = self.songs_data_today
         songs_data_new = self.songs_data_new
         counts = {'high_points':high_points() , 'start_points':start_points() ,'new_songs': new_songs(), 'top_vocals': names_total_point('vocal')}
         with open(f"日刊/新版统计/{self.today.strftime('%Y%m%d')}.json",'w',encoding='utf-8') as file:
@@ -472,7 +472,7 @@ class RankingMaker:
                                 diff[key][i]['change'] = 'down'
                             break
                     else:
-                        diff[key][i]['rank_before'] = sub_dict1[i]['--']
+                        diff[key][i]['rank_before'] = '--'
                         diff[key][i]['change'] = 'up'
 
 
@@ -704,10 +704,10 @@ class RankingMaker:
 
     def make_resources(self):
 
+        self.make_statistics()
         self.insert_main_rank()
         self.songs_data_today = self.songs_data_today.head(self.extend)
         self.insert_before()
-        self.make_statistics()
         self.cover_thumbnail()
         self.local_thumbnails()
         print("现在可以开始制作图片")
