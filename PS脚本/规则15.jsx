@@ -1,9 +1,9 @@
 #include 'ps.jsx'
 
-// var MODE = 'weekly';
 
 function extendTitle15() {
-    if (MODE == 'weekly'){
+    var mode = judgeMode();
+    if (mode == 'weekly'){
         var fileRef = new File(currentFolder + "其他图片\\周刊\\规则1.5.psd");
     }
     app.open(fileRef);

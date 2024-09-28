@@ -1,11 +1,11 @@
 #include 'ps.jsx'
 
-var MODE = 'daily';
 
 function thumbnail() {
-    if(MODE === 'daily'){
+    var mode = judgeMode();
+    if(mode === 'daily'){
         var name = '日刊虚拟歌手';
-    } else if(MODE === 'weekly'){
+    } else if(mode === 'weekly'){
         var name = '周刊虚拟歌手';
     }
 

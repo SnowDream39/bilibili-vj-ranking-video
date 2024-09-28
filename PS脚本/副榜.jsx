@@ -2,7 +2,8 @@
 
 
 function extendTitle() {
-    if (MODE == 'daily' || MODE == 'weekly'){
+    var mode = judgeMode();
+    if (mode == 'daily' || mode == 'weekly'){
         var fileRef = new File(currentFolder + "其他图片\\日刊\\副榜.psd");
     } else {
         var fileRef = new File(currentFolder + "其他图片\\月刊\\副榜.psd");

@@ -1,13 +1,13 @@
 #include "ps.jsx"
 
-//var MODE = 'weekly';
 
 function rule1() {
-    if (MODE == 'daily'){
+    var mode = judgeMode();
+    if (mode == 'daily'){
         var fileRef = new File(currentFolder + "其他图片\\日刊\\规则1.psd")
-    } else if(MODE === 'weekly'){
+    } else if(mode === 'weekly'){
         var fileRef = new File(currentFolder + "其他图片\\周刊\\规则1.psd");
-    } else if(MODE === 'monthly'){
+    } else if(mode === 'monthly'){
         var fileRef = new File(currentFolder + "其他图片\\月刊\\规则1.psd");
     }
     app.open(fileRef)

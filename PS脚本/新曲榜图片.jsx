@@ -1,10 +1,32 @@
 #include 'ps.jsx'
 
-// var MODE = 'weekly';
+
+function insertDailyRanks(layers, dailyRanks) {
+    for(var i = 0; i<7; i++){
+        var layer = layers[i];
+        var daily_rank = dailyRanks[i];
+        var textItem = layer.textItem;
+        textItem.contents = daily_rank;
+        if(daily_rank >= 1000){
+            textItem.size = 24;
+            textItem.baselineShift = 4;
+        } else if(daily_rank >= 100){
+            textItem.size = 30;
+            textItem.baselineShift = 2;
+        } else {
+            textItem.size = 36;
+            textItem.baselineShift = 0;
+        }
+    }
+}
+
 
 function newImages() {
-    if (MODE == 'daily' || MODE == 'weekly'){
+    var mode = judgeMode();
+    if (mode == 'daily'){
         var fileRef = new File(currentFolder + "新曲榜图片\\日刊样式.psd");
+    } else if (mode == 'weekly'){
+        var fileRef = new File(currentFolder + "新曲榜图片\\周刊样式.psd");
     } else {
         var fileRef = new File(currentFolder + "新曲榜图片\\月刊样式.psd");
     }
@@ -28,6 +50,8 @@ function newImages() {
                 layers.getByName("新曲排名").textItem.contents = songData.rank;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
 
+                insertDailyRanks(layers.getByName("日排名").layers, songData.daily_ranks);
+
                 fillData(songData, layers.getByName("播放").layers, ["view", "viewR", "view_rank"]);
                 fillData(songData, layers.getByName("收藏").layers, ["favorite", "favoriteR", "favorite_rank"]);
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
@@ -42,10 +66,17 @@ function newImages() {
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
                 layers.getByName("时长").textItem.contents = songData.duration;
                 layers.getByName("类型").textItem.contents = songData.type;
-                if (songData.main_rank <= contain){
-                    layers.getByName("总榜排名").textItem.contents = '进入主榜';
-                } else {
-                     layers.getByName("总榜排名").textItem.contents = '总榜排名：' + songData.main_rank;
+                if (mode == 'daily'){
+
+                    if (songData.main_rank <= contain){
+                        layers.getByName("总榜排名").textItem.contents = '进入主榜';
+                    } else {
+                        layers.getByName("总榜排名").textItem.contents = '总榜排名：' + songData.main_rank;
+                    }
+                } else if (mode == 'weekly'){
+
+                    layers.getByName("总榜排名").textItem.contents = songData.main_rank;
+            
                 }
 
                 if (songData.copyright === 1){

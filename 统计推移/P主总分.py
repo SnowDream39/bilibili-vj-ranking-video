@@ -4,13 +4,13 @@ import json
 
 data = pd.DataFrame(columns=['name','type','value','date'])
 
-today = datetime(2024,8,18)
+today = datetime(2024,7,20)
 
 while today < datetime(2024,9,26):
     print(today.strftime("%Y-%m-%d"))
-    file_path = f"日刊/新版统计/{today.strftime('%Y%m%d')}.json"
+    file_path = f"日刊/P主测试统计/{today.strftime('%Y%m%d')}.json"
     with open(file_path, encoding='utf-8') as file:
-        data_today = json.load(file)['top_vocals']
+        data_today = json.load(file)['top_authors']
     i = 0
     while i<20 and i<(len(data_today)):
         name_data = data_today[i]
@@ -24,4 +24,4 @@ while today < datetime(2024,9,26):
 
 
 data['type'] = data['name']
-data.to_csv("统计推移/歌姬总分.csv", encoding='utf-8', index=False)
+data.to_csv("统计推移/P主总分.csv", encoding='utf-8', index=False)

@@ -1,10 +1,10 @@
 #include 'ps.jsx'
 
-var MODE = 'daily';
 
 
 function singerStatistics() {
-    if (MODE == 'daily' || MODE == 'weekly'){
+    var mode = judgeMode();
+    if (mode == 'daily' || mode == 'weekly'){
         var fileRef = new File(currentFolder + "其他图片\\统计歌手.psd");
     } else {
         var fileRef = new File(currentFolder + "其他图片\\统计歌手.psd");

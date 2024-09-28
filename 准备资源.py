@@ -322,15 +322,26 @@ class RankingMaker:
 
     def make_statistics_today(self):
         def high_points():
-            counts = {'10w':0, '2w':0,'1w':0}
-            points_today = songs_data_today['point']
-            for i in range(len(points_today)):
-                if points_today[i] >= 100000:
-                    counts['10w'] += 1
-                if points_today[i] >= 20000:
-                    counts['2w'] += 1
-                if points_today[i] >= 10000:
-                    counts["1w"] += 1
+            if self.mode in ('daily', 'daily-text'):
+                counts = {'10w':0, '2w':0,'1w':0}
+                points_today = songs_data_today['point']
+                for i in range(len(points_today)):
+                    if points_today[i] >= 100000:
+                        counts['10w'] += 1
+                    if points_today[i] >= 20000:
+                        counts['2w'] += 1
+                    if points_today[i] >= 10000:
+                        counts["1w"] += 1
+            if self.mode == 'weekly':
+                counts = {'50w':0, '10w':0,'5w':0}
+                points_today = songs_data_today['point']
+                for i in range(len(points_today)):
+                    if points_today[i] >= 500000:
+                        counts['50w'] += 1
+                    if points_today[i] >= 100000:
+                        counts['10w'] += 1
+                    if points_today[i] >= 50000:
+                        counts["5w"] += 1
             return counts
         
         def start_points():
@@ -438,9 +449,6 @@ class RankingMaker:
         with open(f"日刊/新版统计/{self.today.strftime('%Y%m%d')}.json",'w',encoding='utf-8') as file:
             json.dump(counts, file, ensure_ascii=False, indent=4)
         return counts
-
-
-
           
     def make_statistics(self):
         def compare(dict1, dict2):
@@ -676,6 +684,23 @@ class RankingMaker:
                 main_rank = song_data_main.iloc[0]['rank']
                 songs_data_new.at[i,'main_rank'] = int(main_rank)
 
+    def insert_daily(self):
+        for items in ((self.songs_data_today, self.main), (self.songs_data_new, self.new)):
+            songs_data_today = items[0]
+            songs_data_today['daily_ranks'] = [[] for _ in songs_data_today.index]
+            for i in range(7,0,-1):
+                file_path = f"数据/{(self.today - timedelta(i-2)).strftime('%Y%m%d')}与{(self.today - timedelta(i-1)).strftime('%Y%m%d')}.xlsx"
+                songs_data_daily = pd.read_excel("日刊/" + file_path)
+                for j in range(items[1]):
+                    
+                    song_data_daily = songs_data_daily[songs_data_daily['name'] == songs_data_today.at[j, 'name']]
+                    if not song_data_daily.empty:
+                        daily_rank = song_data_daily.iloc[0]['rank']
+                        songs_data_today.at[j,'daily_ranks'].append(daily_rank)
+                    else:
+                        songs_data_today.at[j,'daily_ranks'].append('--')
+
+
     def local_thumbnails(self):
 
         pics_filename = os.listdir("./封面")
@@ -710,7 +735,9 @@ class RankingMaker:
         self.insert_before()
         self.cover_thumbnail()
         self.local_thumbnails()
-        print("现在可以开始制作图片")
+
+        if self.mode == 'weekly':
+            self.insert_daily()
 
         if self.mode != 'daily-text':
             self.local_videos()
@@ -718,9 +745,11 @@ class RankingMaker:
             self.insert_clip_points(self.songs_data_new, self.new)
 
 
+
         self.songs_data_today.to_json("数据.json", force_ascii=False, orient="records", indent=4)
         self.songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)
 
+        print("现在可以开始制作图片")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Choose the mode to run the program")

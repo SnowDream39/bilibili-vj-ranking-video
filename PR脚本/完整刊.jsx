@@ -109,9 +109,16 @@ audioTime.seconds += Number(extendTime) / ticks;
 clip.end = audioTime;
 
 // 导入副榜和前后图片
-var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计2.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
-var subLengths = [5, 5, 3, 3];
-
+if (MODE == 'daily'){
+    var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计2.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
+    var subLengths = [5, 5, 3, 3];
+}else if (MODE == 'weekly'){
+    var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计歌手.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
+    var subLengths = [5, 12, 3, 3];
+}else if (MODE == 'monthly'){
+    var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计歌手.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
+    var subLengths = [5, 12, 3, 3];
+}
 var extendSeconds = ((Number(extendTime) / ticks + 1) - sum(subLengths) - 3) / 20;
 for (var i = 0; i < (extend - contain) / 4; i++) {
     subImages.push(currentFolder + '副榜图片\\' + (i + 1) + '.png');

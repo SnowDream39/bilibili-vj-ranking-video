@@ -3,6 +3,16 @@
 var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
 var extend = 100;
+var TEMP_MODE = 'weekly';
+
+function judgeMode() {
+    if (typeof MODE === 'undefined'){
+        var newMode = TEMP_MODE;
+    }else{
+        var newMode = MODE;
+    }
+    return newMode
+}
 
 // 自定义的对象，已弃用
 function MyTextLayer(textLayer) {

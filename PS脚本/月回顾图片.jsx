@@ -2,6 +2,7 @@
 
 
 function newImages() {
+    var mode = judgeMode();
     var fileRef = new File(currentFolder + "月回顾图片\\月回顾样式.psd");
     if (fileRef.exists) {
         app.open(fileRef);

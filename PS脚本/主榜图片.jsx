@@ -1,9 +1,27 @@
 #include 'ps.jsx'
 
-// var MODE = 'weekly';
+function insertDailyRanks(layers, dailyRanks) {
+    for(var i = 0; i<7; i++){
+        var layer = layers[i];
+        var daily_rank = dailyRanks[i];
+        var textItem = layer.textItem;
+        textItem.contents = daily_rank;
+        if(daily_rank >= 1000){
+            textItem.size = 24;
+            textItem.baselineShift = 4;
+        } else if(daily_rank >= 100){
+            textItem.size = 30;
+            textItem.baselineShift = 2;
+        } else {
+            textItem.size = 36;
+            textItem.baselineShift = 0;
+        }
+    }
+}
 
 function mainImages() {
-    if (MODE == 'daily' || MODE == 'weekly'){
+    var mode = judgeMode();
+    if (mode == 'daily' || mode == 'weekly'){
         var fileRef = new File(currentFolder + "主榜图片\\日刊样式.psd");
     } else {
         var fileRef = new File(currentFolder + "主榜图片\\月刊样式.psd");
@@ -63,6 +81,9 @@ function mainImages() {
                     }
 
                 }
+
+                insertDailyRanks(layers.getByName("日排名").layers, songData.daily_ranks)
+        
 
                 // var dataItems = ['播放', '收藏', '硬币', '点赞']; 
 
