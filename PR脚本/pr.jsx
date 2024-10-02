@@ -1,9 +1,6 @@
 #include 'json2.js'
 
 var currentFolder = "D:\\自制\\视频\\B站日V日刊\\";
-var contain = 20;
-var extend = 100;
-var news = 10;
 var mainSeconds = 20;
 var ticks = 254016000000;
 
@@ -167,7 +164,7 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
     for (var i = startRank; i > endRank; i--) {
         var bvid = jsonGet(data, 'rank', i).bvid;
         videoFiles.push(currentFolder + '视频\\' + bvid + '.mp4');
-        lengths.push(20); // Assuming a fixed length for each clip, adjust if necessary
+        lengths.push(20); 
         videoData.push(data[i - 1]);
         imageFiles.push(currentFolder + name + '图片\\' + i + '.png');
     }

@@ -2,65 +2,20 @@
 
 这是bilibili平台上[术力口数据姬](https://space.bilibili.com/3546611315640327)的视频和图文制作脚本。
 
-这个仓库内包含了日刊、周刊、月刊、省流版日刊、每日冠军回顾以及图文版的制作脚本。PS和PR工程文件因为较大，没有放在版本库中。
+这个仓库内包含了日刊、周刊、月刊、省流版日刊、每日冠军回顾以及图文版的制作脚本。PS和PR工程文件因为较大，在Release当中提供。
 
 ## 运行环境
 
 - VSCode
 - Python 3.7以上
-- Adobe Premiere Pro
-- Adobe Photoshop 25.11以下
+- Adobe Premiere Pro 2024
+- Adobe Photoshop 2024 
 
 ## 初始化配置方法（VSCode）
 
-1. 下载项目代码
-2. 根据需求创建一些目录，并把一些PS文件放进去：
-```
-/项目根目录
-│
-├── /PS脚本 
-│
-├── /PR脚本
-│
-├── /主榜图片           # 视频版使用
-│   ├── 日刊样式.psd 
-│   └── 月刊样式.psd 
-│
-├── /副榜图片           # 视频版使用
-│   ├── 日刊样式.psd 
-│   └── 月刊样式.psd 
-│
-├── /简易主榜图片       # 图文版使用
-│   ├── 日刊样式.psd 
-│   └── 月刊样式.psd 
-│
-├── /其他图片          # 除了榜单本体以外的图片都放在这里
-│   ├── /日刊          # 视频版使用，内容略
-│   ├── /周刊          # 视频版使用，内容略
-│   ├── /月刊          # 视频版使用，内容略
-│   ├── 4比3封面.psd 
-│   ├── 16比9封面.psd 
-│   ├── 统计1.psd
-│   ...
-│   
-│
-├── /日刊              
-│   ├── /数据          # 存放原始数据文件，包括总榜和新曲榜
-│   └── /统计          # 存放生成的统计文件
-│
-├── /周刊              
-│   ├── /数据  
-│   └── /统计  
-│
-├── /月刊              
-│   ├── /数据
-│   └── /统计 
-│
-├── 准备数据.py
-...
-```
-3. `ps.jsx`和`pr.jsx`两个文件当中的`currentFolder`变量需要在第一次使用前手动更改为当前项目目录。
-4. VSCode打开`launch.json`，添加以下内容：
+1. 下载项目代码，以及最新的Release文件，放在一起。
+2. `ps.jsx`和`pr.jsx`两个文件当中的`currentFolder`变量需要在第一次使用前手动更改为当前项目目录。
+3. VSCode打开`launch.json`，添加以下内容：
 
 ```json
 "configurations": [
@@ -101,7 +56,7 @@
 ]
 ```
 
-5. 在VSCode扩展商店中下载`ExtendScript Debugger`
+4. 在VSCode扩展商店中下载`ExtendScript Debugger`
 
 ## 视频制作方法
 
@@ -138,5 +93,5 @@
 
 本项目使用MIT许可证进行许可。
 
-不过要想制作日刊，还需要PS和PR工程文件（用作模板）以及数据文件，也就是说仅靠这个仓库你是做不出视频的。想要工程文件请联系SnowDream39。关于数据脚本，请前往[SnowDream39/bilibili_vj_ranking](https://github.com/SnowDream39/bilibili_vj_ranking)。
+关于数据脚本，请前往[SnowDream39/bilibili_vj_ranking](https://github.com/SnowDream39/bilibili_vj_ranking)。
 

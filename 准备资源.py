@@ -1,9 +1,8 @@
 import pandas as pd
-import numpy as np
 import json
 import asyncio
 from datetime import datetime, timedelta
-from bilibili_api import video, Credential, HEADERS, sync
+from bilibili_api import video, HEADERS
 import requests
 from PIL import Image
 from io import BytesIO
@@ -12,13 +11,6 @@ import yaml
 import os
 import shutil
 import argparse
-
-
-#开头常量部分
-
-FFMPEG_PATH = "D:/Tool/ffmpeg-2024-07-07-git-0619138639-full_build/bin/ffmpeg.exe"
-
-
 
 themes = {
     0: "周日主题色",
@@ -29,9 +21,9 @@ themes = {
     5: "周五主题色",
     6: "周六主题色",
 }
+
 with open("截取片段.json", "r", encoding="utf-8") as file:
     clip_points = json.load(file)
-
 
 async def download_url(url: str, out: str, info: str):
     # 下载函数
@@ -61,7 +53,7 @@ async def download_video(bvid):
         # FLV 流下载
         await download_url(streams[0].url, "视频/flv_temp.flv", "FLV 音视频流")
         # 转换文件格式
-        os.system(f"{FFMPEG_PATH} -i 视频/flv_temp.flv 视频/{bvid}.mp4")
+        os.system(f"ffmpeg -i 视频/flv_temp.flv 视频/{bvid}.mp4")
         # 删除临时文件
         os.remove("视频/flv_temp.flv")
     else:
@@ -70,7 +62,7 @@ async def download_video(bvid):
         await download_url(streams[1].url, "视频/audio_temp.m4s", "音频流")
         # 混流
         os.system(
-            f"{FFMPEG_PATH} -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy 视频/{bvid}.mp4"
+            f"ffmpeg -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy 视频/{bvid}.mp4"
         )
         # 删除临时文件
         os.remove("视频/video_temp.m4s")
@@ -106,7 +98,6 @@ async def download_thumbnail(bvid):
 
     resized_image.save("封面/" + bvid + ".png", "PNG")
     print("已保存：", bvid)
-
 
 async def download_thumbnail_special(bvid):
     v = video.Video(bvid=bvid)
@@ -153,7 +144,6 @@ async def download_thumbnail_special(bvid):
         print("图片下载失败，状态码：", response.status_code)
         exit()
 
-
 class RankingMaker:
     def __init__(self, now: datetime, mode: str):
         self.now = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -163,11 +153,14 @@ class RankingMaker:
 
         if mode == "daily" or mode == "daily-text":
             self.folder = "日刊/"
+
+            self.today = self.now - timedelta(days=1)
             total_phase = (self.today - datetime(year=2024, month=7, day=2)).days
 
+            full_date = self.now.strftime("%Y.%m.%d")
             metadata = {
-                "full_date": self.today.strftime("%Y.%m.%d"),
-                "year": self.today.year,
+                "full_date": full_date,
+                "year": self.now.year,
                 "month": self.today.month,
                 "day": self.today.day,
                 "weekday": self.today.weekday() + 1,
@@ -210,10 +203,12 @@ class RankingMaker:
             )
         elif mode == "weekly":
             self.folder = "周刊/"
-            total_phase = (self.now - datetime(2024,8,31)).days // 7
-
+            
+            self.today = self.now - timedelta(days=(self.now.weekday()-4)%7)
+            total_phase = (self.today - datetime(2024,8,30)).days // 7
+            full_date = self.today.strftime("%Y.%m.%d")
             metadata = {
-                "full_date": self.now.strftime("%Y.%m.%d"),
+                "full_date": (self.today + timedelta(1)).strftime("%Y.%m.%d"),
                 "year": self.now.year,
                 "month": self.now.month,
                 "day": self.now.day,
@@ -232,31 +227,36 @@ class RankingMaker:
                 self.preferences = yaml.safe_load(file)[full_date]
 
             self.file_before = (
-                (self.now - timedelta(days=7)).strftime("%Y-%m-%d")
+                (self.today - timedelta(days=6)).strftime("%Y-%m-%d")
                 + ".xlsx"
             )
             self.file_today = (
-                self.now.strftime("%Y-%m-%d")
+                (self.today + timedelta(1)).strftime("%Y-%m-%d")
                 + ".xlsx"
             )
 
             self.file_new = (
                 "新曲"
-                + self.now.strftime("%Y-%m-%d")
+                + (self.today + timedelta(1)).strftime("%Y-%m-%d")
                 + ".xlsx"
             )
             self.file_new_before = (
                 "新曲"
-                + (self.now - timedelta(days=7)).strftime("%Y-%m-%d")
+                + (self.today - timedelta(days=6)).strftime("%Y-%m-%d")
                 + ".xlsx"
             )
+
+            self.million_data = pd.read_excel("周刊/数据/百万记录"+(self.today + timedelta(days=1)).strftime("%Y-%m-%d")+".xlsx")
         elif mode == "monthly":
             self.folder = "月刊/"
-            total_phase = ( self.now.year - 2024)*12 + self.now.month - 6
 
+            self.today = self.now.replace(day=1) - timedelta(days=1)
+            total_phase = ( self.today.year - 2024)*12 + self.today.month - 6
+
+            full_date = self.today.strftime("%Y.%m.%d")
             metadata = {
-                "full_date": self.today.strftime("%Y.%m.%d"),
-                "year": self.today.year,
+                "full_date": self.today.strftime("%Y.%m"),
+                "year": self.now.year,
                 "month": self.today.month,
                 "day": self.today.day,
                 "weekday": self.today.weekday() + 1,
@@ -282,12 +282,12 @@ class RankingMaker:
                 + ".xlsx"
             )
 
-            self.file_new = (
+            self.file_new_before = (
                 "新曲"
                 + (self.today - timedelta(days=self.today.day)).strftime("%Y-%m")
                 + ".xlsx"
             )
-            self.file_new_before = (
+            self.file_new = (
                 "新曲"
                 + self.today.strftime("%Y-%m")
                 + ".xlsx"
@@ -319,29 +319,27 @@ class RankingMaker:
             metadata["ED_title"] = preferences["ED_title"]
         with open("基本信息数据.json", "w", encoding="utf-8") as file:
             json.dump(metadata, file, ensure_ascii=False, indent=4)
+        self.today_pics = []
 
     def make_statistics_today(self):
         def high_points():
             if self.mode in ('daily', 'daily-text'):
-                counts = {'10w':0, '2w':0,'1w':0}
-                points_today = songs_data_today['point']
-                for i in range(len(points_today)):
-                    if points_today[i] >= 100000:
-                        counts['10w'] += 1
-                    if points_today[i] >= 20000:
-                        counts['2w'] += 1
-                    if points_today[i] >= 10000:
-                        counts["1w"] += 1
-            if self.mode == 'weekly':
-                counts = {'50w':0, '10w':0,'5w':0}
-                points_today = songs_data_today['point']
-                for i in range(len(points_today)):
-                    if points_today[i] >= 500000:
-                        counts['50w'] += 1
-                    if points_today[i] >= 100000:
-                        counts['10w'] += 1
-                    if points_today[i] >= 50000:
-                        counts["5w"] += 1
+                levels = [1e5,2e4,1e4]
+            elif self.mode == 'weekly':
+                levels = [5e5,1e5,5e4]
+            elif self.mode == 'monthly':
+                levels = [1e6,5e5,1e5]
+            level_names = [f"{int(level//1e4)}w" for level in levels]
+            counts = {k:0 for k in level_names}
+            points_today = songs_data_today['point']
+            for i in range(len(points_today)):
+                if points_today[i] >= levels[0]:
+                    counts[level_names[0]] += 1
+                elif points_today[i] >= levels[1]:
+                    counts[level_names[1]] += 1
+                elif points_today[i] >= levels[2]:
+                    counts[level_names[2]] += 1
+                
             return counts
         
         def start_points():
@@ -519,7 +517,8 @@ class RankingMaker:
                     songs_data.at[i, "inPoint"] = clip["inPoint"]
                     songs_data.at[i, "outPoint"] = clip["outPoint"]
                     break
-
+            else:
+                print(f"缺少截取片段：{songs_data.at[i,'name']}({songs_data.at[i,'bvid']})")
 
     def insert_before(self):
         if self.mode in ('daily','daily-text'):
@@ -527,12 +526,13 @@ class RankingMaker:
         elif self.mode == 'weekly':
             start_time = self.today - timedelta(days=6)
         elif self.mode == 'monthly':
-            start_mode = self.today.replace(day=1)
+            start_time = self.today.replace(day=1)
         songs_data_today = self.songs_data_today
         songs_data_before = self.songs_data_before
         
         songs_data_today["rank_before"] = "--"
         songs_data_today["point_before"] = "--"
+        songs_data_today["rate"] = "--"
         songs_data_today["change"] = "new"
 
         for i in songs_data_today.index:
@@ -545,6 +545,8 @@ class RankingMaker:
                 rank_before = song_data_before["rank"]
                 songs_data_today.at[i, "rank_before"] = song_data_before["rank"]
                 songs_data_today.at[i, "point_before"] = song_data_before["point"]
+                if song_data_before["point"] != 0:
+                    songs_data_today.at[i, "rate"] = round(songs_data_today.at[i, "point"] / song_data_before["point"], 4) - 1
 
                 if rank_before < i + 1:
                     songs_data_today.at[i, "change"] = "down"
@@ -562,7 +564,6 @@ class RankingMaker:
                     songs_data_today.at[i, "rank_before"] = "--"
                     songs_data_today.at[i, "point_before"] = "--"
                     songs_data_today.at[i, "change"] = "up"
-
 
     def local_videos(self):
 
@@ -625,8 +626,6 @@ class RankingMaker:
 
         print("现在清您去截取片段")
 
-
-
     def detect_language(character):
         code = ord(character)
         if (0x4E00 <= code <= 0x9FFF) or (0x3400 <= code <= 0x4DBF):
@@ -673,7 +672,6 @@ class RankingMaker:
             index += 1
         return top_list
 
-
     def insert_main_rank(self):
         songs_data_new = self.songs_data_new
         songs_data_today = self.songs_data_today
@@ -686,38 +684,56 @@ class RankingMaker:
 
     def insert_daily(self):
         for items in ((self.songs_data_today, self.main), (self.songs_data_new, self.new)):
-            songs_data_today = items[0]
-            songs_data_today['daily_ranks'] = [[] for _ in songs_data_today.index]
+            songs_data = items[0]
+            songs_data['daily_ranks'] = [[] for _ in songs_data.index]
             for i in range(7,0,-1):
+                print(f"正在插入第{8-i}天排名")
                 file_path = f"数据/{(self.today - timedelta(i-2)).strftime('%Y%m%d')}与{(self.today - timedelta(i-1)).strftime('%Y%m%d')}.xlsx"
                 songs_data_daily = pd.read_excel("日刊/" + file_path)
-                for j in range(items[1]):
-                    
-                    song_data_daily = songs_data_daily[songs_data_daily['name'] == songs_data_today.at[j, 'name']]
-                    if not song_data_daily.empty:
-                        daily_rank = song_data_daily.iloc[0]['rank']
-                        songs_data_today.at[j,'daily_ranks'].append(daily_rank)
-                    else:
-                        songs_data_today.at[j,'daily_ranks'].append('--')
+                songs_data_daily.set_index('name',inplace=True)
 
+                for j in songs_data.index:
+                    song_name = songs_data.at[j, 'name']
+                    if song_name in songs_data_daily.index:    
+                        songs_data.at[j, 'daily_ranks'].append(songs_data_daily.at[song_name, 'rank'])
+                    else:
+                        songs_data.at[j, 'daily_ranks'].append("--")
+
+    def insert_weekly(self):
+        for items in ((self.songs_data_today, self.main), (self.songs_data_new, self.new)):
+            songs_data = items[0]
+            songs_data['daily_ranks'] = [[] for _ in songs_data.index]
+            for i in range(4,-1,-1):
+                date = self.today - timedelta((self.today.weekday() - 5)%7 + i * 7)
+                print(f"正在插入{date.strftime('%Y%m%d')}排名")
+                file_path = f"数据/{date.strftime('%Y-%m-%d')}.xlsx"
+                songs_data_daily = pd.read_excel("周刊/" + file_path)
+                songs_data_daily.set_index('name',inplace=True)
+
+                for j in songs_data.index:
+                    song_name = songs_data.at[j, 'name']
+                    if song_name in songs_data_daily.index:    
+                        songs_data.at[j, 'daily_ranks'].append(songs_data_daily.at[song_name, 'rank'])
+                    else:
+                        songs_data.at[j, 'daily_ranks'].append("--")
 
     def local_thumbnails(self):
 
-        pics_filename = os.listdir("./封面")
-        pics_bvid = [pic[0:12] for pic in pics_filename]
-        pics = {bvid: filename for bvid, filename in zip(pics_bvid, pics_filename)}
+        local_pics = os.listdir("./封面")
 
         # 下载封面
         for i in range(self.extend):
-            bvid = self.songs_data_today.at[i, "bvid"]
-            if bvid not in pics.keys():
-                asyncio.run(download_thumbnail(bvid))
+            self.today_pics.append(self.songs_data_today.at[i, 'bvid'] + '.png')
+        
+        for pic in self.today_pics:
+            if pic not in local_pics:
+                asyncio.run(download_thumbnail(pic[0:12]))
 
     def cover_thumbnail(self):
         if self.mode in ('daily', 'daily-text'):
 
             thumbnail_bvid = self.songs_data_new.at[0, "bvid"]
-        elif self.mode == 'weekly':
+        elif self.mode in ('weekly', 'monthly' ):
             songs_data_today = self.songs_data_today
             for i in songs_data_today.index:
                 if songs_data_today.at[i, 'change'] == 'new':
@@ -726,6 +742,11 @@ class RankingMaker:
         
         asyncio.run(download_thumbnail_special(thumbnail_bvid))
 
+    def million_reach(self):
+        million_data = self.million_data
+        for i in million_data.index:
+            self.today_pics.append(million_data.at[i, 'bvid'] + '.png')
+        million_data.to_json("百万达成.json", orient='records', force_ascii=False, indent=4)
 
     def make_resources(self):
 
@@ -733,11 +754,12 @@ class RankingMaker:
         self.insert_main_rank()
         self.songs_data_today = self.songs_data_today.head(self.extend)
         self.insert_before()
-        self.cover_thumbnail()
-        self.local_thumbnails()
 
         if self.mode == 'weekly':
             self.insert_daily()
+            self.million_reach()
+        elif self.mode == 'monthly':
+            self.insert_weekly()
 
         if self.mode != 'daily-text':
             self.local_videos()
@@ -745,6 +767,8 @@ class RankingMaker:
             self.insert_clip_points(self.songs_data_new, self.new)
 
 
+        self.cover_thumbnail()
+        self.local_thumbnails()
 
         self.songs_data_today.to_json("数据.json", force_ascii=False, orient="records", indent=4)
         self.songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)

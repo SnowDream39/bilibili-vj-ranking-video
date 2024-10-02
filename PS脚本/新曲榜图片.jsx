@@ -1,93 +1,47 @@
 #include 'ps.jsx'
 
-
-function insertDailyRanks(layers, dailyRanks) {
-    for(var i = 0; i<7; i++){
-        var layer = layers[i];
-        var daily_rank = dailyRanks[i];
-        var textItem = layer.textItem;
-        textItem.contents = daily_rank;
-        if(daily_rank >= 1000){
-            textItem.size = 24;
-            textItem.baselineShift = 4;
-        } else if(daily_rank >= 100){
-            textItem.size = 30;
-            textItem.baselineShift = 2;
-        } else {
-            textItem.size = 36;
-            textItem.baselineShift = 0;
-        }
-    }
-}
-
-
 function newImages() {
     var mode = judgeMode();
-    if (mode == 'daily'){
-        var fileRef = new File(currentFolder + "新曲榜图片\\日刊样式.psd");
-    } else if (mode == 'weekly'){
-        var fileRef = new File(currentFolder + "新曲榜图片\\周刊样式.psd");
-    } else {
-        var fileRef = new File(currentFolder + "新曲榜图片\\月刊样式.psd");
+    if (mode == 'daily' || mode == 'weekly'){
+        var news = 10;
+    } else if (mode == 'monthly') {
+        var news = 20;
     }
+    var fileRef = new File(currentFolder + "新曲榜图片\\新曲榜样式.psd");
     if (fileRef.exists) {
         app.open(fileRef);
     } else {
-        $.writeln("文件不存在: " + fileRef);
+        $.writeln("文件不存在: " + filePath);
     }
 
     // 确保有活动文档
     if (app.documents.length > 0) {
         var doc = app.activeDocument;
         var layers = doc.layers;
-        var dataTodayNew = readJSONFile(currentFolder + "新曲数据.json");
+        var dataToday = readJSONFile(currentFolder + "新曲数据.json");
 
         // 确保读取的 JSON 数据有效
-        if (dataTodayNew) {
-            for (var i = 0; i < dataTodayNew.length && i < 10; i++) {
-                var songData = dataTodayNew[i];
+        if (dataToday) {
+            for (var i = 0; i < news; i++) {
+                var songData = dataToday[i];
 
-                layers.getByName("新曲排名").textItem.contents = songData.rank;
+                layers.getByName("排名").textItem.contents = songData.rank;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
+                layers.getByName("总榜排名").textItem.contents = songData.main_rank;
 
-                insertDailyRanks(layers.getByName("日排名").layers, songData.daily_ranks);
+                insertSeperatedRanks(layers, songData.daily_ranks, mode);
+                insertSongInfo(layers.getByName("歌曲信息").layers, songData);
+
+                // var dataItems = ['播放', '收藏', '硬币', '点赞']; 
 
                 fillData(songData, layers.getByName("播放").layers, ["view", "viewR", "view_rank"]);
                 fillData(songData, layers.getByName("收藏").layers, ["favorite", "favoriteR", "favorite_rank"]);
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
-                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 60, font = "SourceHanSansSC-Bold", width=1330);
-                setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansSC-Bold", width=700);
-                setFormattedText(textLayer = layers.getByName("歌手"), contents = songData.vocal, size = 36, font = "SourceHanSansCN-Bold", width=700);
-                setFormattedText(textLayer = layers.getByName("引擎"), contents = songData.synthesizer, size = 36, font = "SourceHanSansCN-Bold", width=700);
-
-                layers.getByName("BV号").textItem.contents = songData.bvid;
-                layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
-                layers.getByName("时长").textItem.contents = songData.duration;
-                layers.getByName("类型").textItem.contents = songData.type;
-                if (mode == 'daily'){
-
-                    if (songData.main_rank <= contain){
-                        layers.getByName("总榜排名").textItem.contents = '进入主榜';
-                    } else {
-                        layers.getByName("总榜排名").textItem.contents = '总榜排名：' + songData.main_rank;
-                    }
-                } else if (mode == 'weekly'){
-
-                    layers.getByName("总榜排名").textItem.contents = songData.main_rank;
-            
-                }
-
-                if (songData.copyright === 1){
-                    var contents = "本家投稿";
-                } else {
-                    var contents = "搬运：" + songData.uploader;
-                }
-                setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=350);
-
                 $.writeln('完成新曲榜第' + (i+1) + "张图片");
                 savePic(doc, currentFolder + '新曲榜图片\\' + (i+1) + ".png");
+
             }
 
             doc.close(SaveOptions.SAVECHANGES);

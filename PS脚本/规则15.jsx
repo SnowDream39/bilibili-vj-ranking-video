@@ -3,9 +3,7 @@
 
 function extendTitle15() {
     var mode = judgeMode();
-    if (mode == 'weekly'){
-        var fileRef = new File(currentFolder + "其他图片\\周刊\\规则1.5.psd");
-    }
+    var fileRef = new File(currentFolder + "其他图片\\规则1.5.psd");
     app.open(fileRef);
     // 确保有活动文档
     if (app.documents.length > 0) {

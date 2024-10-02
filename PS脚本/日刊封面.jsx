@@ -5,11 +5,9 @@ function thumbnail() {
     var mode = judgeMode();
     if(mode === 'daily'){
         var name = '日刊虚拟歌手';
-    } else if(mode === 'weekly'){
-        var name = '周刊虚拟歌手';
     }
 
-    var inputFiles = [ new File(currentFolder + "其他图片\\4比3封面.psd"),  new File(currentFolder + "其他图片\\16比9封面.psd") ];
+    var inputFiles = [ new File(currentFolder + "其他图片\\日刊\\4比3封面.psd"),  new File(currentFolder + "其他图片\\日刊\\16比9封面.psd") ];
     var thumbnails = [currentFolder + '其他图片\\最高新曲封面4比3.png', currentFolder + '其他图片\\最高新曲封面16比9.png']
     var outputFiles = [currentFolder + '其他图片\\4比3封面.png', currentFolder + '其他图片\\16比9封面.png']
 

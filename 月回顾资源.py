@@ -254,11 +254,11 @@ today = datetime.today()
 last_day_of_last_month = datetime(today.year,  today.month, 1)- timedelta(days=1)
 first_day_of_last_month = last_day_of_last_month.replace(day=1)
 current_day = first_day_of_last_month
-all_columns = ['title','bvid','name','author','uploader','copyright','synthesizer','vocal','pubdate','duration','view','favorite','coin','like','viewR','favoriteR','coinR','likeR','point']
+all_columns = ['title','bvid','name','author','uploader','copyright','synthesizer','vocal','type','pubdate','duration','view','favorite','coin','like','viewR','favoriteR','coinR','likeR','point']
 top_datas = pd.DataFrame(columns=all_columns)
 
 while current_day <= last_day_of_last_month:
-    filename = "月回顾数据/"+ (current_day + timedelta(days=1)).strftime("%Y%m%d")+"与"+current_day.strftime("%Y%m%d")+".xlsx"
+    filename = "日刊/数据/"+ (current_day + timedelta(days=1)).strftime("%Y%m%d")+"与"+current_day.strftime("%Y%m%d")+".xlsx"
     current_song_data = pd.read_excel(filename,nrows=1,dtype={"pubdate": str})
     if current_day < datetime(2024,7,12):
         update_algorithm(current_song_data)

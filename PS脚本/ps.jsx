@@ -2,8 +2,8 @@
 
 var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
-var extend = 100;
-var TEMP_MODE = 'weekly';
+var extend = 100; // 手动改
+var TEMP_MODE = 'daily'; //需要临时运行一个脚本的话修改此处
 
 function judgeMode() {
     if (typeof MODE === 'undefined'){
@@ -12,48 +12,6 @@ function judgeMode() {
         var newMode = MODE;
     }
     return newMode
-}
-
-// 自定义的对象，已弃用
-function MyTextLayer(textLayer) {
-    this.textLayer = textLayer;
-    this.textItem = textLayer.textItem; // 简化访问，存储 textItem
-
-    this.setFormattedText = function(contents, size, font) {
-        if (contents !== undefined) {
-            this.textItem.contents = contents; // 直接操作 textItem
-        }
-        if (size !== undefined) {
-            this.textItem.size = size;
-        }
-        if (font !== undefined) {
-            this.textItem.font = font;
-        }
-    };
-
-    this.resizeText = function(width) {
-        this.textItem.horizontalScale = 90; // 初始设置
-        var textBounds = this.textLayer.bounds;
-        var textWidth = textBounds[2] - textBounds[0]; // 计算文本图层的宽度
-        if (textWidth > width) {
-            var scalePercent = (width / textWidth) * 90; // 使用 90% 的比例缩放文本
-            this.textItem.horizontalScale = scalePercent; // 修改 horizontalScale
-        }
-    };
-
-    this.setColor = function(color) {
-        var newColor = new SolidColor();
-        var colors = {
-            'red': [255, 0, 0],
-            'green': [0, 255, 0],
-            'blue': [0, 0, 255],
-            'black': [0, 0, 0]
-        };
-        newColor.rgb.red = colors[color][0];
-        newColor.rgb.green = colors[color][1];
-        newColor.rgb.blue = colors[color][2];
-        this.textItem.color = newColor;
-    }
 }
 
 
@@ -81,9 +39,12 @@ function comma(value) {
     }
     return valueComma;
 }
+function percent(value) {
+    return String(value * 100) + "%";
+}
 
 function savePic(doc, path) {
-    var pngFile = new File(path); // 修改为你的目标路径和文件名
+    var pngFile = new File(path); 
     // 保存选项
     var exportOptions = new ExportOptionsSaveForWeb();
     exportOptions.format = SaveDocumentType.PNG;
@@ -241,4 +202,99 @@ function padNumber(num, length) {
     }
 
     return str;
+}
+
+
+
+function insertSeperatedRanks(layers, ranks, mode) {
+    if (mode == 'daily'){
+        layers.getByName("日排名").visible = false;
+        layers.getByName("周排名").visible = false;
+        return 0
+    } else if (mode == 'weekly'){
+        layers.getByName("日排名").visible = true;
+        layers.getByName("周排名").visible = false;
+        layers = layers.getByName("日排名").layers;
+    } else if (mode == 'monthly'){
+        layers.getByName("日排名").visible = false;
+        layers.getByName("周排名").visible = true;
+        layers = layers.getByName("周排名").layers;
+    }
+    for(var i = 0; i < ranks.length; i++){
+        var layer = layers[i];
+        var rank = ranks[i];
+        var textItem = layer.textItem;
+        textItem.contents = rank;
+        if(rank >= 1000){
+            textItem.size = 24;
+            textItem.baselineShift = 4;
+        } else if(rank >= 100){
+            textItem.size = 30;
+            textItem.baselineShift = 2;
+        } else {
+            textItem.size = 36;
+            textItem.baselineShift = 0;
+        }
+    }
+}
+
+
+function insertSongInfo(layers, songData, mode) {
+    
+    setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 54, font = "SourceHanSansCN-Bold", width=1430);
+    setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansCN-Bold", width=750);
+    setFormattedText(textLayer = layers.getByName("歌手"), contents = songData.vocal, size = 36, font = "SourceHanSansCN-Bold", width=750);
+    setFormattedText(textLayer = layers.getByName("引擎"), contents = songData.synthesizer, size = 36, font = "SourceHanSansCN-Bold", width=750);
+
+    layers.getByName("BV号").textItem.contents = songData.bvid;
+    layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
+    layers.getByName("时长").textItem.contents = songData.duration;
+    layers.getByName("类型").textItem.contents = songData.type;
+
+    if (songData.copyright === 1){
+        var contents = "本家投稿";
+    } else {
+        var contents = "搬运：" + songData.uploader;
+    }
+    setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=600);
+    if (mode != 'monthly') {
+        layers.getByName("入榜次数").visible = true;
+        layers.getByName("入榜次数").textItem.contents = "入榜次数：" + songData.count;
+    } else {
+        layers.getByName("入榜次数").visible = false;
+    }
+} 
+function insertBeforeRank (layers, songData, mode){
+    var rankLayers = layers.getByName("上期排名").layers;
+    var pointLayers = layers.getByName("上期得分").layers;
+    rankLayers.getByName("变化平").visible = false;
+    rankLayers.getByName("变化升").visible = false;
+    rankLayers.getByName("变化降").visible = false;
+    if (songData.change == "new") {
+        rankLayers.getByName("上期排名").textItem.contents = "";
+        rankLayers.getByName("上期").visible = false;
+        rankLayers.getByName("new").visible = true;
+        layers.getByName("上期得分").visible = false;
+    } else {
+        rankLayers.getByName("上期").visible = true;
+        rankLayers.getByName("new").visible = false;
+        layers.getByName("上期得分").visible = true;
+        if (songData.change == "up") {
+            rankLayers.getByName("变化升").visible = true;
+        } else if (songData.change == "cont") {
+            rankLayers.getByName("变化平").visible = true;
+        } else if (songData.change == "down") {
+            rankLayers.getByName("变化降").visible = true;
+        }
+
+        if (songData.point_before == 0 || songData.point_before == "--") {
+            rankLayers.getByName("上期排名").textItem.contents = "--";
+            pointLayers.getByName("上期得分").textItem.contents = "--";
+            pointLayers.getByName("RATE").textItem.contents = "--        ";
+        } else {
+            rankLayers.getByName("上期排名").textItem.contents = songData.rank_before;
+            pointLayers.getByName("上期得分").textItem.contents = comma(songData.point_before);
+            pointLayers.getByName("RATE").textItem.contents = percent(songData.rate);
+        }
+    }
 }

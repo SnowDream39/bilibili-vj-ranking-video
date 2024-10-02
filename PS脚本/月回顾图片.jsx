@@ -1,6 +1,5 @@
 #include 'ps.jsx'
 
-
 function newImages() {
     var mode = judgeMode();
     var fileRef = new File(currentFolder + "月回顾图片\\月回顾样式.psd");
@@ -21,29 +20,15 @@ function newImages() {
             for (var i = 0; i < dataTodayNew.length; i++) {
                 var songData = dataTodayNew[i];
 
-                layers.getByName("新曲排名").textItem.contents = songData.day;
+                layers.getByName("排名").textItem.contents = songData.day;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
+
+                insertSongInfo(layers.getByName("歌曲信息").layers, songData);
 
                 fillData(songData, layers.getByName("播放").layers, ["view", "viewR", "view_rank"]);
                 fillData(songData, layers.getByName("收藏").layers, ["favorite", "favoriteR", "favorite_rank"]);
                 fillData(songData, layers.getByName("硬币").layers, ["coin", "coinR", "coin_rank"]);
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
-
-                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 60, font = "SourceHanSansSC-Bold", width=1330);
-                setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansSC-Bold", width=650);
-                setFormattedText(textLayer = layers.getByName("歌手"), contents = songData.vocal, size = 36, font = "SourceHanSansCN-Bold", width=650);
-                setFormattedText(textLayer = layers.getByName("引擎"), contents = songData.synthesizer, size = 36, font = "SourceHanSansCN-Bold", width=650);
-
-                layers.getByName("BV号").textItem.contents = songData.bvid;
-                layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
-                layers.getByName("类型").textItem.contents = songData.type;
-                layers.getByName("时长").textItem.contents = songData.duration;
-                if (songData.copyright === 1){
-                    var contents = "本家投稿";
-                } else {
-                    var contents = "搬运：" + songData.uploader;
-                }
-                setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=350);
 
                 $.writeln('完成月回顾第' + (i+1) + "张图片");
                 savePic(doc, currentFolder + '月回顾图片\\' + (i+1) + ".png");

@@ -4,10 +4,11 @@
 
 function extendImages() {
     var mode = judgeMode();
-    if (mode == 'daily' || mode == 'weekly'){
-        var fileRef = new File(currentFolder + "副榜图片\\日刊样式.psd");
-    } else {
-        var fileRef = new File(currentFolder + "副榜图片\\月刊样式.psd");
+    var fileRef = new File(currentFolder + "副榜图片\\副榜样式.psd");
+    if (mode == 'daily' || mode == 'weekly') {
+        var extend = 100;
+    } else if (mode == 'monthly') {
+        var extend = 200;
     }
     app.open(fileRef);
 
@@ -77,8 +78,14 @@ function extendImages() {
                 fillDataExtend(songData, layers.getByName("硬币").layers, ["coin", "coin_rank"]);
                 fillDataExtend(songData, layers.getByName("点赞").layers, ["like", "like_rank"]);
 
-                layers.getByName("作者").textItem.contents = songData.author;
-                layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
+                if (mode == "daily" || mode == "weekly") {
+                    setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=300);
+                    layers.getByName("上榜次数").visible = true;
+                    layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
+                } else if (mode == "monthly") {
+                    setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=600);
+                    layers.getByName("上榜次数").visible = false;
+                }
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
 

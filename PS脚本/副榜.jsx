@@ -3,11 +3,7 @@
 
 function extendTitle() {
     var mode = judgeMode();
-    if (mode == 'daily' || mode == 'weekly'){
-        var fileRef = new File(currentFolder + "其他图片\\日刊\\副榜.psd");
-    } else {
-        var fileRef = new File(currentFolder + "其他图片\\月刊\\副榜.psd");
-    }
+    var fileRef = new File(currentFolder + "其他图片\\副榜.psd");
     app.open(fileRef);
     // 确保有活动文档
     if (app.documents.length > 0) {
@@ -17,6 +13,7 @@ function extendTitle() {
 
         // 确保读取的 JSON 数据有效
         if (metadata) {
+            layers.getByName("extend").textItem.contents = extend;
             setFormattedText(textLayer = layers.getByName("BGM"), contents = metadata.ED_title, size = undefined, font = "SourceHanSansSC-Bold", width=1200);
             layers.getByName("BGM").textItem.contents = "BGM：" + metadata.ED_title;
             savePic(doc, currentFolder + '其他图片\\副榜.png');

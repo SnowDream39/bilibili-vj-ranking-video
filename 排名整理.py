@@ -9,7 +9,7 @@ del songs,index
 
 today = datetime(2024,7,3)
 phase = 1
-while today < datetime(2024,9,16):
+while today < datetime.now() - timedelta(1):
     file_name = f"日刊/数据/{(today + timedelta(days=1)).strftime('%Y%m%d')}与{today.strftime('%Y%m%d')}.xlsx"
     data = pd.read_excel(file_name)
     allrank[phase] = None
@@ -23,4 +23,4 @@ while today < datetime(2024,9,16):
     today += timedelta(days=1)
     print(phase)
 
-allrank.to_excel('日刊排名整理2.xlsx')
+allrank.to_excel('日刊排名整理草稿.xlsx')

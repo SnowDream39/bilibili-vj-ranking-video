@@ -1,6 +1,6 @@
 #include 'pr.jsx'
 
-var sequenceName = "大日刊";
+var sequenceName = "排行榜";
 var project = app.project;
 var sequence = project.sequences[0];
 var videoTracks = sequence.videoTracks;
@@ -10,7 +10,7 @@ var videoTrack = videoTracks[1];
 var clips = videoTrack.clips;
 for (var i = 0; i < clips.numItems; i++) {
     var clip = clips[i];
-    videoSizeFit(clip, [1347.8, 758.2], [0.3802, 0.3991]);
+    videoSizeFit(clip, [1449.1, 815.1], [0.3885, 0.3943]);
 }
 // 音频关键帧处理
 var clips = songTrack.clips;

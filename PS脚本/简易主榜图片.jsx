@@ -3,7 +3,7 @@
 
 
 function easyMainImages() {
-    var fileRef = new File(currentFolder + "副榜图片\\日刊样式.psd")
+    var fileRef = new File(currentFolder + "副榜图片\\副榜样式.psd")
     app.open(fileRef);
 
     if (app.documents.length > 0) {
@@ -74,7 +74,6 @@ function easyMainImages() {
 
                 layers.getByName("作者").textItem.contents = songData.author;
                 layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
-                layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
 

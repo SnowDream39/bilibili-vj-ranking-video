@@ -3,12 +3,6 @@
 
 function fillStats(layers, name, stat){
     var mode = judgeMode();
-    if (mode == 'daily' || mode == 'weekly'){
-        var fileRef = new File(currentFolder + "其他图片\\统计1.psd");
-    } else {
-        var fileRef = new File(currentFolder + "其他图片\\月刊\\统计1.psd");
-    }
-    $.writeln('开始')
     layers.getByName('名称').textItem.contents = name;
     layers.getByName('数值').textItem.contents = comma(stat.today);
 
@@ -29,7 +23,8 @@ function fillStats(layers, name, stat){
 
 
 function statistics1() {
-    var fileRef = new File(currentFolder + "其他图片\\统计1.psd")
+    var mode = judgeMode();
+    var fileRef = new File(currentFolder + "其他图片\\统计数据.psd")
     app.open(fileRef);
     // 确保有活动文档
     if (app.documents.length > 0) {
@@ -39,34 +34,34 @@ function statistics1() {
 
         // 确保读取的 JSON 数据有效
         if (stats) {
-            if (MODE === 'daily'){
+            if (mode === 'daily'){
                 layers.getByName('标题').textItem.contents = '今日榜单统计数据';
                 fillStats(layers.getByName('第一档分数').layers, "10万分以上          首", stats.high_points['10w']);
                 fillStats(layers.getByName('第二档分数').layers, "2万分以上          首", stats.high_points['2w']);
                 fillStats(layers.getByName('第三档分数').layers, "1万分以上          首", stats.high_points['1w']);
                 fillStats(layers.getByName('主榜新曲数').layers, "主榜5日以内新曲          首", stats.new_songs.main);
                 fillStats(layers.getByName('全榜新曲数').layers, "全榜5日以内新曲          首", stats.new_songs.extend);
-            } else if (MODE === 'weekly'){
+            } else if (mode === 'weekly'){
                 layers.getByName('标题').textItem.contents = '本周榜单统计数据';
                 fillStats(layers.getByName('第一档分数').layers, "50万分以上          首", stats.high_points['50w']);
                 fillStats(layers.getByName('第二档分数').layers, "10万分以上          首", stats.high_points['10w']);
                 fillStats(layers.getByName('第三档分数').layers, "5万分以上          首", stats.high_points['5w']);
                 fillStats(layers.getByName('主榜新曲数').layers, "主榜2周以内新曲          首", stats.new_songs.main);
                 fillStats(layers.getByName('全榜新曲数').layers, "全榜2周以内新曲          首", stats.new_songs.extend);
-            } else if (MODE === 'monthly'){
+            } else if (mode === 'monthly'){
                 layers.getByName('标题').textItem.contents = '本周榜单统计数据';
                 fillStats(layers.getByName('第一档分数').layers, "100万分以上          首", stats.high_points['100w']);
                 fillStats(layers.getByName('第二档分数').layers, "50万分以上          首", stats.high_points['50w']);
                 fillStats(layers.getByName('第三档分数').layers, "10万分以上          首", stats.high_points['10w']);
                 fillStats(layers.getByName('主榜新曲数').layers, "主榜本月新曲          首", stats.new_songs.main);
-                fillStats(layers.getByName('全榜新曲数').layers, "全榜本月以内新曲          首", stats.new_songs.extend);
+                fillStats(layers.getByName('全榜新曲数').layers, "全榜本月新曲          首", stats.new_songs.extend);
             }
 
             fillStats(layers.getByName('主榜起分').layers, "主榜起分", stats.start_points.main);
             fillStats(layers.getByName('新曲榜起分').layers, "新曲榜起分", stats.start_points.new);
             fillStats(layers.getByName('副榜起分').layers, "副榜起分", stats.start_points.extend);
             var metadata = readJSONFile(currentFolder + '基本信息数据.json');
-            // savePic(doc, currentFolder + '其他图片\\统计1.png');
+            // savePic(doc, currentFolder + '其他图片\\统计数据.png');
             // doc.close(SaveOptions.SAVECHANGES);
         } else {
             $.writeln("读取 JSON 数据时出错");

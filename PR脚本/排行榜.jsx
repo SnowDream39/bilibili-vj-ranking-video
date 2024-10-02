@@ -2,9 +2,19 @@
 
 var MODE = 'weekly';
 
+if (MODE == 'daily' || MODE == 'weekly') {
+    var contain = 20;
+    var extend = 100;
+    var news = 10;
+}else if (MODE == 'monthly') {
+    var contain = 20;
+    var extend = 200;
+    var news = 20;
+}
+
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
 
-var sequenceName = "完整刊";
+var sequenceName = "排行榜";
 var project = app.project;
 var rootItem = project.rootItem;
 
@@ -41,7 +51,7 @@ var audioTime = new Time();
 // 开头
 if (MODE === 'daily'){
 
-    var openingImages = ["16比9封面.png", "日刊\\规则1.png", "日刊\\规则2.png", "日刊\\规则3.png", "新曲榜.png"];
+    var openingImages = ["16比9封面.png", "规则1.png", "日刊\\规则2.png", "日刊\\规则3.png", "新曲榜.png"];
     var openingLength = [3, 5, 5, 5, 3];
 } else if (MODE === 'weekly') {
 
@@ -49,8 +59,8 @@ if (MODE === 'daily'){
     var openingLength = [3, 5, 5, 5, 5, 3];
 } else if (MODE === 'monthly') {
 
-    var openingImages = ["16比9封面.png", "规则1.png",  "规则2.png", "规则3.png", "新曲榜.png"];
-    var openingLength = [3, 5, 5, 5, 3];
+    var openingImages = ["月刊\\封面.png", "规则1.png",  "规则1.5.png", "月刊\\规则2.png", "月刊\\规则3.png", "新曲榜.png"];
+    var openingLength = [3, 5, 5, 5, 5, 3];
 }
 
 
@@ -113,13 +123,25 @@ if (MODE == 'daily'){
     var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计2.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
     var subLengths = [5, 5, 3, 3];
 }else if (MODE == 'weekly'){
-    var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计歌手.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
-    var subLengths = [5, 12, 3, 3];
+    var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计歌手.png"];
+    var subLengths = [5, 12];
+    var millionStats = readJSONFile(currentFolder + "百万达成.json");
+    var millionPages = 0;
+    for(var i=0;i<millionStats.length;i++){
+        if (i%5 == 1){
+            millionPages++;
+            subImages.push(currentFolder + "其他图片\\百万达成" + millionPages + ".png");
+            subLengths.push(6);
+        }
+    }
+    subImages.push(currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png");
+    subLengths.push(8,3);
+
 }else if (MODE == 'monthly'){
     var subImages = [currentFolder + "其他图片\\" + "统计1.png",currentFolder + "其他图片\\" +  "统计歌手.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
-    var subLengths = [5, 12, 3, 3];
+    var subLengths = [5, 12, 8, 3];
 }
-var extendSeconds = ((Number(extendTime) / ticks + 1) - sum(subLengths) - 3) / 20;
+var extendSeconds = ((Number(extendTime) / ticks + 1) - sum(subLengths) - 3) / (extend - contain) * 4;
 for (var i = 0; i < (extend - contain) / 4; i++) {
     subImages.push(currentFolder + '副榜图片\\' + (i + 1) + '.png');
     subLengths.push(extendSeconds);
@@ -138,7 +160,7 @@ project.save();
 var clips = videoTrack.clips;
 for (var i = 0; i < clips.numItems; i++) {
     var clip = clips[i];
-    videoSizeFit(clip, [1347.8, 758.2], [0.3802, 0.3991]);
+    videoSizeFit(clip, [1449.1, 815.1], [0.3885, 0.3943]);
 }
 
 // 音频关键帧处理
