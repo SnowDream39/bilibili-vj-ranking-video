@@ -15,48 +15,7 @@
 
 1. 下载项目代码，以及最新的Release文件，放在一起。
 2. `ps.jsx`和`pr.jsx`两个文件当中的`currentFolder`变量需要在第一次使用前手动更改为当前项目目录。
-3. VSCode打开`launch.json`，添加以下内容：
-
-```json
-"configurations": [
-    {
-        "name": "日刊",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${file}",
-        "args": ["--mode", "daily"],
-        "console": "integratedTerminal"
-    },
-        {
-        "name": "日刊图文版",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${file}",
-        "args": ["--mode", "daily-text"],
-        "console": "integratedTerminal"
-    },
-
-    {
-        "name": "周刊",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${file}",
-        "args": ["--mode", "weekly"],
-        "console": "integratedTerminal"
-    },
-
-    {
-        "name": "月刊",
-        "type": "debugpy",
-        "request": "launch",
-        "program": "${file}",
-        "args": ["--mode", "monthly"],
-        "console": "integratedTerminal"
-    },
-]
-```
-
-4. 在VSCode扩展商店中下载`ExtendScript Debugger`
+3. 在VSCode扩展商店中下载`ExtendScript Debugger`
 
 ## 视频制作方法
 
@@ -66,20 +25,15 @@
 4. 打开PR，打开`完整刊.prproj`，导入新视频到`截取片段视频`素材箱当中，进行打点，然后运行`提取截取片段.jsx`
 5. 打开`PR脚本/完整刊.jsx`文件，手动修改开头的`MODE`（`daily`或`weekly`或`monthly`），然后运行
 
-## 省流版制作方法
-
-准备资源与上面相同
-1. 打开PS，运行`PS脚本/省流版图片.jsx`（如果制作日刊时已经制作省流版图片则跳过）
-2. 打开PR，打开`省流版日刊.prproj`
-3. 运行`PR脚本/小日刊.jsx`
 
 ## 图文版制作方法
 
-准备资源与上面相同
-1. 运行`生成文章.py`
-2. 生成的文章位于`专栏文本.html`，全文复制
-3. 前往bilibili投稿专栏，使用旧版编辑器，利用[Markdown编辑工具](https://github.com/LuckyPuppy514/Bilibili-Markdown)，粘贴
-4. 其他图片使用复制粘贴的方法加入文章
+先执行到视频制作的第2步
+1. 打开PS，运行`PS脚本`文件夹中对应的图片脚本
+2. 运行`生成文章.py`
+3. 生成的文章位于`专栏文本.html`，全文复制源代码
+4. 前往bilibili投稿专栏，使用旧版编辑器，利用[Markdown编辑工具](https://github.com/LuckyPuppy514/Bilibili-Markdown)，粘贴
+5. 其他图片使用复制粘贴的方法加入文章
 
 ## 视频打点的具体方法
 
