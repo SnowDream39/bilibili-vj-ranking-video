@@ -335,9 +335,9 @@ class RankingMaker:
             for i in range(len(points_today)):
                 if points_today[i] >= levels[0]:
                     counts[level_names[0]] += 1
-                elif points_today[i] >= levels[1]:
+                if points_today[i] >= levels[1]:
                     counts[level_names[1]] += 1
-                elif points_today[i] >= levels[2]:
+                if points_today[i] >= levels[2]:
                     counts[level_names[2]] += 1
                 
             return counts
