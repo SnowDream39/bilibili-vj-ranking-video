@@ -6,4 +6,4 @@ var MODE = 'daily';
 #include '专栏封面.jsx'
 #include '简易主榜图片.jsx'
 #include '统计歌手.jsx'
-#include '统计1.jsx'
+#include '统计数据.jsx'

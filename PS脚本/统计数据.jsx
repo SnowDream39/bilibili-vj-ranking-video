@@ -61,7 +61,7 @@ function statistics1() {
             fillStats(layers.getByName('新曲榜起分').layers, "新曲榜起分", stats.start_points.new);
             fillStats(layers.getByName('副榜起分').layers, "副榜起分", stats.start_points.extend);
             var metadata = readJSONFile(currentFolder + '基本信息数据.json');
-            // savePic(doc, currentFolder + '其他图片\\统计数据.png');
+            savePic(doc, currentFolder + '其他图片\\统计数据.png');
             // doc.close(SaveOptions.SAVECHANGES);
         } else {
             $.writeln("读取 JSON 数据时出错");
