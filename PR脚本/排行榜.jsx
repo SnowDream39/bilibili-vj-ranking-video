@@ -59,7 +59,7 @@ if (MODE === 'daily'){
     var openingLength = [3, 5, 5, 5, 5, 3];
 } else if (MODE === 'monthly') {
 
-    var openingImages = ["月刊\\封面.png", "规则1.png",  "规则1.5.png", "月刊\\规则2.png", "月刊\\规则3.png", "新曲榜.png"];
+    var openingImages = ["月刊\\封面.png", "规则1.png",  "规则1.5.png", "月刊\\规则2.png", "月刊\\规则3.png", "月刊\\新曲榜.png"];
     var openingLength = [3, 5, 5, 5, 5, 3];
 }
 
