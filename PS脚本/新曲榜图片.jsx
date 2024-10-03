@@ -7,6 +7,7 @@ function newImages() {
     } else if (mode == 'monthly') {
         var news = 20;
     }
+    var part = 'new';
     var fileRef = new File(currentFolder + "新曲榜图片\\新曲榜样式.psd");
     if (fileRef.exists) {
         app.open(fileRef);
@@ -29,7 +30,7 @@ function newImages() {
                 layers.getByName("得分").textItem.contents = comma(songData.point);
                 layers.getByName("总榜排名").textItem.contents = songData.main_rank;
 
-                insertSeperatedRanks(layers, songData.daily_ranks, mode);
+                insertSeperatedRanks(layers, songData.daily_ranks, mode, part);
                 insertSongInfo(layers.getByName("歌曲信息").layers, songData);
 
                 // var dataItems = ['播放', '收藏', '硬币', '点赞']; 

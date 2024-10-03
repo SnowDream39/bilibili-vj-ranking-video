@@ -6,7 +6,7 @@ data = pd.DataFrame(columns=['name','type','value','date'])
 
 today = datetime(2024,8,18)
 
-while today < datetime(2024,9,26):
+while today < datetime(2024,10,3):
     print(today.strftime("%Y-%m-%d"))
     file_path = f"日刊/新版统计/{today.strftime('%Y%m%d')}.json"
     with open(file_path, encoding='utf-8') as file:

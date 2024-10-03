@@ -8,7 +8,7 @@ function mainImages() {
     } else {
         $.writeln("文件不存在: " + filePath);
     }
-
+    var part = 'main';
     // 确保有活动文档
     if (app.documents.length > 0) {
         var doc = app.activeDocument;
@@ -26,7 +26,7 @@ function mainImages() {
 
                 insertBeforeRank(layers, songData, mode);
                 insertSeperatedRanks(layers, songData.daily_ranks, mode)
-                insertSongInfo(layers.getByName("歌曲信息").layers, songData, mode);
+                insertSongInfo(layers.getByName("歌曲信息").layers, songData, mode, part);
 
                 // var dataItems = ['播放', '收藏', '硬币', '点赞']; 
 

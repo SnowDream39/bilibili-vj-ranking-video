@@ -239,7 +239,7 @@ function insertSeperatedRanks(layers, ranks, mode) {
 }
 
 
-function insertSongInfo(layers, songData, mode) {
+function insertSongInfo(layers, songData, mode, part) {
     
     setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 54, font = "SourceHanSansCN-Bold", width=1430);
     setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansCN-Bold", width=750);
@@ -257,7 +257,7 @@ function insertSongInfo(layers, songData, mode) {
         var contents = "搬运：" + songData.uploader;
     }
     setFormattedText(textLayer = layers.getByName("copyright"), contents = contents, size = 36, font = "SourceHanSansCN-Bold", width=600);
-    if (mode != 'monthly') {
+    if (mode != 'monthly' && part == 'main') {
         layers.getByName("入榜次数").visible = true;
         layers.getByName("入榜次数").textItem.contents = "入榜次数：" + songData.count;
     } else {

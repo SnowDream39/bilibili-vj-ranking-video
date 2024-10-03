@@ -8,6 +8,7 @@ function newImages() {
     } else {
         $.writeln("文件不存在: " + fileRef);
     }
+    part = 'review';
 
     // 确保有活动文档
     if (app.documents.length > 0) {
@@ -23,7 +24,7 @@ function newImages() {
                 layers.getByName("排名").textItem.contents = songData.day;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
 
-                insertSongInfo(layers.getByName("歌曲信息").layers, songData);
+                insertSongInfo(layers.getByName("歌曲信息").layers, songData, mode, part);
 
                 fillData(songData, layers.getByName("播放").layers, ["view", "viewR", "view_rank"]);
                 fillData(songData, layers.getByName("收藏").layers, ["favorite", "favoriteR", "favorite_rank"]);

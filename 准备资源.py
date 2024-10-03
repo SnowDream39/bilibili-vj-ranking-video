@@ -216,7 +216,7 @@ class RankingMaker:
                 "theme": themes[(self.now.weekday() + 1) % 7],
                 "total_phase": total_phase,
                 "phase": total_phase,
-                "time_range": f"{(self.now - timedelta(days=7)).strftime('%Y.%m.%d')} 00:00 —— {self.now.strftime('%Y.%m.%d')} 00:00"  
+                "time_range": f"{(self.today - timedelta(days=6)).strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(1)).strftime('%Y.%m.%d')} 00:00"  
             }
             with open("周刊/基本配置.yaml", "r", encoding="utf-8") as file:
                 settings = yaml.safe_load(file)
