@@ -49,12 +49,13 @@ function millionReach() {
 
                 i = i + 1;
             }
+            pos = pos + 1;
             while (pos < 5){
                 doc.layers[pos].visible = false;
                 pos = pos + 1;
                 i = i + 1;
             }
-            savePic(doc, currentFolder + '其他图片\\百万达成' + (i-1)/5 + '.png')
+            savePic(doc, currentFolder + '其他图片\\百万达成' + ((i-pos)/5 + 1) + '.png')
         } else {
             $.writeln("读取 JSON 数据时出错");
         }

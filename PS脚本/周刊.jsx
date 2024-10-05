@@ -9,5 +9,6 @@ var MODE = 'weekly';
 #include '主榜图片.jsx'
 #include '副榜图片.jsx'
 #include '统计歌手.jsx'
+#include '百万达成.jsx'
 #include '规则1.jsx'
 #include '统计数据.jsx'

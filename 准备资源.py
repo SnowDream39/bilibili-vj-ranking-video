@@ -246,7 +246,7 @@ class RankingMaker:
                 + ".xlsx"
             )
 
-            self.million_data = pd.read_excel("周刊/数据/百万记录"+(self.today + timedelta(days=1)).strftime("%Y-%m-%d")+".xlsx")
+            self.million_data = pd.read_excel("周刊/数据/百万记录"+(self.today + timedelta(days=1)).strftime("%Y-%m-%d")+".xlsx", dtype={"pubdate": str})
         elif mode == "monthly":
             self.folder = "月刊/"
 
