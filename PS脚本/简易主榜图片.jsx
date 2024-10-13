@@ -32,8 +32,8 @@ function easyMainImages() {
                 var filePath = currentFolder + "封面\\" + songData.pic;
                 var size = [100, 100];
                 var position = thumbPositions[i % 4];
-                var relativeObject = layers.getByName("点赞");
-                var insertionLocation = ElementPlacement.PLACEAFTER;
+                var relativeObject = layers.getByName("歌手颜色");
+                var insertionLocation = ElementPlacement.PLACEBEFORE;
                 var thumbnailLayer = importImage(filePath, "封面", layers, relativeObject, insertionLocation, size, position);
 
                 // 导入变化数据
@@ -72,12 +72,14 @@ function easyMainImages() {
                 fillDataExtend(songData, layers.getByName("硬币").layers, ["coin", "coin_rank"]);
                 fillDataExtend(songData, layers.getByName("点赞").layers, ["like", "like_rank"]);
 
-                layers.getByName("作者").textItem.contents = songData.author;
+                fillVocalColors(layers.getByName("歌手颜色").layers, songData.vocal_colors);
+
+                setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=300);
                 layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
                 layers.getByName("BV号").textItem.contents = songData.bvid;
                 layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
 
-                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=42.82, font = "SourceHanSansCN-Bold", width = 1100);
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=42.82, font = "SourceHanSansCN-Bold", width = 1080);
                 $.writeln('完成第' + (i + 1) + "位");
                 if (i % 4 == 3) {
                     savePic(doc, currentFolder + '简易主榜图片\\' + (i+1) / 4 + ".png");

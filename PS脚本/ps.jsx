@@ -3,7 +3,7 @@
 var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
 var extend = 100; // 手动改
-var TEMP_MODE = 'weekly'; //需要临时运行一个脚本的话修改此处
+var TEMP_MODE = 'monthly'; //需要临时运行一个脚本的话修改此处
 
 function judgeMode() {
     if (typeof MODE === 'undefined'){
@@ -40,7 +40,7 @@ function comma(value) {
     return valueComma;
 }
 function percent(value) {
-    return String(value * 100) + "%";
+    return String((value * 100)) + "%";
 }
 
 function savePic(doc, path) {
@@ -193,14 +193,10 @@ function setFormattedText(textLayer, contents, size, font, width) {
 }
 
 function padNumber(num, length) {
-    // 将数字转换为字符串
     var str = num.toString();
-
-    // 在字符串前面添加零，直到长度达到指定值
     while (str.length < length) {
         str = '0' + str;
     }
-
     return str;
 }
 
@@ -248,8 +244,12 @@ function insertSongInfo(layers, songData, mode, part) {
 
     layers.getByName("BV号").textItem.contents = songData.bvid;
     layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
-    layers.getByName("时长").textItem.contents = songData.duration;
     layers.getByName("类型").textItem.contents = songData.type;
+    if (songData.page == 1){
+        layers.getByName("时长").textItem.contents = songData.duration; 
+    }else{
+        layers.getByName("时长").textItem.contents = songData.duration + "/" + songData.page + "P";
+    }
 
     if (songData.copyright === 1){
         var contents = "本家投稿";
@@ -264,6 +264,7 @@ function insertSongInfo(layers, songData, mode, part) {
         layers.getByName("入榜次数").visible = false;
     }
 } 
+
 function insertBeforeRank (layers, songData, mode){
     var rankLayers = layers.getByName("上期排名").layers;
     var pointLayers = layers.getByName("上期得分").layers;
@@ -297,4 +298,35 @@ function insertBeforeRank (layers, songData, mode){
             pointLayers.getByName("RATE").textItem.contents = percent(songData.rate);
         }
     }
+}
+
+function fillVocalColors(layers, colors) {
+    var length = colors.length;
+    for(var i=0; i<6 && i<length; i++) {
+        layers[i].visible = true;
+        setColorOfFillLayer(layers[i], colors[i]);
+    }
+    for(var i=length; i<6; i++) {
+        layers[i].visible = false;
+    }
+
+}
+
+// https://community.adobe.com/t5/photoshop-ecosystem-discussions/ps-script-change-layer-color/m-p/2577577
+function setColorOfFillLayer(layer, color) {
+    app.activeDocument.activeLayer = layer;
+    var sColor = new SolidColor;
+    sColor.rgb.hexValue = color;
+    var desc = new ActionDescriptor();
+        var ref = new ActionReference();
+        ref.putEnumerated( stringIDToTypeID('contentLayer'), charIDToTypeID('Ordn'), charIDToTypeID('Trgt') );
+    desc.putReference( charIDToTypeID('null'), ref );
+        var fillDesc = new ActionDescriptor();
+            var colorDesc = new ActionDescriptor();
+            colorDesc.putDouble( charIDToTypeID('Rd  '), sColor.rgb.red );
+            colorDesc.putDouble( charIDToTypeID('Grn '), sColor.rgb.green );
+            colorDesc.putDouble( charIDToTypeID('Bl  '), sColor.rgb.blue );
+        fillDesc.putObject( charIDToTypeID('Clr '), charIDToTypeID('RGBC'), colorDesc );
+    desc.putObject( charIDToTypeID('T   '), stringIDToTypeID('solidColorLayer'), fillDesc );
+    executeAction( charIDToTypeID('setd'), desc, DialogModes.NO );
 }

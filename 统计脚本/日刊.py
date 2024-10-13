@@ -122,9 +122,9 @@ def statistics_today():
     return counts
 
 
-today = datetime(2024,9,25)
+today = datetime(2024,10,10)
 
-while(today < datetime(2024,9,29)):
+while(today < datetime.today() - timedelta)(1):
     print(today)
     songs_data_today =  pd.read_excel(f"日刊/数据/{(today + timedelta(days=1)).strftime('%Y%m%d')}与{today.strftime('%Y%m%d')}.xlsx", dtype={'author':str, 'pubdate':str})
     if today < datetime(2024,9,5):

@@ -29,7 +29,7 @@ def statistics_today():
         for i in range(100):
             pubdate = songs_data_today.at[i, 'pubdate']
             if datetime.strptime(pubdate,  "%Y-%m-%d %H:%M:%S") >= (
-                today - timedelta(days=4)
+                today - timedelta(days=14)
             ):
                 if i<20:
                     counts['main'] += 1
@@ -124,7 +124,7 @@ def statistics_today():
 
 today = datetime(2024,8,31)
 
-while(today < datetime(2024,9,29)):
+while(today < datetime.today()):
     print(today)
     songs_data_today =  pd.read_excel(f"周刊/数据/{today.strftime('%Y-%m-%d')}.xlsx", dtype={'author':str, 'pubdate':str})
     songs_data_new =  pd.read_excel(f"周刊/数据/新曲{today.strftime('%Y-%m-%d')}.xlsx",nrows=10)

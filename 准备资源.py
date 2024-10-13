@@ -351,14 +351,33 @@ class RankingMaker:
 
         def new_songs():
             counts = {'main':0, 'extend':0}
-            for i in range(100):
-                pubdate = songs_data_today.at[i, 'pubdate']
-                if datetime.strptime(pubdate,  "%Y-%m-%d %H:%M:%S") >= (
-                    self.today - timedelta(days=4)
-                ):
-                    if i<20:
-                        counts['main'] += 1
-                    counts['extend'] += 1
+            if self.mode in ('daily', 'daily-text'):
+                for i in range(100):
+                    pubdate = songs_data_today.at[i, 'pubdate']
+                    if datetime.strptime(pubdate,  "%Y-%m-%d %H:%M:%S") >= (
+                        self.today - timedelta(days=4)
+                    ):
+                        if i<20:
+                            counts['main'] += 1
+                        counts['extend'] += 1
+            elif self.mode == 'weekly':
+                for i in range(100):
+                    pubdate = songs_data_today.at[i, 'pubdate']
+                    if datetime.strptime(pubdate,  "%Y-%m-%d %H:%M:%S") >= (
+                        self.today - timedelta(days=13)
+                    ):
+                        if i<20:
+                            counts['main'] += 1
+                        counts['extend'] += 1
+            if self.mode == 'monthly':
+                for i in range(200):
+                    pubdate = songs_data_today.at[i, 'pubdate']
+                    if datetime.strptime(pubdate,  "%Y-%m-%d %H:%M:%S") >= (
+                        self.today.replace(day=1)
+                    ):
+                        if i<20:
+                            counts['main'] += 1
+                        counts['extend'] += 1
             return counts
 
         def count_names(key):
@@ -748,12 +767,29 @@ class RankingMaker:
             self.today_pics.append(million_data.at[i, 'bvid'] + '.png')
         million_data.to_json("百万达成.json", orient='records', force_ascii=False, indent=4)
 
+    def insert_vocal_colors(self):
+        with open("歌姬代表色.json", 'r', encoding='utf-8') as file:
+            vocal_colors = json.load(file)
+        with open("排除歌手.yaml",'r',encoding='utf-8') as file:
+            removed_vocals = yaml.safe_load(file)
+        songs_data = self.songs_data_today
+        songs_data['vocal_colors'] = [[] for _ in songs_data.index]
+        for i in songs_data.index:
+            for vocal in songs_data.at[i, 'vocal'].split('、'):
+                if vocal in vocal_colors.keys():
+                    songs_data.at[i, 'vocal_colors'].append(vocal_colors[vocal])
+                else:
+                    songs_data.at[i, 'vocal_colors'].append('777777')
+                    if vocal not in removed_vocals:
+                        print(f"缺少歌手代表色：{vocal}")
+
     def make_resources(self):
 
         self.make_statistics()
         self.insert_main_rank()
         self.songs_data_today = self.songs_data_today.head(self.extend)
         self.insert_before()
+        self.insert_vocal_colors()
 
         if self.mode == 'weekly':
             self.insert_daily()
@@ -774,6 +810,7 @@ class RankingMaker:
         self.songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)
 
         print("现在可以开始制作图片")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Choose the mode to run the program")

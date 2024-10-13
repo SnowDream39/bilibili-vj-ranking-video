@@ -4,11 +4,11 @@ import json
 
 data = pd.DataFrame(columns=['name','type','value','date'])
 
-today = datetime(2024,8,18)
+today = datetime(2024,7,17)
 
-while today < datetime(2024,10,3):
+while today < datetime.today() - timedelta(1):
     print(today.strftime("%Y-%m-%d"))
-    file_path = f"日刊/新版统计/{today.strftime('%Y%m%d')}.json"
+    file_path = f"日刊/排名用统计/{today.strftime('%Y%m%d')}.json"
     with open(file_path, encoding='utf-8') as file:
         data_today = json.load(file)['top_vocals']
     i = 0
