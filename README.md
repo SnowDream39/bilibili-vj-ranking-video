@@ -43,9 +43,19 @@
 
 只要没有标记入点（也就是说，入点位于视频的开头），脚本就会根据出点来计算入点，否则根据入点来计算出点。
 
+## 数据可视化工具
+
+项目中包含了经修改过的[动态排名数据可视化工具](https://github.com/Jannchie/Historical-ranking-data-visualization-based-on-d3.js)。
+
+修改主要是加入歌姬颜色和头像，还有适合 1920*1080 分辨率的屏幕方便录制视频。这些配置都可以进一步调整。
+
+使用方法：
+1.使用'`统计推移`中的脚本生成数据`csv`文件。
+2.打开`可视化/src/bargraph.html`，然后选择生成的`csv`文件。
+
 ## 使用注意
 
-本项目使用MIT许可证进行许可。
+本项目使用GPLv3许可证进行许可。
 
 关于数据脚本，请前往[SnowDream39/bilibili_vj_ranking](https://github.com/SnowDream39/bilibili_vj_ranking)。
 
