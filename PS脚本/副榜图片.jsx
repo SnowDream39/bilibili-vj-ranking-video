@@ -44,32 +44,7 @@ function extendImages() {
 
                 // 导入变化数据
 
-                var changeLayers = layers.getByName("变化").layers;
-                changeLayers.getByName("变化平").visible = false;
-                changeLayers.getByName("变化升").visible = false;
-                changeLayers.getByName("变化降").visible = false;
-                if (songData.change == "new") {
-                    layers.getByName("上期排名").textItem.contents = "";
-                    layers.getByName("上期").visible = false;
-                    layers.getByName("new").visible = true;
-                    changeLayers.getByName("变化升").visible = true;
-                } else {
-                    layers.getByName("上期").visible = true;
-                    layers.getByName("new").visible = false;
-                    if (songData.change == "up") {
-                        changeLayers.getByName("变化升").visible = true;
-                    } else if (songData.change == "cont") {
-                        changeLayers.getByName("变化平").visible = true;
-                    } else if (songData.change == "down") {
-                        changeLayers.getByName("变化降").visible = true;
-                    }
-
-                    if (songData.point_before == 0) {
-                        layers.getByName("上期排名").textItem.contents = "--";
-                    } else {
-                        layers.getByName("上期排名").textItem.contents = songData.rank_before;
-                    }
-                }
+                fillBeforeRankExtend(layers, songData, mode);
 
                 // var dataItems = ['播放', '收藏', '硬币', '点赞'];
 
@@ -78,20 +53,7 @@ function extendImages() {
                 fillDataExtend(songData, layers.getByName("硬币").layers, ["coin", "coin_rank"]);
                 fillDataExtend(songData, layers.getByName("点赞").layers, ["like", "like_rank"]);
 
-                fillVocalColors(layers.getByName("歌手颜色").layers, songData.vocal_colors);
-
-                if (mode == "daily" || mode == "weekly") {
-                    setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=300);
-                    layers.getByName("上榜次数").visible = true;
-                    layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
-                } else if (mode == "monthly") {
-                    setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=600);
-                    layers.getByName("上榜次数").visible = false;
-                }
-                layers.getByName("BV号").textItem.contents = songData.bvid;
-                layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
-
-                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=42.82, font = "SourceHanSansCN-Bold", width = 1080);
+                fillSongInfoExtend(layers, songData, mode);
                 $.writeln('完成第' + (i + 1) + "位");
                 if (i % 4 == 3) {
                     savePic(doc, currentFolder + '副榜图片\\' + (i - 19) / 4 + ".png");

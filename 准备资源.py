@@ -294,12 +294,12 @@ class RankingMaker:
             )
 
 
-        self.songs_data_today = pd.read_excel(self.folder + "数据/" + self.file_today, dtype={"author":str, "pubdate": str})
+        self.songs_data_today = pd.read_excel(self.folder + "数据/" + self.file_today, dtype={"author":str, "vocal":str, "pubdate": str})
         self.songs_data_today["pic"] = self.songs_data_today["bvid"] + ".png"
-        self.songs_data_before = pd.read_excel(self.folder + "数据/" + self.file_before, dtype={"author":str,"pubdate": str})
-        self.songs_data_new = pd.read_excel(self.folder + "数据/" + self.file_new, dtype={"author":str,"pubdate": str}, nrows=self.new)
+        self.songs_data_before = pd.read_excel(self.folder + "数据/" + self.file_before, dtype={"author":str,"vocal":str, "pubdate": str})
+        self.songs_data_new = pd.read_excel(self.folder + "数据/" + self.file_new, dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
         self.songs_data_new_before = pd.read_excel(
-            self.folder + "数据/" + self.file_new_before, dtype={"author":str,"pubdate": str}, nrows=self.new
+            self.folder + "数据/" + self.file_new_before, dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new
         )
 
         if mode in ('daily', 'weekly','monthly'):
@@ -775,13 +775,17 @@ class RankingMaker:
         songs_data = self.songs_data_today
         songs_data['vocal_colors'] = [[] for _ in songs_data.index]
         for i in songs_data.index:
-            for vocal in songs_data.at[i, 'vocal'].split('、'):
-                if vocal in vocal_colors.keys():
-                    songs_data.at[i, 'vocal_colors'].append(vocal_colors[vocal])
-                else:
-                    songs_data.at[i, 'vocal_colors'].append('777777')
-                    if vocal not in removed_vocals:
-                        print(f"缺少歌手代表色：{vocal}")
+            if pd.notna(songs_data.at[i, 'vocal']):
+                for vocal in songs_data.at[i, 'vocal'].split('、'):
+                    if vocal in vocal_colors.keys():
+                        songs_data.at[i, 'vocal_colors'].append(vocal_colors[vocal])
+                    else:
+                        songs_data.at[i, 'vocal_colors'].append('777777')
+                        if vocal not in removed_vocals:
+                            print(f"缺少歌手代表色：{vocal}")
+            else:
+                songs_data.at[i, 'vocal_colors'].append('777777')
+                print(f"{songs_data.at[i, 'name']}({songs_data.at[i, 'bvid']})没打标")
 
     def make_resources(self):
 

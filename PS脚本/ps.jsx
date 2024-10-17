@@ -202,7 +202,7 @@ function padNumber(num, length) {
 
 
 
-function insertSeperatedRanks(layers, ranks, mode) {
+function fillSeperatedRanks(layers, ranks, mode) {
     if (mode == 'daily'){
         layers.getByName("日排名").visible = false;
         layers.getByName("周排名").visible = false;
@@ -235,7 +235,7 @@ function insertSeperatedRanks(layers, ranks, mode) {
 }
 
 
-function insertSongInfo(layers, songData, mode, part) {
+function fillSongInfo(layers, songData, mode, part) {
     
     setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 54, font = "SourceHanSansCN-Bold", width=1430);
     setFormattedText(textLayer = layers.getByName("作者"), contents = songData.author, size = 48, font = "SourceHanSansCN-Bold", width=750);
@@ -265,7 +265,26 @@ function insertSongInfo(layers, songData, mode, part) {
     }
 } 
 
-function insertBeforeRank (layers, songData, mode){
+function fillSongInfoExtend (layers, songData, mode) {
+    setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size=42.82, font = "SourceHanSansCN-Bold", width = 1080);
+    fillVocalColors(layers.getByName("歌手颜色").layers, songData.vocal_colors);
+
+    if (mode == "daily" || mode == "daily-text" || mode == "weekly") {
+        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=300);
+        layers.getByName("上榜次数").visible = true;
+        layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
+    } else if (mode == "monthly") {
+        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=600);
+        layers.getByName("上榜次数").visible = false;
+    }
+    layers.getByName("BV号").textItem.contents = songData.bvid;
+    layers.getByName("投稿时间").textItem.contents = songData.pubdate.substring(0, 16);
+
+
+
+}
+
+function fillBeforeRank (layers, songData, mode){
     var rankLayers = layers.getByName("上期排名").layers;
     var pointLayers = layers.getByName("上期得分").layers;
     rankLayers.getByName("变化平").visible = false;
@@ -298,6 +317,37 @@ function insertBeforeRank (layers, songData, mode){
             pointLayers.getByName("RATE").textItem.contents = percent(songData.rate);
         }
     }
+}
+
+function fillBeforeRankExtend(layers, songData, mode){
+
+    var changeLayers = layers.getByName("变化").layers;
+    changeLayers.getByName("变化平").visible = false;
+    changeLayers.getByName("变化升").visible = false;
+    changeLayers.getByName("变化降").visible = false;
+    if (songData.change == "new") {
+        layers.getByName("上期排名").textItem.contents = "";
+        layers.getByName("上期").visible = false;
+        layers.getByName("new").visible = true;
+        changeLayers.getByName("变化升").visible = true;
+    } else {
+        layers.getByName("上期").visible = true;
+        layers.getByName("new").visible = false;
+        if (songData.change == "up") {
+            changeLayers.getByName("变化升").visible = true;
+        } else if (songData.change == "cont") {
+            changeLayers.getByName("变化平").visible = true;
+        } else if (songData.change == "down") {
+            changeLayers.getByName("变化降").visible = true;
+        }
+
+        if (songData.point_before == 0) {
+            layers.getByName("上期排名").textItem.contents = "--";
+        } else {
+            layers.getByName("上期排名").textItem.contents = songData.rank_before;
+        }
+    }
+
 }
 
 function fillVocalColors(layers, colors) {

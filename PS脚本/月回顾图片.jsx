@@ -24,7 +24,7 @@ function newImages() {
                 layers.getByName("排名").textItem.contents = songData.day;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
 
-                insertSongInfo(layers.getByName("歌曲信息").layers, songData, mode, part);
+                fillSongInfo(layers.getByName("歌曲信息").layers, songData, mode, part);
 
                 fillData(songData, layers.getByName("播放").layers, ["view", "viewR", "view_rank"]);
                 fillData(songData, layers.getByName("收藏").layers, ["favorite", "favoriteR", "favorite_rank"]);

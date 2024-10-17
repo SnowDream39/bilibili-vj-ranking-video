@@ -30,8 +30,8 @@ function newImages() {
                 layers.getByName("得分").textItem.contents = comma(songData.point);
                 layers.getByName("总榜排名").textItem.contents = songData.main_rank;
 
-                insertSeperatedRanks(layers, songData.daily_ranks, mode, part);
-                insertSongInfo(layers.getByName("歌曲信息").layers, songData);
+                fillSeperatedRanks(layers, songData.daily_ranks, mode, part);
+                fillSongInfo(layers.getByName("歌曲信息").layers, songData);
 
                 // var dataItems = ['播放', '收藏', '硬币', '点赞']; 
 
