@@ -20,6 +20,7 @@
 可视化/
 Adobe Premiere Pro Audio Previews/
 BGM/
+账号操作/
 
 *.mp4
 *.png
@@ -36,3 +37,4 @@ PS脚本/test.jsx
 PR脚本/test.jsx
 账号验证.yaml
 排除歌手.yaml
+专栏文本.md

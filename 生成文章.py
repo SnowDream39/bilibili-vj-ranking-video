@@ -76,5 +76,5 @@ for i in range(9,-1,-1):
 soup.append(BeautifulSoup(f"\n<strong><p class='font-size-23'>主榜</p></strong>\n", 'html.parser'))
 
 html_output = str(soup)
-with open("专栏文本.html", 'w', encoding='utf-8') as file:
+with open("专栏文本.md", 'w', encoding='utf-8') as file:
     file.write(html_output)

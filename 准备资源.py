@@ -70,10 +70,7 @@ async def download_video(bvid):
 
     print(f"已下载为：视频/{bvid}.mp4")
 
-async def download_thumbnail(bvid):
-    v = video.Video(bvid=bvid)
-    info = await v.get_info()
-    image_url = info["pic"]
+async def download_thumbnail(bvid, image_url):
 
     response = requests.get(image_url)
     if response.status_code == 200:
@@ -97,12 +94,9 @@ async def download_thumbnail(bvid):
     resized_image = cropped_image.resize((352, 199))
 
     resized_image.save("封面/" + bvid + ".png", "PNG")
-    print("已保存：", bvid)
 
-async def download_thumbnail_special(bvid):
-    v = video.Video(bvid=bvid)
-    info = await v.get_info()
-    image_url = info["pic"]
+
+async def download_thumbnail_special(image_url):
 
     response = requests.get(image_url)
     if response.status_code == 200:
@@ -319,7 +313,7 @@ class RankingMaker:
             metadata["ED_title"] = preferences["ED_title"]
         with open("基本信息数据.json", "w", encoding="utf-8") as file:
             json.dump(metadata, file, ensure_ascii=False, indent=4)
-        self.today_pics = []
+        self.today_pics = {}
 
     def make_statistics_today(self):
         def high_points():
@@ -742,24 +736,23 @@ class RankingMaker:
 
         # 下载封面
         for i in range(self.extend):
-            self.today_pics.append(self.songs_data_today.at[i, 'bvid'] + '.png')
+            self.today_pics[self.songs_data_today.at[i, 'bvid']] = self.songs_data_today.at[i, 'image_url']
         
         for pic in self.today_pics:
-            if pic not in local_pics:
-                asyncio.run(download_thumbnail(pic[0:12]))
+            if pic + '.png' not in local_pics:
+                asyncio.run(download_thumbnail(pic, self.today_pics[pic]))
 
     def cover_thumbnail(self):
         if self.mode in ('daily', 'daily-text'):
-
-            thumbnail_bvid = self.songs_data_new.at[0, "bvid"]
+            thumbnail_url = self.songs_data_new.at[0, "image_url"]
         elif self.mode in ('weekly', 'monthly' ):
             songs_data_today = self.songs_data_today
             for i in songs_data_today.index:
                 if songs_data_today.at[i, 'change'] == 'new':
-                    thumbnail_bvid = songs_data_today.at[i, 'bvid']
+                    thumbnail_url = songs_data_today.at[i, 'image_url']
                     break
         
-        asyncio.run(download_thumbnail_special(thumbnail_bvid))
+        asyncio.run(download_thumbnail_special(thumbnail_url))
 
     def million_reach(self):
         million_data = self.million_data
@@ -785,7 +778,7 @@ class RankingMaker:
                             print(f"缺少歌手代表色：{vocal}")
             else:
                 songs_data.at[i, 'vocal_colors'].append('777777')
-                print(f"{songs_data.at[i, 'name']}({songs_data.at[i, 'bvid']})没打标")
+                print(f"{songs_data.at[i, 'rank']}位 {songs_data.at[i, 'name']}({songs_data.at[i, 'bvid']})没打标")
 
     def make_resources(self):
 
