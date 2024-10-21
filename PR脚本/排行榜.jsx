@@ -124,7 +124,7 @@ if (MODE == 'daily'){
     var subLengths = [5, 5, 3, 3];
 }else if (MODE == 'weekly'){
     var subImages = [currentFolder + "其他图片\\" + "统计歌手.png",currentFolder + "其他图片\\" +  "统计数据.png"];
-    var subLengths = [5, 12];
+    var subLengths = [12, 5];
     var millionStats = readJSONFile(currentFolder + "百万达成.json");
     var millionPages = 0;
     for(var i=0;i<millionStats.length;i++){
@@ -139,7 +139,7 @@ if (MODE == 'daily'){
 
 }else if (MODE == 'monthly'){
     var subImages = [currentFolder + "其他图片\\" + "统计歌手.png",currentFolder + "其他图片\\" +  "统计数据.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
-    var subLengths = [5, 12, 8, 3];
+    var subLengths = [12, 5, 8, 3];
 }
 var extendSeconds = ((Number(extendTime) / ticks + 1) - sum(subLengths) - 3) / (extend - contain) * 4;
 for (var i = 0; i < (extend - contain) / 4; i++) {
