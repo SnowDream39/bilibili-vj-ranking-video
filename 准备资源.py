@@ -757,7 +757,7 @@ class RankingMaker:
     def million_reach(self):
         million_data = self.million_data
         for i in million_data.index:
-            self.today_pics.append(million_data.at[i, 'bvid'] + '.png')
+            self.today_pics[million_data.at[i, 'bvid']] = self.songs_data_today[self.songs_data_today['bvid'] == million_data.at[i, 'bvid']].iloc[0]['image_url']
         million_data.to_json("百万达成.json", orient='records', force_ascii=False, indent=4)
 
     def insert_vocal_colors(self):
@@ -784,15 +784,15 @@ class RankingMaker:
 
         self.make_statistics()
         self.insert_main_rank()
-        self.songs_data_today = self.songs_data_today.head(self.extend)
-        self.insert_before()
-        self.insert_vocal_colors()
-
         if self.mode == 'weekly':
             self.insert_daily()
             self.million_reach()
         elif self.mode == 'monthly':
             self.insert_weekly()
+        self.songs_data_today = self.songs_data_today.head(self.extend)
+        self.insert_before()
+        self.insert_vocal_colors()
+
 
         if self.mode != 'daily-text':
             self.local_videos()

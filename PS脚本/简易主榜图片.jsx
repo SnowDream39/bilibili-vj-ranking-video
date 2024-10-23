@@ -20,7 +20,7 @@ function easyMainImages() {
         // 确保读取的 JSON 数据有效
         if (dataToday) {
             $.writeln("已读取数据");
-            for (var i = 0; i < 40; i++) {
+            for (var i = 0; i <40; i++) {
                 $.writeln("开始处理",i);
                 var songData = dataToday[i];
                 var layers = doc.layers[i % 4].layers;

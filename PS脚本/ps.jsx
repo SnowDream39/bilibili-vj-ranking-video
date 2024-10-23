@@ -3,7 +3,7 @@
 var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
 var extend = 100; // 手动改
-var TEMP_MODE = 'monthly'; //需要临时运行一个脚本的话修改此处
+var TEMP_MODE = 'daily'; //需要临时运行一个脚本的话修改此处
 
 function judgeMode() {
     if (typeof MODE === 'undefined'){
@@ -61,8 +61,16 @@ function resizeText(textLayer, width) {
     var textBounds = textLayer.bounds;
     var textWidth = textBounds[2] - textBounds[0]; // 计算文本图层的宽度
     if (textWidth > width) {
-        var scalePercent = width / textWidth * 9 / 10 * 100;
+        var size = textLayer.textItem.size;
+        var rate = width / textWidth;
+        textLayer.textItem.size = size * ( rate / 2 + 0.5 );
+        textLayer.textItem.baselineShift = - size * (1 - rate) / 4;
+        var textBounds = textLayer.bounds;
+        var textWidth = textBounds[2] - textBounds[0]; // 计算文本图层的宽度
+        var scalePercent = width / textWidth * 90;
         textLayer.textItem.horizontalScale = scalePercent;
+    } else {
+        textLayer.textItem.baselineShift = 0;
     }
 }
 
