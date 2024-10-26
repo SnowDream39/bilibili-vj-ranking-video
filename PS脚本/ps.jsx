@@ -260,7 +260,7 @@ function fillSongInfo(layers, songData, mode, part) {
     }
 
     if (songData.copyright === 1){
-        var contents = "本家投稿";
+        var contents = "作者投稿";
     } else {
         var contents = "搬运：" + songData.uploader;
     }

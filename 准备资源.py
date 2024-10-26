@@ -761,7 +761,7 @@ class RankingMaker:
         million_data.to_json("百万达成.json", orient='records', force_ascii=False, indent=4)
 
     def insert_vocal_colors(self):
-        with open("歌姬代表色.json", 'r', encoding='utf-8') as file:
+        with open("歌手代表色.json", 'r', encoding='utf-8') as file:
             vocal_colors = json.load(file)
         with open("排除歌手.yaml",'r',encoding='utf-8') as file:
             removed_vocals = yaml.safe_load(file)

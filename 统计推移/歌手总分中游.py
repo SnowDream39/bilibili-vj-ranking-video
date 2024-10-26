@@ -11,8 +11,8 @@ while today < datetime.today() - timedelta(1):
     file_path = f"日刊/排名用统计/{today.strftime('%Y%m%d')}.json"
     with open(file_path, encoding='utf-8') as file:
         data_today = json.load(file)['top_vocals']
-    i = 0
-    while i<20 and i<(len(data_today)):
+    i = 15
+    while i<30 and i<(len(data_today)):
         name_data = data_today[i]
         song_data = {'name':name_data['name'],
                     'value':name_data['point'],
@@ -24,4 +24,4 @@ while today < datetime.today() - timedelta(1):
 
 
 data['type'] = data['name']
-data.to_csv("统计推移/歌姬总分.csv", encoding='utf-8', index=False)
+data.to_csv("统计推移/歌手总分中游.csv", encoding='utf-8', index=False)
