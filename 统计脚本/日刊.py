@@ -122,7 +122,7 @@ def statistics_today():
     return counts
 
 
-today = datetime(2024,10,17)
+today = datetime(2024,10,24)
 
 while(today < datetime.today() - timedelta(1)):
     print(today)

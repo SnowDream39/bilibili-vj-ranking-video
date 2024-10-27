@@ -457,7 +457,13 @@ class RankingMaker:
         songs_data_today = self.songs_data_today
         songs_data_new = self.songs_data_new
         counts = {'high_points':high_points() , 'start_points':start_points() ,'new_songs': new_songs(), 'top_vocals': names_total_point('vocal')}
-        with open(f"日刊/新版统计/{self.today.strftime('%Y%m%d')}.json",'w',encoding='utf-8') as file:
+        if self.mode == "daily-text":
+            file_path = os.path.join(self.folder, "新版统计", f"{self.today.strftime('%Y%m%d')}.json")
+        if self.mode == "daily-text":
+            file_path = os.path.join(self.folder, "新版统计", f"{self.today.strftime('%Y-%m-%d')}.json")
+        if self.mode == "daily-text":
+            file_path = os.path.join(self.folder, "新版统计", f"{self.today.strftime('%Y-%m')}.json")
+        with open(file_path,'w',encoding='utf-8') as file:
             json.dump(counts, file, ensure_ascii=False, indent=4)
         return counts
           
@@ -499,11 +505,11 @@ class RankingMaker:
 
         def read_statistics_before():  #目前仅加入日刊统计补齐功能
             if self.mode in ('daily', 'daily-text'):
-                file_path = f'新版统计/{(self.today - timedelta(days=1)).strftime("%Y%m%d")}.json'
+                file_path = os.path.join("新版统计",f"{(self.today - timedelta(days=1)).strftime('%Y%m%d')}.json")
             elif self.mode == 'weekly':
-                file_path = f'新版统计/{(self.today - timedelta(days=7)).strftime("%Y-%m-%d")}.json'
+                file_path = os.path.join("新版统计", f"{(self.today - timedelta(days=7)).strftime('%Y-%m-%d')}.json")
             elif self.mode == 'monthly':
-                file_path = f'新版统计/{(self.today - timedelta(days=self.today.day)).strftime("%Y-%m")}.json'
+                file_path = os.path.join("新版统计",f"{(self.today - timedelta(days=self.today.day)).strftime('%Y-%m')}.json")
             if os.path.exists(self.folder + file_path):
                 with open(self.folder + file_path, 'r', encoding='utf-8') as file:
                     statistics_before = json.load(file)
@@ -581,7 +587,7 @@ class RankingMaker:
     def local_videos(self):
 
         def delete_videos(days, today_videos):
-            file_path = f"视频/{(self.today - timedelta(days=days)).strftime('%Y%m%d')}下载视频.json"
+            file_path = os.path.join("视频", f"{(self.today - timedelta(days=days)).strftime('%Y%m%d')}下载视频.json")
             if os.path.exists(file_path):
                 with open(file_path, "r") as file:
                     old_videos = json.load(file)
@@ -604,7 +610,7 @@ class RankingMaker:
         delete_videos(7, today_videos)
 
 
-        file_path = f"视频/{self.today.strftime('%Y%m%d')}下载视频.json"
+        file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
         if os.path.exists(file_path):
             with open(file_path, "r") as file:
                 download_list = json.load(file)
@@ -626,7 +632,7 @@ class RankingMaker:
 
 
 
-        file_path = f"视频/{self.today.strftime('%Y%m%d')}下载视频.json"
+        file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
         with open(file_path, "w") as file:
             json.dump(download_list, file, ensure_ascii=False, indent=4)
 
@@ -701,7 +707,7 @@ class RankingMaker:
             songs_data['daily_ranks'] = [[] for _ in songs_data.index]
             for i in range(7,0,-1):
                 print(f"正在插入第{8-i}天排名")
-                file_path = f"数据/{(self.today - timedelta(i-2)).strftime('%Y%m%d')}与{(self.today - timedelta(i-1)).strftime('%Y%m%d')}.xlsx"
+                file_path = os.join.path("数据",f"{(self.today - timedelta(i-2)).strftime('%Y%m%d')}与{(self.today - timedelta(i-1)).strftime('%Y%m%d')}.xlsx")
                 songs_data_daily = pd.read_excel("日刊/" + file_path)
                 songs_data_daily.set_index('name',inplace=True)
 
@@ -719,7 +725,7 @@ class RankingMaker:
             for i in range(4,-1,-1):
                 date = self.today - timedelta((self.today.weekday() - 5)%7 + i * 7)
                 print(f"正在插入{date.strftime('%Y%m%d')}排名")
-                file_path = f"数据/{date.strftime('%Y-%m-%d')}.xlsx"
+                file_path = os.path.join("数据",f"{date.strftime('%Y-%m-%d')}.xlsx")
                 songs_data_daily = pd.read_excel("周刊/" + file_path)
                 songs_data_daily.set_index('name',inplace=True)
 
