@@ -459,9 +459,9 @@ class RankingMaker:
         counts = {'high_points':high_points() , 'start_points':start_points() ,'new_songs': new_songs(), 'top_vocals': names_total_point('vocal')}
         if self.mode == "daily-text":
             file_path = os.path.join(self.folder, "新版统计", f"{self.today.strftime('%Y%m%d')}.json")
-        if self.mode == "daily-text":
+        if self.mode == "weekly":
             file_path = os.path.join(self.folder, "新版统计", f"{self.today.strftime('%Y-%m-%d')}.json")
-        if self.mode == "daily-text":
+        if self.mode == "monthly":
             file_path = os.path.join(self.folder, "新版统计", f"{self.today.strftime('%Y-%m')}.json")
         with open(file_path,'w',encoding='utf-8') as file:
             json.dump(counts, file, ensure_ascii=False, indent=4)
@@ -510,13 +510,14 @@ class RankingMaker:
                 file_path = os.path.join("新版统计", f"{(self.today - timedelta(days=7)).strftime('%Y-%m-%d')}.json")
             elif self.mode == 'monthly':
                 file_path = os.path.join("新版统计",f"{(self.today - timedelta(days=self.today.day)).strftime('%Y-%m')}.json")
-            if os.path.exists(self.folder + file_path):
+            if os.path.exists(os.path.join(self.folder, file_path)):
                 with open(self.folder + file_path, 'r', encoding='utf-8') as file:
                     statistics_before = json.load(file)
             else:
                 if self.mode in ('daily', 'daily-text'):
+                    print("检测到昨日统计数据不存在，重新补充")
                     temp_ranking_maker = RankingMaker(self.now - timedelta(days=1),'daily-text')
-                    temp_ranking_maker.make_statistics()
+                    temp_ranking_maker.make_statistics_today()
                     statistics_before = read_statistics_before()
             return statistics_before
     
