@@ -311,9 +311,14 @@ class RankingMaker:
             metadata["OP_author"] = self.songs_data_before.at[0, "author"]
         
             metadata["ED_title"] = preferences["ED_title"]
-        with open("基本信息数据.json", "w", encoding="utf-8") as file:
-            json.dump(metadata, file, ensure_ascii=False, indent=4)
+
+        self.metadata = metadata
         self.today_pics = {}
+
+    def output_metadata(self):
+
+        with open("基本信息数据.json", "w", encoding="utf-8") as file:
+            json.dump(self.metadata, file, ensure_ascii=False, indent=4)
 
     def make_statistics_today(self):
         def high_points():
@@ -788,7 +793,7 @@ class RankingMaker:
                 print(f"{songs_data.at[i, 'rank']}位 {songs_data.at[i, 'name']}({songs_data.at[i, 'bvid']})没打标")
 
     def make_resources(self):
-
+        self.output_metadata()
         self.make_statistics()
         self.insert_main_rank()
         if self.mode == 'weekly':
