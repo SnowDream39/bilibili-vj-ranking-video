@@ -288,13 +288,11 @@ class RankingMaker:
             )
 
 
-        self.songs_data_today = pd.read_excel(self.folder + "数据/" + self.file_today, dtype={"author":str, "vocal":str, "pubdate": str})
+        self.songs_data_today = pd.read_excel(os.path.join(self.folder, "数据", self.file_today), dtype={"author":str, "vocal":str, "pubdate": str})
         self.songs_data_today["pic"] = self.songs_data_today["bvid"] + ".png"
-        self.songs_data_before = pd.read_excel(self.folder + "数据/" + self.file_before, dtype={"author":str,"vocal":str, "pubdate": str})
-        self.songs_data_new = pd.read_excel(self.folder + "数据/" + self.file_new, dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
-        self.songs_data_new_before = pd.read_excel(
-            self.folder + "数据/" + self.file_new_before, dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new
-        )
+        self.songs_data_before = pd.read_excel(os.path.join(self.folder, "数据", self.file_before), dtype={"author":str,"vocal":str, "pubdate": str})
+        self.songs_data_new = pd.read_excel(os.path.join(self.folder, "数据", self.file_new), dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
+        self.songs_data_new_before = pd.read_excel( os.path.join(self.folder, "数据", self.file_new_before), dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
 
         if mode in ('daily', 'weekly','monthly'):
             with open(self.folder + '配置.yaml', "r", encoding="utf-8") as file:
@@ -713,7 +711,7 @@ class RankingMaker:
             songs_data['daily_ranks'] = [[] for _ in songs_data.index]
             for i in range(7,0,-1):
                 print(f"正在插入第{8-i}天排名")
-                file_path = os.join.path("数据",f"{(self.today - timedelta(i-2)).strftime('%Y%m%d')}与{(self.today - timedelta(i-1)).strftime('%Y%m%d')}.xlsx")
+                file_path = os.path.join("数据",f"{(self.today - timedelta(i-2)).strftime('%Y%m%d')}与{(self.today - timedelta(i-1)).strftime('%Y%m%d')}.xlsx")
                 songs_data_daily = pd.read_excel("日刊/" + file_path)
                 songs_data_daily.set_index('name',inplace=True)
 
@@ -792,18 +790,28 @@ class RankingMaker:
                 songs_data.at[i, 'vocal_colors'].append('777777')
                 print(f"{songs_data.at[i, 'rank']}位 {songs_data.at[i, 'name']}({songs_data.at[i, 'bvid']})没打标")
 
+    def make_fixes(self):
+        for songs_data in self.songs_data_today, self.songs_data_new:
+            if 'fixA' in songs_data.columns:
+                songs_data['coin'] = songs_data['coin'].astype(str) + '(×' + songs_data['fixA'].astype(str) + ')'
+                songs_data['fix'] = songs_data['fixB'] * songs_data['fixC']
+                songs_data['fix'].apply(lambda x:f"{x:.2f}")
+            else:
+                songs_data['fix'] = 1.0
+
     def make_resources(self):
         self.output_metadata()
         self.make_statistics()
         self.insert_main_rank()
         if self.mode == 'weekly':
-            self.insert_daily()
+            #self.insert_daily()
             self.million_reach()
         elif self.mode == 'monthly':
             self.insert_weekly()
         self.songs_data_today = self.songs_data_today.head(self.extend)
         self.insert_before()
         self.insert_vocal_colors()
+        self.make_fixes()
 
 
         if self.mode != 'daily-text':

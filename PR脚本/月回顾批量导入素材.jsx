@@ -31,7 +31,10 @@ var videoFiles = [];
 for (var i = 0; i < data.length; i++) {
     lengths.push(10); // Assuming a fixed length for each clip, adjust if necessary
     imageFiles.push(currentFolder + '月回顾图片\\' + (i+1) + '.png');
+}
 
+project.importFiles(videoFiles,false, monthReviewImageBin,false)
+for (var i = 0; i < data.length; i++) {
     var bvid = data[i].bvid;
     filepath = currentFolder + "视频\\" + bvid + ".mp4";
     if (videoFiles.indexOf(filepath) === -1){
