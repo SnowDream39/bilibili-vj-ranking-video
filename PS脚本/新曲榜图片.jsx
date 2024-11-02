@@ -28,6 +28,7 @@ function newImages() {
 
                 layers.getByName("排名").textItem.contents = songData.rank;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
+                layers.getByName("总补正").textItem.contents = '×' + songData.fix.toFixed(2) + ' =';
                 layers.getByName("总榜排名").textItem.contents = songData.main_rank;
 
                 fillSeperatedRanks(layers, songData.daily_ranks, mode, part);

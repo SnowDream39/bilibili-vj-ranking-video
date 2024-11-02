@@ -152,7 +152,11 @@ function setColor(textItem, color) {
 }
 
 function fillDataExtend(songData, layers, keys) {
-    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
+    if (keys[0] === 'coin' && songData['fixA'] != 1.0) {
+        layers.getByName("数值").textItem.contents = comma(songData[keys[0]]) + '(×' + songData['fixA'].toFixed(2) + ')';
+    } else {
+        layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
+    }
     layers.getByName("位次").textItem.contents = songData[keys[1]];
     if (songData[keys[1]] === Math.min(songData.view_rank, songData.favorite_rank, songData.coin_rank, songData.like_rank)) {
         setColor(layers.getByName("位次").textItem, 'e06445');
@@ -162,7 +166,11 @@ function fillDataExtend(songData, layers, keys) {
 }
 
 function fillData(songData, layers, keys) {
-    layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
+    if (keys[0] === 'coin' && songData['fixA'] != 1.0) {
+        layers.getByName("数值").textItem.contents = comma(songData[keys[0]]) + '(×' + songData['fixA'].toFixed(2) + ')';
+    } else {
+        layers.getByName("数值").textItem.contents = comma(songData[keys[0]]);
+    }
     layers.getByName("补正").textItem.contents = '×' + songData[keys[1]].toFixed(2);
     if (
         (keys[0] === 'view' && songData[keys[1]] < 1) ||
@@ -170,10 +178,8 @@ function fillData(songData, layers, keys) {
         (keys[0] === 'coin' && songData[keys[1]] < 20) ||
         (keys[0] === 'like' && songData[keys[1]] < 2)
     ) {
-        $.writeln("blue");
         setColor(layers.getByName("补正").textItem, '3494a8');
     } else {
-        $.writeln("black");
         setColor(layers.getByName("补正").textItem, 'black');
     }
     layers.getByName("位次").textItem.contents = songData[keys[2]];

@@ -22,6 +22,7 @@ function mainImages() {
 
                 layers.getByName("排名").textItem.contents = songData.rank;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
+                layers.getByName("总补正").textItem.contents = '×' + songData.fix.toFixed(2) + ' =';
 
 
                 fillBeforeRank(layers, songData, mode);

@@ -794,10 +794,11 @@ class RankingMaker:
     def make_fixes(self):
         for songs_data in self.songs_data_today, self.songs_data_new:
             if 'fixA' in songs_data.columns:
-                songs_data['coin'] = songs_data['coin'].astype(str) + '(×' + songs_data['fixA'].astype(str) + ')'
+                songs_data['coin'] = songs_data['coin'].astype(str)
                 songs_data['fix'] = songs_data['fixB'] * songs_data['fixC']
                 songs_data['fix'].apply(lambda x:f"{x:.2f}")
             else:
+                songs_data['fixA'] = 1.0
                 songs_data['fix'] = 1.0
 
     def make_resources(self):
@@ -805,7 +806,7 @@ class RankingMaker:
         self.make_statistics()
         self.insert_main_rank()
         if self.mode == 'weekly':
-            #self.insert_daily()
+            self.insert_daily()
             self.million_reach()
         elif self.mode == 'monthly':
             self.insert_weekly()
