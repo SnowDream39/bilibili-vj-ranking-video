@@ -611,7 +611,8 @@ class RankingMaker:
             bvid = songs_data_today.at[i, "bvid"]
             today_videos.append(bvid)
         
-        delete_videos(7, today_videos)
+        if self.mode == 'weekly':
+            delete_videos(21, today_videos)
 
 
         file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
