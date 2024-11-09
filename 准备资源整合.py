@@ -310,14 +310,15 @@ class RankingMaker:
             self.metadata = metadata
             self.get_normal_datas()
         else:
-            with open(os.path.join("特刊","基本配置.yaml")) as file:
-                settings = json.load(file)
+            with open(os.path.join("特刊","基本配置.yaml"), encoding='utf-8') as file:
+                settings = yaml.safe_load(file)
                 self.special_name = settings['special_name']
-            with open(os.path.join("特刊","配置.yaml")) as file:
-                preferences = json.load(file)
-                if self.special_name in preferences:
+                self.contain = settings['contain']
+            with open(os.path.join("特刊","配置.yaml"), encoding='utf-8') as file:
+                preferences = yaml.safe_load(file)
+                if preferences and self.special_name in preferences:
                     self.contain = settings['contain']
-            self.songs_data = pd.read_excel(os.path.join("数据", f"{self.special_name}.xlsx"))
+            self.songs_data = pd.read_excel(os.path.join("特刊","数据", f"{self.special_name}.xlsx"))
 
 
 
@@ -833,6 +834,7 @@ class RankingMaker:
         if self.mode != 'special':
             self.output_metadata()
             self.make_statistics()
+            self.insert_main_rank()
             if self.mode == 'weekly':
                 self.insert_daily()
                 self.million_reach()
@@ -867,7 +869,7 @@ class RankingMaker:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Choose the mode to run the program")
-    parser.add_argument("--mode", choices=['daily','daily-text','weekly','monthly'],required=True, help="Select the mode: daily, weekly or monthly")
+    parser.add_argument("--mode", choices=['daily','daily-text','weekly','monthly','special'],required=True, help="Select the mode: daily, weekly, monthly or special")
 
     args = parser.parse_args()
 

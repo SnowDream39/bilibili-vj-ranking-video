@@ -17,7 +17,7 @@ function newImages() {
 
         // 确保读取的 JSON 数据有效
         if (data) {
-            for (var i = 0; i < 30; i++) {
+            for (var i = 0; i < 10; i++) {
                 var songData = data[i];
 
                 layers.getByName("排名").textItem.contents = songData.rank;
@@ -32,7 +32,7 @@ function newImages() {
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
                 $.writeln('完成第' + (i+1) + "张图片");
-                savePic(doc, currentFolder + '翻唱榜\\' + (songData.rank) + ".png");
+                savePic(doc, currentFolder + '特刊图片\\' + '原创榜\\' + (songData.rank) + ".png");
             }
 
             // doc.close(SaveOptions.SAVECHANGES);
