@@ -11,6 +11,7 @@ import yaml
 import os
 import shutil
 import argparse
+from typing import List, Literal
 
 themes = {
     0: "周日主题色",
@@ -138,180 +139,206 @@ async def download_thumbnail_special(image_url):
         print("图片下载失败，状态码：", response.status_code)
         exit()
 
+
+def json_find(data, key, value):
+    for i in range(len(data)):
+        if data[i][key] == value:
+            return data[i]
+    return None
+
 class RankingMaker:
-    def __init__(self, now: datetime, mode: str):
+    def __init__(self, 
+                 now: datetime, 
+                 mode: Literal['daily-text', 'weekly', 'monthly', 'special'], 
+                 special_name: str = None) -> None:
         self.now = now.replace(hour=0, minute=0, second=0, microsecond=0)
         self.today = self.now - timedelta(days=1)
         full_date = self.today.strftime("%Y.%m.%d")
         self.mode = mode
 
-        if mode == "daily" or mode == "daily-text":
-            self.folder = "日刊/"
+        if self.mode in ("daily", "daily-text", "weekly", "monthly"):
+            if mode == "daily" or mode == "daily-text":
+                self.folder = "日刊/"
 
-            self.today = self.now - timedelta(days=1)
-            total_phase = (self.today - datetime(year=2024, month=7, day=2)).days
+                self.today = self.now - timedelta(days=1)
+                total_phase = (self.today - datetime(year=2024, month=7, day=2)).days
 
-            full_date = self.now.strftime("%Y.%m.%d")
-            metadata = {
-                "full_date": full_date,
-                "year": self.now.year,
-                "month": self.today.month,
-                "day": self.today.day,
-                "weekday": self.today.weekday() + 1,
-                "theme": themes[(self.today.weekday() + 1) % 7],
-                "total_phase": total_phase,
-                "phase": total_phase,
-                "time_range": f"{self.today.strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
-            }
-            with open("日刊/基本配置.yaml", "r", encoding="utf-8") as file:
-                settings = yaml.safe_load(file)
-                self.main = settings["main"]
-                self.extend = settings["extend"]
-                self.new = settings["new"]
-            self.file_before = (
-                self.today.strftime("%Y%m%d")
-                + "与"
-                + (self.today - timedelta(days=1)).strftime("%Y%m%d")
-                + ".xlsx"
-            )
-            self.file_today = (
-                (self.today + timedelta(days=1)).strftime("%Y%m%d")
-                + "与"
-                + self.today.strftime("%Y%m%d")
-                + ".xlsx"
-            )
+                full_date = self.now.strftime("%Y.%m.%d")
+                metadata = {
+                    "full_date": full_date,
+                    "year": self.now.year,
+                    "month": self.today.month,
+                    "day": self.today.day,
+                    "weekday": self.today.weekday() + 1,
+                    "theme": themes[(self.today.weekday() + 1) % 7],
+                    "total_phase": total_phase,
+                    "phase": total_phase,
+                    "time_range": f"{self.today.strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
+                }
+                with open("日刊/基本配置.yaml", "r", encoding="utf-8") as file:
+                    settings = yaml.safe_load(file)
+                    self.main = settings["main"]
+                    self.extend = settings["extend"]
+                    self.new = settings["new"]
+                self.file_before = (
+                    self.today.strftime("%Y%m%d")
+                    + "与"
+                    + (self.today - timedelta(days=1)).strftime("%Y%m%d")
+                    + ".xlsx"
+                )
+                self.file_today = (
+                    (self.today + timedelta(days=1)).strftime("%Y%m%d")
+                    + "与"
+                    + self.today.strftime("%Y%m%d")
+                    + ".xlsx"
+                )
 
-            self.file_new = (
-                "新曲榜"
-                + (self.today + timedelta(days=1)).strftime("%Y%m%d")
-                + "与"
-                + self.today.strftime("%Y%m%d")
-                + ".xlsx"
-            )
-            self.file_new_before = (
-                "新曲榜"
-                + self.today.strftime("%Y%m%d")
-                + "与"
-                + (self.today - timedelta(days=1)).strftime("%Y%m%d")
-                + ".xlsx"
-            )
-        elif mode == "weekly":
-            self.folder = "周刊/"
+                self.file_new = (
+                    "新曲榜"
+                    + (self.today + timedelta(days=1)).strftime("%Y%m%d")
+                    + "与"
+                    + self.today.strftime("%Y%m%d")
+                    + ".xlsx"
+                )
+                self.file_new_before = (
+                    "新曲榜"
+                    + self.today.strftime("%Y%m%d")
+                    + "与"
+                    + (self.today - timedelta(days=1)).strftime("%Y%m%d")
+                    + ".xlsx"
+                )
+            elif mode == "weekly":
+                self.folder = "周刊/"
+                
+                self.today = self.now - timedelta(days=(self.now.weekday()-4)%7)
+                total_phase = (self.today - datetime(2024,8,30)).days // 7
+                full_date = self.today.strftime("%Y.%m.%d")
+                metadata = {
+                    "full_date": (self.today + timedelta(1)).strftime("%Y.%m.%d"),
+                    "year": self.now.year,
+                    "month": self.now.month,
+                    "day": self.now.day,
+                    "weekday": self.now.weekday() + 1,
+                    "theme": themes[(self.now.weekday() + 1) % 7],
+                    "total_phase": total_phase,
+                    "phase": total_phase,
+                    "time_range": f"{(self.today - timedelta(days=6)).strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(1)).strftime('%Y.%m.%d')} 00:00"  
+                }
+                with open("周刊/基本配置.yaml", "r", encoding="utf-8") as file:
+                    settings = yaml.safe_load(file)
+                    self.main = settings["main"]
+                    self.extend = settings["extend"]
+                    self.new = settings["new"]
+                with open("周刊/配置.yaml", "r", encoding="utf-8") as file:
+                    self.preferences = yaml.safe_load(file)[full_date]
+
+                self.file_before = (
+                    (self.today - timedelta(days=6)).strftime("%Y-%m-%d")
+                    + ".xlsx"
+                )
+                self.file_today = (
+                    (self.today + timedelta(1)).strftime("%Y-%m-%d")
+                    + ".xlsx"
+                )
+
+                self.file_new = (
+                    "新曲"
+                    + (self.today + timedelta(1)).strftime("%Y-%m-%d")
+                    + ".xlsx"
+                )
+                self.file_new_before = (
+                    "新曲"
+                    + (self.today - timedelta(days=6)).strftime("%Y-%m-%d")
+                    + ".xlsx"
+                )
+
+                self.million_data = pd.read_excel("周刊/数据/百万记录"+(self.today + timedelta(days=1)).strftime("%Y-%m-%d")+".xlsx", dtype={"pubdate": str})
+            elif mode == "monthly":
+                self.folder = "月刊/"
+
+                self.today = self.now.replace(day=1) - timedelta(days=1)
+                total_phase = ( self.today.year - 2024)*12 + self.today.month - 6
+
+                full_date = self.today.strftime("%Y.%m.%d")
+                metadata = {
+                    "full_date": self.today.strftime("%Y.%m"),
+                    "year": self.now.year,
+                    "month": self.today.month,
+                    "day": self.today.day,
+                    "weekday": self.today.weekday() + 1,
+                    "theme": themes[(self.today.weekday() + 1) % 7],
+                    "total_phase": total_phase,
+                    "phase": total_phase,
+                    "time_range": f"{(self.today - timedelta(days=self.today.day-1)).strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
+                }
+                with open("月刊/基本配置.yaml", "r", encoding="utf-8") as file:
+                    settings = yaml.safe_load(file)
+                    self.main = settings["main"]
+                    self.extend = settings["extend"]
+                    self.new = settings["new"]
+                with open("月刊/配置.yaml", "r", encoding="utf-8") as file:
+                    self.preferences = yaml.safe_load(file)[full_date]
+
+                self.file_before = (
+                    (self.today - timedelta(days=self.today.day)).strftime("%Y-%m")
+                    + ".xlsx"
+                )
+                self.file_today = (
+                    self.today.strftime("%Y-%m")
+                    + ".xlsx"
+                )
+
+                self.file_new_before = (
+                    "新曲"
+                    + (self.today - timedelta(days=self.today.day)).strftime("%Y-%m")
+                    + ".xlsx"
+                )
+                self.file_new = (
+                    "新曲"
+                    + self.today.strftime("%Y-%m")
+                    + ".xlsx"
+                )
             
-            self.today = self.now - timedelta(days=(self.now.weekday()-4)%7)
-            total_phase = (self.today - datetime(2024,8,30)).days // 7
-            full_date = self.today.strftime("%Y.%m.%d")
-            metadata = {
-                "full_date": (self.today + timedelta(1)).strftime("%Y.%m.%d"),
-                "year": self.now.year,
-                "month": self.now.month,
-                "day": self.now.day,
-                "weekday": self.now.weekday() + 1,
-                "theme": themes[(self.now.weekday() + 1) % 7],
-                "total_phase": total_phase,
-                "phase": total_phase,
-                "time_range": f"{(self.today - timedelta(days=6)).strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(1)).strftime('%Y.%m.%d')} 00:00"  
-            }
-            with open("周刊/基本配置.yaml", "r", encoding="utf-8") as file:
+            if self.mode != 'daily-text':
+                with open(self.folder + '配置.yaml', "r", encoding="utf-8") as file:
+                    preferences = yaml.safe_load(file)[full_date]
+                source_folder = r"D:\Music\VOCALOID传说曲"
+                source_file = preferences["ED_filename"] + ".mp3"
+
+                source_path = os.path.join(source_folder, source_file)
+                destination_file = "BGM/副榜.mp3"
+                destination_path = os.path.join(os.getcwd(), destination_file)
+                shutil.copyfile(source_path, destination_path)
+                metadata["OP_bvid"] = self.songs_data_before.at[0, "bvid"]
+                metadata["OP_title"] = self.songs_data_before.at[0, "title"]
+                metadata["OP_author"] = self.songs_data_before.at[0, "author"]
+            
+                metadata["ED_title"] = preferences["ED_title"]
+            self.metadata = metadata
+            self.get_normal_datas()
+        else:
+            with open(os.path.join("特刊","基本配置.yaml"), encoding='utf-8') as file:
                 settings = yaml.safe_load(file)
-                self.main = settings["main"]
-                self.extend = settings["extend"]
-                self.new = settings["new"]
-            with open("周刊/配置.yaml", "r", encoding="utf-8") as file:
-                self.preferences = yaml.safe_load(file)[full_date]
-
-            self.file_before = (
-                (self.today - timedelta(days=6)).strftime("%Y-%m-%d")
-                + ".xlsx"
-            )
-            self.file_today = (
-                (self.today + timedelta(1)).strftime("%Y-%m-%d")
-                + ".xlsx"
-            )
-
-            self.file_new = (
-                "新曲"
-                + (self.today + timedelta(1)).strftime("%Y-%m-%d")
-                + ".xlsx"
-            )
-            self.file_new_before = (
-                "新曲"
-                + (self.today - timedelta(days=6)).strftime("%Y-%m-%d")
-                + ".xlsx"
-            )
-
-            self.million_data = pd.read_excel("周刊/数据/百万记录"+(self.today + timedelta(days=1)).strftime("%Y-%m-%d")+".xlsx", dtype={"pubdate": str})
-        elif mode == "monthly":
-            self.folder = "月刊/"
-
-            self.today = self.now.replace(day=1) - timedelta(days=1)
-            total_phase = ( self.today.year - 2024)*12 + self.today.month - 6
-
-            full_date = self.today.strftime("%Y.%m.%d")
-            metadata = {
-                "full_date": self.today.strftime("%Y.%m"),
-                "year": self.now.year,
-                "month": self.today.month,
-                "day": self.today.day,
-                "weekday": self.today.weekday() + 1,
-                "theme": themes[(self.today.weekday() + 1) % 7],
-                "total_phase": total_phase,
-                "phase": total_phase,
-                "time_range": f"{(self.today - timedelta(days=self.today.day-1)).strftime('%Y.%m.%d')} 00:00 —— {(self.today + timedelta(days=1)).strftime('%Y.%m.%d')} 00:00"  
-            }
-            with open("月刊/基本配置.yaml", "r", encoding="utf-8") as file:
-                settings = yaml.safe_load(file)
-                self.main = settings["main"]
-                self.extend = settings["extend"]
-                self.new = settings["new"]
-            with open("月刊/配置.yaml", "r", encoding="utf-8") as file:
-                self.preferences = yaml.safe_load(file)[full_date]
-
-            self.file_before = (
-                (self.today - timedelta(days=self.today.day)).strftime("%Y-%m")
-                + ".xlsx"
-            )
-            self.file_today = (
-                self.today.strftime("%Y-%m")
-                + ".xlsx"
-            )
-
-            self.file_new_before = (
-                "新曲"
-                + (self.today - timedelta(days=self.today.day)).strftime("%Y-%m")
-                + ".xlsx"
-            )
-            self.file_new = (
-                "新曲"
-                + self.today.strftime("%Y-%m")
-                + ".xlsx"
-            )
+                self.special_name = settings['special_name']
+                self.contain = settings['contain']
+            with open(os.path.join("特刊","配置.yaml"), encoding='utf-8') as file:
+                preferences = yaml.safe_load(file)
+                if preferences and self.special_name in preferences:
+                    self.contain = settings['contain']
+            self.songs_data = pd.read_excel(os.path.join("特刊","数据", f"{self.special_name}.xlsx"))
 
 
+
+    def get_normal_datas(self):
         self.songs_data_today = pd.read_excel(os.path.join(self.folder, "数据", self.file_today), dtype={"author":str, "vocal":str, "pubdate": str})
         self.songs_data_today["pic"] = self.songs_data_today["bvid"] + ".png"
         self.songs_data_before = pd.read_excel(os.path.join(self.folder, "数据", self.file_before), dtype={"author":str,"vocal":str, "pubdate": str})
         self.songs_data_new = pd.read_excel(os.path.join(self.folder, "数据", self.file_new), dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
         self.songs_data_new_before = pd.read_excel( os.path.join(self.folder, "数据", self.file_new_before), dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
 
-        if mode in ('daily', 'weekly','monthly'):
-            with open(self.folder + '配置.yaml', "r", encoding="utf-8") as file:
-                preferences = yaml.safe_load(file)[full_date]
-            source_folder = r"D:\Music\VOCALOID传说曲"
-            source_file = preferences["ED_filename"] + ".mp3"
 
-            source_path = os.path.join(source_folder, source_file)
-            destination_file = "BGM/副榜.mp3"
-            destination_path = os.path.join(os.getcwd(), destination_file)
-            shutil.copyfile(source_path, destination_path)
-            metadata["OP_bvid"] = self.songs_data_before.at[0, "bvid"]
-            metadata["OP_title"] = self.songs_data_before.at[0, "title"]
-            metadata["OP_author"] = self.songs_data_before.at[0, "author"]
-        
-            metadata["ED_title"] = preferences["ED_title"]
-
-        self.metadata = metadata
         self.today_pics = {}
+
 
     def output_metadata(self):
 
@@ -531,17 +558,18 @@ class RankingMaker:
         with open('统计.json','w',encoding='utf-8') as file:
             json.dump(statistics, file, ensure_ascii=False, indent=4)
 
-    def insert_clip_points(self, songs_data, main):
-        songs_data["inPoint"] = "0"
-        songs_data["outPoint"] = "0"
-        for i in range(main):
-            for clip in clip_points:
-                if songs_data.at[i, "bvid"] == clip["bvid"]:
-                    songs_data.at[i, "inPoint"] = clip["inPoint"]
-                    songs_data.at[i, "outPoint"] = clip["outPoint"]
-                    break
-            else:
-                print(f"缺少截取片段：{songs_data.at[i,'name']}({songs_data.at[i,'bvid']})")
+    def insert_clip_points(self, datas):
+        for songs_data, contain in datas:
+            songs_data["inPoint"] = "0"
+            songs_data["outPoint"] = "0"
+            for i in range(contain):
+                for clip in clip_points:
+                    if songs_data.at[i, "bvid"] == clip["bvid"]:
+                        songs_data.at[i, "inPoint"] = clip["inPoint"]
+                        songs_data.at[i, "outPoint"] = clip["outPoint"]
+                        break
+                else:
+                    print(f"缺少截取片段：{songs_data.at[i,'name']}({songs_data.at[i,'bvid']})")
 
     def insert_before(self):
         if self.mode in ('daily','daily-text'):
@@ -603,43 +631,50 @@ class RankingMaker:
 
         
         downloaded_videos = os.listdir("./视频")
-        songs_data_today = self.songs_data_today
-        songs_data_new = self.songs_data_new
-
         today_videos = []
-        for i in range(self.main):
-            bvid = songs_data_today.at[i, "bvid"]
-            today_videos.append(bvid)
-        
-        if self.mode == 'weekly':
-            delete_videos(21, today_videos)
 
-
-        file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
-        if os.path.exists(file_path):
-            with open(file_path, "r") as file:
-                download_list = json.load(file)
+        if self.mode == 'special':
+            songs_data = self.songs_data
+            download_list = songs_data['bvid'].to_list()
         else:
-            download_list = []
-
-        # 找下载新曲视频
-        for i in range(self.new):
-            bvid = songs_data_new.at[i, "bvid"]
-            if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
-                download_list.append(bvid)
-
-        # 找下载主榜视频
-        for i in range(self.main):
-            bvid = songs_data_today.at[i, "bvid"]
-            if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
-                download_list.append(bvid)
 
 
+            songs_data_today = self.songs_data_today
+            songs_data_new = self.songs_data_new
+
+            for i in range(self.main):
+                bvid = songs_data_today.at[i, "bvid"]
+                today_videos.append(bvid)
+            
+            if self.mode == 'daily':
+                delete_videos(7, today_videos)
+            elif self.mode == 'weekly':
+                delete_videos(21, today_videos)
 
 
-        file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
-        with open(file_path, "w") as file:
-            json.dump(download_list, file, ensure_ascii=False, indent=4)
+            file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
+            if os.path.exists(file_path):
+                with open(file_path, "r") as file:
+                    download_list = json.load(file)
+            else:
+                download_list = []
+
+            # 找下载新曲视频
+            for i in range(self.new):
+                bvid = songs_data_new.at[i, "bvid"]
+                if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
+                    download_list.append(bvid)
+
+            # 找下载主榜视频
+            for i in range(self.main):
+                bvid = songs_data_today.at[i, "bvid"]
+                if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
+                    download_list.append(bvid)
+
+
+            file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
+            with open(file_path, "w") as file:
+                json.dump(download_list, file, ensure_ascii=False, indent=4)
 
         total = len(download_list)
         for i in range(total):
@@ -781,8 +816,10 @@ class RankingMaker:
         for i in songs_data.index:
             if pd.notna(songs_data.at[i, 'vocal']):
                 for vocal in songs_data.at[i, 'vocal'].split('、'):
-                    if vocal in vocal_colors.keys():
-                        songs_data.at[i, 'vocal_colors'].append(vocal_colors[vocal])
+                    vocal = vocal.strip()
+                    color = json_find(vocal_colors, 1, vocal)
+                    if color:
+                        songs_data.at[i, 'vocal_colors'].append(color[0])
                     else:
                         songs_data.at[i, 'vocal_colors'].append('777777')
                         if vocal not in removed_vocals:
@@ -791,8 +828,8 @@ class RankingMaker:
                 songs_data.at[i, 'vocal_colors'].append('777777')
                 print(f"{songs_data.at[i, 'rank']}位 {songs_data.at[i, 'name']}({songs_data.at[i, 'bvid']})没打标")
 
-    def make_fixes(self):
-        for songs_data in self.songs_data_today, self.songs_data_new:
+    def make_fixes(self, songs_datas: List[pd.DataFrame]):
+        for songs_data in songs_datas:
             if 'fixA' in songs_data.columns:
                 songs_data['coin'] = songs_data['coin'].astype(str)
                 songs_data['fix'] = songs_data['fixB'] * songs_data['fixC']
@@ -802,38 +839,46 @@ class RankingMaker:
                 songs_data['fix'] = 1.0
 
     def make_resources(self):
-        self.output_metadata()
-        self.make_statistics()
-        self.insert_main_rank()
-        if self.mode == 'weekly':
-            self.insert_daily()
-            self.million_reach()
-        elif self.mode == 'monthly':
-            self.insert_weekly()
-        self.songs_data_today = self.songs_data_today.head(self.extend)
-        self.insert_before()
-        self.insert_vocal_colors()
-        self.make_fixes()
+        
+        if self.mode != 'special':
+            self.output_metadata()
+            self.make_statistics()
+            self.insert_main_rank()
+            if self.mode == 'weekly':
+                self.insert_daily()
+                self.million_reach()
+            elif self.mode == 'monthly':
+                self.insert_weekly()
+            self.songs_data_today = self.songs_data_today.head(self.extend)
+            self.insert_vocal_colors()
+            self.insert_before()
+            self.make_fixes([self.songs_data_today, self.songs_data_new])
 
+            self.cover_thumbnail()
+            self.local_thumbnails()
+            if self.mode != 'daily-text':
+                self.local_videos()
+                self.insert_clip_points([[self.songs_data_today, self.main],
+                                         [self.songs_data_new, self.new]])
+            self.songs_data_today.to_json("数据.json", force_ascii=False, orient="records", indent=4)
+            self.songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)
+        else:
+            self.songs_data = self.songs_data.head(self.contain)
+            self.make_fixes([self.songs_data])
 
-        if self.mode != 'daily-text':
             self.local_videos()
-            self.insert_clip_points(self.songs_data_today, self.main)
-            self.insert_clip_points(self.songs_data_new, self.new)
+            self.insert_clip_points([[self.songs_data, self.contain]])
+            self.songs_data.to_json("数据.json", force_ascii=False, orient="records", indent=4)
 
 
-        self.cover_thumbnail()
-        self.local_thumbnails()
 
-        self.songs_data_today.to_json("数据.json", force_ascii=False, orient="records", indent=4)
-        self.songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)
 
         print("现在可以开始制作图片")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Choose the mode to run the program")
-    parser.add_argument("--mode", choices=['daily','daily-text','weekly','monthly'],required=True, help="Select the mode: daily, weekly or monthly")
+    parser.add_argument("--mode", choices=['daily','daily-text','weekly','monthly','special'],required=True, help="Select the mode: daily, weekly, monthly or special")
 
     args = parser.parse_args()
 
