@@ -29,7 +29,7 @@ function millionReach() {
                 doc.layers[pos].visible = true;
                 var layers = doc.layers[pos].layers;
 
-                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.video_title, size = 32, font = "SourceHanSansCN-Bold", width=750);
+                setFormattedText(textLayer = layers.getByName("标题"), contents = songData.title, size = 32, font = "SourceHanSansCN-Bold", width=750);
                 layers.getByName("作者").textItem.contents = songData.author;
                 layers.getByName("数值").textItem.contents = songData.million_crossed + "00万";
                 layers.getByName("投稿日期").textItem.contents = songData.pubdate.substring(0,10);

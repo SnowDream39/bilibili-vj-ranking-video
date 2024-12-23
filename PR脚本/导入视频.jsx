@@ -29,7 +29,6 @@ var imageFiles = [];
 var videoFiles = [];
 
 
-project.importFiles(videoFiles,false, monthReviewImageBin,false)
 for (var i = 0; i < data.length; i++) {
     var bvid = data[i].bvid;
     filepath = currentFolder + "视频\\" + bvid + ".mp4";

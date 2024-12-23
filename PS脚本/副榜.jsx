@@ -1,6 +1,5 @@
 #include 'ps.jsx'
 
-
 function extendTitle() {
     var mode = judgeMode();
     var fileRef = new File(currentFolder + "其他图片\\副榜.psd");

@@ -1,4 +1,5 @@
 #include 'pr.jsx'
+var contain = 20;
 
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
 
@@ -36,7 +37,7 @@ var videoTime = new Time();
 var audioTime = new Time();
 
 // 导入主榜
-videoTime = makeRanks(contain, 0, videoTrack, imageTrack, mainVideoBin, mainImageBin, '主榜', videoTime, allData);
+videoTime = makeRanks(contain, 0, videoTrack, imageTrack, mainVideoBin, mainImageBin, '特刊', videoTime, allData);
 audioTime.ticks = videoTime.ticks;
 
 

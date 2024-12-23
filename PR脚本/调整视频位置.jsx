@@ -12,9 +12,3 @@ for (var i = 0; i < clips.numItems; i++) {
     var clip = clips[i];
     videoSizeFit(clip, [1449.1, 815.1], [0.3885, 0.3943]);
 }
-// 音频关键帧处理
-var clips = songTrack.clips;
-for (var i = 0; i < clips.numItems; i++) {
-    var clip = clips[i];
-    audioFadeout(clip, 1);
-}

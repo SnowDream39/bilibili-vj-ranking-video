@@ -2,7 +2,7 @@
 
 function newImages() {
     var mode = judgeMode();
-    var fileRef = new File(currentFolder + "月回顾图片\\月回顾样式.psd");
+    var fileRef = new File(currentFolder + "特刊图片\\基础样式.psd");
     if (fileRef.exists) {
         app.open(fileRef);
     } else {
@@ -15,9 +15,11 @@ function newImages() {
         var doc = app.activeDocument;
         var layers = doc.layers;
         var dataTodayNew = readJSONFile(currentFolder + "月回顾数据.json");
+        var metadata = readJSONFile(currentFolder + "基本信息数据.json");
 
         // 确保读取的 JSON 数据有效
         if (dataTodayNew) {
+            layers.getByName("上期排名").layers.getByName("标题").textItem.contents = metadata.title;
             for (var i = 0; i < dataTodayNew.length; i++) {
                 var songData = dataTodayNew[i];
 

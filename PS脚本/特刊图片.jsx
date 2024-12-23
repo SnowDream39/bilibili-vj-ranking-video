@@ -2,7 +2,7 @@
 
 
 function newImages() {
-    var fileRef = new File(currentFolder + "主榜图片\\梦的结唱样式2.psd");
+    var fileRef = new File(currentFolder + "特刊图片\\基础样式.psd");
     if (fileRef.exists) {
         app.open(fileRef);
     } else {
@@ -14,10 +14,11 @@ function newImages() {
         var doc = app.activeDocument;
         var layers = doc.layers;
         var data = readJSONFile(currentFolder + "数据.json");
-
+        var metadata = readJSONFile(currentFolder + "基本信息数据.json");
         // 确保读取的 JSON 数据有效
         if (data) {
-            for (var i = 0; i < 10; i++) {
+            layers.getByName("上期排名").layers.getByName("标题").textItem.contents = metadata.title;
+            for (var i = 0; i < 20; i++) {
                 var songData = data[i];
 
                 layers.getByName("排名").textItem.contents = songData.rank;
@@ -32,7 +33,7 @@ function newImages() {
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
                 $.writeln('完成第' + (i+1) + "张图片");
-                savePic(doc, currentFolder + '特刊图片\\' + '原创榜\\' + (songData.rank) + ".png");
+                savePic(doc, currentFolder + '特刊图片\\' + (songData.rank) + ".png");
             }
 
             // doc.close(SaveOptions.SAVECHANGES);

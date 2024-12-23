@@ -63,7 +63,7 @@ async def download_video(bvid):
         await download_url(streams[1].url, "视频/audio_temp.m4s", "音频流")
         # 混流
         os.system(
-            f"ffmpeg -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy 视频/{bvid}.mp4"
+            f"ffmpeg -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy -loglevel quiet 视频/{bvid}.mp4"
         )
         # 删除临时文件
         os.remove("视频/video_temp.m4s")
@@ -149,7 +149,7 @@ def json_find(data, key, value):
 class RankingMaker:
     def __init__(self, 
                  now: datetime, 
-                 mode: Literal['daily-text', 'weekly', 'monthly', 'special'], 
+                 mode: Literal['daily-text', 'weekly', 'monthly', 'month-review', 'special'], 
                  special_name: str = None) -> None:
         self.now = now.replace(hour=0, minute=0, second=0, microsecond=0)
         self.today = self.now - timedelta(days=1)
@@ -302,6 +302,7 @@ class RankingMaker:
             if self.mode != 'daily-text':
                 with open(self.folder + '配置.yaml', "r", encoding="utf-8") as file:
                     preferences = yaml.safe_load(file)[full_date]
+                metadata["ED_title"] = self.preferences["ED_title"]
                 source_folder = r"D:\Music\VOCALOID传说曲"
                 source_file = preferences["ED_filename"] + ".mp3"
 
@@ -309,23 +310,58 @@ class RankingMaker:
                 destination_file = "BGM/副榜.mp3"
                 destination_path = os.path.join(os.getcwd(), destination_file)
                 shutil.copyfile(source_path, destination_path)
-                metadata["OP_bvid"] = self.songs_data_before.at[0, "bvid"]
-                metadata["OP_title"] = self.songs_data_before.at[0, "title"]
-                metadata["OP_author"] = self.songs_data_before.at[0, "author"]
-            
-                metadata["ED_title"] = preferences["ED_title"]
             self.metadata = metadata
             self.get_normal_datas()
-        else:
+        elif self.mode == "special":
             with open(os.path.join("特刊","基本配置.yaml"), encoding='utf-8') as file:
                 settings = yaml.safe_load(file)
                 self.special_name = settings['special_name']
                 self.contain = settings['contain']
+                self.title = settings['title']
             with open(os.path.join("特刊","配置.yaml"), encoding='utf-8') as file:
                 preferences = yaml.safe_load(file)
                 if preferences and self.special_name in preferences:
                     self.contain = settings['contain']
+            with open("基本信息数据.json","w", encoding="utf-8") as file:
+                self.metadata = {
+                    "special_name": self.special_name,
+                    "title": self.title
+                }
+                json.dump(self.metadata, file, indent=4, ensure_ascii=False)
             self.songs_data = pd.read_excel(os.path.join("特刊","数据", f"{self.special_name}.xlsx"))
+        elif self.mode == "month-review":
+            
+            with open("基本信息数据.json","w", encoding="utf-8") as file:
+                metadata = {
+                    "title": "每日冠军回顾"
+                }
+                json.dump(metadata, file, indent=4, ensure_ascii=False)
+
+            last_day_of_last_month = datetime(self.today.year,  self.today.month, 1)- timedelta(days=1)
+            first_day_of_last_month = last_day_of_last_month.replace(day=1)
+            current_day = first_day_of_last_month
+            all_columns = ['title','bvid','name','author','uploader','copyright','synthesizer','vocal','type','pubdate','duration','page','view','favorite','coin','like','viewR','favoriteR','coinR','likeR','point']
+            top_datas = pd.DataFrame(columns=all_columns)
+            while current_day <= last_day_of_last_month:
+
+                filename = "日刊/数据/"+ (current_day + timedelta(days=1)).strftime("%Y%m%d")+"与"+current_day.strftime("%Y%m%d")+".xlsx"
+                current_song_data = pd.read_excel(filename,nrows=1,dtype={"pubdate": str})
+                current_song_data = current_song_data[all_columns]
+                top_datas = pd.concat([top_datas, current_song_data],ignore_index=True)
+                current_day += timedelta(days=1)
+            
+            top_datas['day'] = top_datas.index + 1
+            top_datas['view_rank'] = top_datas['view'].rank(ascending=False,method='min').astype(int)
+            top_datas['favorite_rank'] = top_datas['favorite'].rank(ascending=False,method='min').astype(int)
+            top_datas['coin_rank'] = top_datas['coin'].rank(ascending=False,method='min').astype(int)
+            top_datas['like_rank'] = top_datas['like'].rank(ascending=False,method='min').astype(int)
+            top_datas['fixA'] = 1.00
+            top_datas['fixB'] = 1.00
+            top_datas['fixC'] = 1.00
+            top_datas.to_excel("月回顾数据.xlsx",index=False)
+            top_datas.to_json("月回顾数据.json", force_ascii=False, orient="records", indent=4)
+            self.songs_data = top_datas
+            self.make_resources() 
 
 
 
@@ -337,6 +373,10 @@ class RankingMaker:
         self.songs_data_new_before = pd.read_excel( os.path.join(self.folder, "数据", self.file_new_before), dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
 
 
+        self.metadata["OP_bvid"] = self.songs_data_before.at[0, "bvid"]
+        self.metadata["OP_title"] = self.songs_data_before.at[0, "title"]
+        self.metadata["OP_author"] = self.songs_data_before.at[0, "author"]
+    
         self.today_pics = {}
 
 
@@ -559,17 +599,22 @@ class RankingMaker:
             json.dump(statistics, file, ensure_ascii=False, indent=4)
 
     def insert_clip_points(self, datas):
+        miss_clip_points = []
         for songs_data, contain in datas:
             songs_data["inPoint"] = "0"
             songs_data["outPoint"] = "0"
             for i in range(contain):
+                bvid = songs_data.at[i, "bvid"] 
                 for clip in clip_points:
-                    if songs_data.at[i, "bvid"] == clip["bvid"]:
+                    if bvid == clip["bvid"]:
                         songs_data.at[i, "inPoint"] = clip["inPoint"]
                         songs_data.at[i, "outPoint"] = clip["outPoint"]
                         break
                 else:
                     print(f"缺少截取片段：{songs_data.at[i,'name']}({songs_data.at[i,'bvid']})")
+                    miss_clip_points.append(bvid)
+            with open("缺少截取片段视频.json",'w',encoding='utf-8') as file:
+                json.dump(miss_clip_points, file, indent=4, ensure_ascii=False)
 
     def insert_before(self):
         if self.mode in ('daily','daily-text'):
@@ -598,12 +643,12 @@ class RankingMaker:
                 songs_data_today.at[i, "point_before"] = song_data_before["point"]
                 if song_data_before["point"] != 0:
                     songs_data_today.at[i, "rate"] = round(songs_data_today.at[i, "point"] / song_data_before["point"], 4) - 1
-
-                if rank_before < i + 1:
+                rank = songs_data_today.at[i, "rank"]
+                if rank_before < rank:
                     songs_data_today.at[i, "change"] = "down"
-                elif rank_before == i + 1:
+                elif rank_before == rank:
                     songs_data_today.at[i, "change"] = "cont"
-                elif rank_before > i + 1:
+                elif rank_before > rank:
                     songs_data_today.at[i, "change"] = "up"
             else:
                 if (
@@ -617,68 +662,50 @@ class RankingMaker:
                     songs_data_today.at[i, "change"] = "up"
 
     def local_videos(self):
-
-        def delete_videos(days, today_videos):
-            file_path = os.path.join("视频", f"{(self.today - timedelta(days=days)).strftime('%Y%m%d')}下载视频.json")
+        """
+        会保存每天新增视频的文件。具体逻辑还没想好。
+        """
+        def delete_videos(days):
+            file_path = os.path.join("视频", f"{(self.today - timedelta(days=days)).strftime('%Y%m%d')}视频.json")
             if os.path.exists(file_path):
                 with open(file_path, "r") as file:
                     old_videos = json.load(file)
                 for old_video in old_videos:
-                    if old_video not in today_videos and os.path.exists(
+                    if old_video not in rank_videos and os.path.exists(
                         f"视频/{old_video}.mp4"
                     ):
                         os.remove(f"视频/{old_video}.mp4")
 
         
         downloaded_videos = os.listdir("./视频")
-        today_videos = []
 
         if self.mode == 'special':
             songs_data = self.songs_data
-            download_list = songs_data['bvid'].to_list()
+            rank_videos = songs_data['bvid'].to_list()
         else:
-
-
             songs_data_today = self.songs_data_today
             songs_data_new = self.songs_data_new
-
-            for i in range(self.main):
-                bvid = songs_data_today.at[i, "bvid"]
-                today_videos.append(bvid)
-            
+            rank_videos = list(set(songs_data_today["bvid"].to_list()).union(set(songs_data_new["bvid"].to_list())))
+            # 一般做日刊、周刊、月刊的时候需要顺便删除旧视频。
             if self.mode == 'daily':
-                delete_videos(7, today_videos)
+                delete_videos(7)
             elif self.mode == 'weekly':
-                delete_videos(21, today_videos)
+                delete_videos(21)
 
+        rank_videos = list(map(lambda x:x + ".mp4", rank_videos))
+        videos_to_download = list(set(rank_videos) - set(downloaded_videos))
+        
+        if self.mode == 'special':
+            file_path = os.path.join("视频",f"{self.special_name}视频.json")
+        else:
+            file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}视频.json")
 
-            file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
-            if os.path.exists(file_path):
-                with open(file_path, "r") as file:
-                    download_list = json.load(file)
-            else:
-                download_list = []
+        with open(file_path, "w") as file:
+            json.dump(rank_videos, file, ensure_ascii=False, indent=4)
 
-            # 找下载新曲视频
-            for i in range(self.new):
-                bvid = songs_data_new.at[i, "bvid"]
-                if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
-                    download_list.append(bvid)
-
-            # 找下载主榜视频
-            for i in range(self.main):
-                bvid = songs_data_today.at[i, "bvid"]
-                if bvid + ".mp4" not in downloaded_videos and bvid not in download_list:
-                    download_list.append(bvid)
-
-
-            file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}下载视频.json")
-            with open(file_path, "w") as file:
-                json.dump(download_list, file, ensure_ascii=False, indent=4)
-
-        total = len(download_list)
+        total = len(videos_to_download)
         for i in range(total):
-            bvid = download_list[i]
+            bvid = videos_to_download[i][:12]
             if bvid + ".mp4" not in downloaded_videos:
                 asyncio.run(download_video(bvid=bvid))
                 print(f"下载进度：{i+1}/{total}")
@@ -838,10 +865,22 @@ class RankingMaker:
                 songs_data['fixA'] = 1.0
                 songs_data['fix'] = 1.0
 
+
     def make_resources(self):
         
-        if self.mode != 'special':
+
+        if self.mode == 'month-review':
+            self.songs_data.to_json("月回顾数据.json", force_ascii=False, orient="records", indent=4)
+            self.songs_data.to_excel("月回顾数据.xlsx", index=False)
+        elif self.mode == 'special':
+            self.songs_data = self.songs_data.head(self.contain)
+            self.make_fixes([self.songs_data])
+
+            self.local_videos()
+            self.insert_clip_points([[self.songs_data, self.contain]])
+            self.songs_data.to_json("数据.json", force_ascii=False, orient="records", indent=4)
             self.output_metadata()
+        else:
             self.make_statistics()
             self.insert_main_rank()
             if self.mode == 'weekly':
@@ -853,7 +892,7 @@ class RankingMaker:
             self.insert_vocal_colors()
             self.insert_before()
             self.make_fixes([self.songs_data_today, self.songs_data_new])
-
+            self.output_metadata()
             self.cover_thumbnail()
             self.local_thumbnails()
             if self.mode != 'daily-text':
@@ -862,23 +901,15 @@ class RankingMaker:
                                          [self.songs_data_new, self.new]])
             self.songs_data_today.to_json("数据.json", force_ascii=False, orient="records", indent=4)
             self.songs_data_new.to_json("新曲数据.json", force_ascii=False, orient="records", indent=4)
-        else:
-            self.songs_data = self.songs_data.head(self.contain)
-            self.make_fixes([self.songs_data])
-
-            self.local_videos()
-            self.insert_clip_points([[self.songs_data, self.contain]])
-            self.songs_data.to_json("数据.json", force_ascii=False, orient="records", indent=4)
 
 
 
 
-        print("现在可以开始制作图片")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Choose the mode to run the program")
-    parser.add_argument("--mode", choices=['daily','daily-text','weekly','monthly','special'],required=True, help="Select the mode: daily, weekly, monthly or special")
+    parser.add_argument("--mode", choices=['daily','daily-text','weekly','monthly','month-review','special'],required=True, help="Select the mode: daily, weekly, monthly or special")
 
     args = parser.parse_args()
 

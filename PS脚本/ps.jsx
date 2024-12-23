@@ -3,7 +3,7 @@
 var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
 var extend = 100; // 手动改
-var TEMP_MODE = 'daily'; //需要临时运行一个脚本的话修改此处
+var TEMP_MODE = 'weekly'; //需要临时运行一个脚本的话修改此处
 
 function judgeMode() {
     if (typeof MODE === 'undefined'){
@@ -284,11 +284,11 @@ function fillSongInfoExtend (layers, songData, mode) {
     fillVocalColors(layers.getByName("歌手颜色").layers, songData.vocal_colors);
 
     if (mode == "daily" || mode == "daily-text" || mode == "weekly") {
-        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=300);
+        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = 31.14, font = undefined, width=300);
         layers.getByName("上榜次数").visible = true;
         layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
     } else if (mode == "monthly") {
-        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = undefined, font = undefined, width=600);
+        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = 31.14, font = undefined, width=600);
         layers.getByName("上榜次数").visible = false;
     }
     layers.getByName("BV号").textItem.contents = songData.bvid;
