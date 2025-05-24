@@ -36,7 +36,6 @@ var videoTracks = sequence.videoTracks;
 var imageTrack = videoTracks[0];
 var videoTrack = videoTracks[1];
 
-refreshBin(rootItem, '截取片段用视频');
 var mainImageBin = refreshBin(rootItem, '主榜图片');
 var subImageBin = refreshBin(rootItem, '副榜图片');
 var newImageBin = refreshBin(rootItem, '新曲榜图片');
@@ -51,16 +50,16 @@ var audioTime = new Time();
 // 开头
 if (MODE === 'daily'){
 
-    var openingImages = ["16比9封面.png", "规则1.png", "日刊\\规则2.png", "日刊\\规则3.png", "新曲榜.png"];
+    var openingImages = ["16比9封面.png", "OP.png", "日刊\\公式.png", "日刊\\榜单.png", "新曲榜.png"];
     var openingLength = [3, 5, 5, 5, 3];
 } else if (MODE === 'weekly') {
 
-    var openingImages = ["16比9封面.png", "规则1.png",  "规则1.5.png", "周刊\\规则2.png", "周刊\\规则3.png", "新曲榜.png"];
-    var openingLength = [3, 5, 5, 5, 5, 3];
+    var openingImages = ["16比9封面.png", "OP.png",  "规则1.png", "规则2.png", "规则3.png", "周刊\\公式.png", "周刊\\成就.png", "周刊\\榜单.png", "新曲榜.png"];
+    var openingLength = [3, 5, 5, 5, 5, 5, 5, 5, 3];
 } else if (MODE === 'monthly') {
 
-    var openingImages = ["月刊\\封面.png", "规则1.png",  "规则1.5.png", "月刊\\规则2.png", "月刊\\规则3.png", "月刊\\新曲榜.png"];
-    var openingLength = [3, 5, 5, 5, 5, 3];
+    var openingImages = ["月刊\\封面.png", "OP.png", "规则1.png", "规则2.png", "规则3.png",  "月刊\\公式.png", "月刊\\榜单.png", "月刊\\新曲榜.png"];
+    var openingLength = [3, 5, 5, 5, 5, 5, 5, 3];
 }
 
 
@@ -126,11 +125,16 @@ if (MODE == 'daily'){
     var subImages = [currentFolder + "其他图片\\" + "统计歌手.png",currentFolder + "其他图片\\" +  "统计数据.png"];
     var subLengths = [12, 5];
     var millionStats = readJSONFile(currentFolder + "百万达成.json");
-    var millionPages = 0;
     for(var i=0;i<millionStats.length;i++){
-        if (i%5 == 1){
-            millionPages++;
-            subImages.push(currentFolder + "其他图片\\百万达成" + millionPages + ".png");
+        if (i%5 == 0){
+            subImages.push(currentFolder + "其他图片\\百万达成" + (i/5+1) + ".png");
+            subLengths.push(6);
+        }
+    }
+    var achievementStats = readJSONFile(currentFolder + "成就.json");
+    for(var i=0;i<achievementStats.length;i++){
+        if (i%5 == 0){
+            subImages.push(currentFolder + "其他图片\\成就达成" + (i/5+1) + ".png");
             subLengths.push(6);
         }
     }
@@ -155,7 +159,6 @@ project.importFiles(subImages, false, subImageBin, false);
 
 
 videoTime = importClips(subImageBin, subImages, subLengths, imageTrack, videoTime, 1);
-project.save();
 // 设置视频位置和缩放
 var clips = videoTrack.clips;
 for (var i = 0; i < clips.numItems; i++) {

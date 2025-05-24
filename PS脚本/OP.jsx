@@ -4,9 +4,9 @@
 function rule1() {
     var mode = judgeMode();
     if (mode == 'daily'){
-        var fileRef = new File(currentFolder + "其他图片\\日刊\\规则1.psd")
+        var fileRef = new File(currentFolder + "其他图片\\日刊\\OP.psd")
     }else{
-        var fileRef = new File(currentFolder + "其他图片\\规则1.psd")
+        var fileRef = new File(currentFolder + "其他图片\\OP.psd")
     }
     app.open(fileRef)
     // 确保有活动文档
@@ -25,7 +25,9 @@ function rule1() {
             var relativeObject = layers.getByName("作者");
             var insertionLocation = ElementPlacement.PLACEBEFORE;
             var thumbLayer = importImage(currentFolder + '封面\\' + metadata.OP_bvid + '.png', "封面", layers, relativeObject, insertionLocation, size, position);
-            savePic(doc, currentFolder + '其他图片\\规则1.png');
+            
+            layers.getByName("时间范围").textItem.contents = metadata.time_range;
+            savePic(doc, currentFolder + '其他图片\\OP.png');
             if(mode == 'daily'){
                 doc.close(SaveOptions.SAVECHANGES);
             }

@@ -1,9 +1,15 @@
 #include 'pr.jsx'
 
-var sequenceName = "排行榜";
+
 var project = app.project;
-var sequence = project.sequences[0];
+var rootItem = project.rootItem;
+var sequence = project.activeSequence;
+
+var audioTracks = sequence.audioTracks;
+var musicTrack = audioTracks[0];
+var songTrack = audioTracks[1];
 var videoTracks = sequence.videoTracks;
+var imageTrack = videoTracks[0];
 var videoTrack = videoTracks[1];
 
 // 设置视频位置和缩放

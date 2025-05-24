@@ -1,4 +1,4 @@
-#include 'ps.jsx'
+#include '../ps.jsx'
 
 
 function newImages() {
@@ -17,11 +17,10 @@ function newImages() {
         var metadata = readJSONFile(currentFolder + "基本信息数据.json");
         // 确保读取的 JSON 数据有效
         if (data) {
-            layers.getByName("上期排名").layers.getByName("标题").textItem.contents = metadata.title;
-            for (var i = 0; i < 50; i++) {
+            for (var i = 0; i < 200; i++) {
                 var songData = data[i];
-                layers.getByName("上期排名").layers.getByName("标题").textItem.contents = songData.month;
 
+                layers.getByName("上期排名").layers.getByName("标题").textItem.contents = songData.year;
                 layers.getByName("排名").textItem.contents = songData.rank;
                 layers.getByName("得分").textItem.contents = comma(songData.point);
                 layers.getByName("总补正").textItem.contents = '×' + songData.fix.toFixed(2) + ' =';
@@ -34,7 +33,7 @@ function newImages() {
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
                 $.writeln('完成第' + (i+1) + "张图片");
-                savePic(doc, currentFolder + '特刊图片\\' + (songData.rank) + ".png");
+                savePic(doc, currentFolder + '历年第一图片\\' + (i+1) + ".png");
             }
 
             // doc.close(SaveOptions.SAVECHANGES);

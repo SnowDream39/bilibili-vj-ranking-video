@@ -29,7 +29,7 @@ function readJSONFile(filepath) {
 }
 
 function comma(value) {
-    value = String(value);
+    value = String(parseInt(value));
     var valueComma = '';
     for (var i = 1; i <= value.length; i++) {
         valueComma = value[value.length - i] + valueComma;
@@ -192,7 +192,7 @@ function fillData(songData, layers, keys) {
 
 function setFormattedText(textLayer, contents, size, font, width) {
     if (contents !== undefined) {
-        textLayer.textItem.contents = contents;
+        textLayer.textItem.contents = contents ? contents : '';
     }
     if (font !== undefined) {
         textLayer.textItem.font = font;
@@ -265,7 +265,7 @@ function fillSongInfo(layers, songData, mode, part) {
         layers.getByName("时长").textItem.contents = songData.duration + "/" + songData.page + "P";
     }
 
-    if (songData.copyright === 1){
+    if (songData.copyright === 1 || songData.copyright === 4){
         var contents = "作者投稿";
     } else {
         var contents = "搬运：" + songData.uploader;
@@ -284,11 +284,11 @@ function fillSongInfoExtend (layers, songData, mode) {
     fillVocalColors(layers.getByName("歌手颜色").layers, songData.vocal_colors);
 
     if (mode == "daily" || mode == "daily-text" || mode == "weekly") {
-        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = 31.14, font = undefined, width=300);
+        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = 31.14, font = "SourceHanSansCN-Bold", width=300);
         layers.getByName("上榜次数").visible = true;
         layers.getByName("上榜次数").textItem.contents = "上榜次数：" + songData.count;
     } else if (mode == "monthly") {
-        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = 31.14, font = undefined, width=600);
+        setFormattedText(textLayer=layers.getByName("作者"), contents = songData.author, size = 31.14, font = "SourceHanSansCN-Bold", width=600);
         layers.getByName("上榜次数").visible = false;
     }
     layers.getByName("BV号").textItem.contents = songData.bvid;

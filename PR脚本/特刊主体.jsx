@@ -1,16 +1,14 @@
 #include 'pr.jsx'
-var contain = 20;
+var contain = 102;
+var name = "特刊"
+
 
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
 
-var sequenceName = "特刊";
+var sequenceName = name;
 var project = app.project;
 var rootItem = project.rootItem;
 
-var sequences = project.sequences;
-for (var i = 0; i < sequences.length; i++) {
-    project.deleteSequence(sequences[i]);
-}
 var sequence = project.createNewSequence(sequenceName, "standard");
 
 var allData = readJSONFile(currentFolder + "数据.json");
@@ -24,20 +22,45 @@ var videoTracks = sequence.videoTracks;
 var imageTrack = videoTracks[0];
 var videoTrack = videoTracks[1];
 
-var cutBin = refreshBin(rootItem, '截取片段用视频');
-var mainImageBin = refreshBin(rootItem, '主榜图片');
-var subImageBin = refreshBin(rootItem, '副榜图片');
-var newImageBin = refreshBin(rootItem, '新曲榜图片');
+var mainImageBin = refreshBin(rootItem, name + '图片');
 var otherImageBin = refreshBin(rootItem, '其他图片');
-var mainVideoBin = refreshBin(rootItem, '主榜视频');
-var newVideoBin = refreshBin(rootItem, '新曲榜视频');
-var musicBin = refreshBin(rootItem, '音乐');
+var mainVideoBin = refreshBin(rootItem, name + '视频');
 
 var videoTime = new Time();
 var audioTime = new Time();
 
+function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBin, name, time, data) {
+    var videoFiles = [];
+    var lengths = [];
+    var videoData = [];
+    var imageFiles = [];
+    $.writeln(data.length);
+    if (data.length < startRank) {
+        $.writeln(data.length);
+        startRank = data.length - 1;
+    }
+
+    // 排名升序
+    for (var i = startRank; i < endRank; i++) {
+        var bvid = jsonGet(data, 'rank', i).bvid;
+        videoFiles.push(currentFolder + '视频\\' + bvid + '.mp4');
+        lengths.push(20); 
+        videoData.push(data[i - 1]);
+        imageFiles.push(currentFolder + name + '图片\\' + i + '.png');
+    }
+    var tempTime = new Time();
+    tempTime.ticks = time.ticks;
+    importVideosToTrack(videoFiles, videoBin, videoTrack, lengths, tempTime, videoData);
+    var videoTime = importVideosToTrack(imageFiles, imageBin, imageTrack, lengths, time, null);
+
+    return videoTime;
+}
+
+
+
+
 // 导入主榜
-videoTime = makeRanks(contain, 0, videoTrack, imageTrack, mainVideoBin, mainImageBin, '特刊', videoTime, allData);
+videoTime = makeRanks(1, 103, videoTrack, imageTrack, mainVideoBin, mainImageBin, name, videoTime, allData);
 audioTime.ticks = videoTime.ticks;
 
 

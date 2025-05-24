@@ -3,6 +3,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 
+today = datetime(2024,12,30)
 
 def statistics_today():
     def high_points():
@@ -69,45 +70,31 @@ def statistics_today():
         return counts
 
     def names_total_point(key):
-        with open("排除歌手.yaml",'r',encoding='utf-8') as file:
+        # 读取排除名单
+        with open("排除歌手.yaml", 'r', encoding='utf-8') as file:
             removed_vocals = yaml.safe_load(file)
-        total_point = {}
-        for i in songs_data_today.index:
-            names = songs_data_today.at[i,key]
-            if pd.notna(names):
-                for name in names.strip().split('、'):
-                    if name in total_point:
-                        total_point[name] = total_point[name] + int(songs_data_today.at[i,'point'])
-                    else:
-                        total_point[name] = int(songs_data_today.at[i, 'point'])
 
-        total_point = [{"name":k, "point":v} for (k,v) in total_point.items() if k not in removed_vocals]
-        total_point = sorted(total_point, key = lambda item: item["point"], reverse=True)
-        
-        #计算排名
+        # 确保数据框中的名字列和分数列存在
+        if key not in songs_data_today.columns or 'point' not in songs_data_today.columns:
+            raise ValueError("数据框中缺少必要的列")
 
-        rank=1
-        prev_value = None
-        prev_rank = None
+        # 分割名字并展平
+        songs_data_today['names'] = songs_data_today[key].dropna().str.strip().str.split('、')
+        names_df = songs_data_today.explode('names')
 
-        for i in range(len(total_point)):
-            value = total_point[i]["point"]
-            rank = i+1
-            if value != prev_value:
-                total_point[i]['rank'] = rank
-                prev_rank = rank
-            else:
-                total_point[i]['rank'] = prev_rank
-            prev_value = value
-        
-        #插入最高歌曲
+        # 计算每个名字的总分
+        total_point = names_df.groupby('names')['point'].sum().reset_index()
+        total_point.columns = ['name', 'point']
 
-        for i in range(len(total_point)):
-            name = total_point[i]['name']
+        # 过滤掉需要排除的名字
+        total_point = total_point[~total_point['name'].isin(removed_vocals)]
 
+        # 排序并计算排名
+        total_point = total_point.sort_values(by='point', ascending=False)
+        total_point['rank'] = total_point['point'].rank(method='dense', ascending=False).astype(int)
 
-        total_point = tuple(total_point)
-        return total_point
+        # 返回结果
+        return total_point.to_dict(orient='records')
 
 
 
@@ -117,11 +104,10 @@ def statistics_today():
     return counts
 
 
-today = datetime(2024,10,7)
 
 while(today < datetime.today() - timedelta(1)):
     print(today)
-    songs_data_today =  pd.read_excel(f"日刊/数据/{(today + timedelta(days=1)).strftime('%Y%m%d')}与{today.strftime('%Y%m%d')}.xlsx", dtype={'author':str, 'pubdate':str})
+    songs_data_today =  pd.read_excel(f"日刊/数据/{(today + timedelta(days=1)).strftime('%Y%m%d')}与{today.strftime('%Y%m%d')}.xlsx", dtype={'author':str, 'pubdate':str}, usecols=['name','author','uploader','synthesizer','vocal','rank','view','pubdate','point'])
     if today < datetime(2024,9,5):
         songs_data_new =  pd.read_excel(f"日刊/数据/新曲{(today + timedelta(days=1)).strftime('%Y%m%d')}与新曲{today.strftime('%Y%m%d')}.xlsx",nrows=10)
     else:

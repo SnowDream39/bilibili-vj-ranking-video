@@ -173,7 +173,7 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
     importVideosToTrack(videoFiles, videoBin, videoTrack, lengths, tempTime, videoData);
     var videoTime = importVideosToTrack(imageFiles, imageBin, imageTrack, lengths, time, null);
 
-    project.save();
     return videoTime;
 }
+
 

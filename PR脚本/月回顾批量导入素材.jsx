@@ -33,7 +33,7 @@ for (var i = 0; i < data.length; i++) {
     imageFiles.push(currentFolder + '月回顾图片\\' + (i+1) + '.png');
 }
 
-project.importFiles(videoFiles,false, monthReviewImageBin,false)
+project.importFiles(imageFiles,false, monthReviewImageBin,false)
 for (var i = 0; i < data.length; i++) {
     var bvid = data[i].bvid;
     filepath = currentFolder + "视频\\" + bvid + ".mp4";
@@ -41,10 +41,11 @@ for (var i = 0; i < data.length; i++) {
         videoFiles.push(filepath);
     }
 }
+
 project.importFiles(videoFiles,false, monthReviewVideoBin,false)
 var videoTime = new Time();
 videoTime.seconds = 0;
-videoTime = importVideosToTrack(imageFiles, monthReviewVideoBin, imageTrack, lengths, videoTime, null);
+videoTime = importVideosToTrack(imageFiles, monthReviewImageBin, imageTrack, lengths, videoTime, null);
 
 var videoItems = monthReviewVideoBin.children;
 for(var i=0; i<videoItems.length; i++){
