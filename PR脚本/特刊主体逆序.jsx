@@ -1,5 +1,5 @@
 #include 'pr.jsx'
-var contain = 17;
+var contain = 18;
 var name = "PICKUP"
 var clipLength = 30
 
@@ -40,7 +40,7 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
         startRank = data.length - 1;
     }
 
-    for (var i = startRank; i > endRank; i--) {
+    for (var i = startRank; i < endRank; i++) {
         var bvid = jsonGet(data, 'rank', i).bvid;
         videoFiles.push(currentFolder + '视频\\' + bvid + '.mp4');
         lengths.push(clipLength); 
@@ -59,7 +59,7 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
 
 
 // 导入主榜
-videoTime = makeRanks(contain, 0, videoTrack, imageTrack, mainVideoBin, mainImageBin, name, videoTime, allData);
+videoTime = makeRanks(1, contain+1, videoTrack, imageTrack, mainVideoBin, mainImageBin, name, videoTime, allData);
 audioTime.ticks = videoTime.ticks;
 
 

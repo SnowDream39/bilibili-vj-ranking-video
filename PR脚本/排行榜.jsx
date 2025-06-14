@@ -142,7 +142,7 @@ if (MODE == 'daily'){
     subLengths.push(8,3);
 
 }else if (MODE == 'monthly'){
-    var subImages = [currentFolder + "其他图片\\" + "统计歌手.png",currentFolder + "其他图片\\" +  "统计数据.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png"];
+    var subImages = [currentFolder + "其他图片\\" + "统计歌手.png",currentFolder + "其他图片\\" +  "统计数据.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\月刊\\" +  "副榜.png"];
     var subLengths = [12, 5, 8, 3];
 }
 var extendSeconds = ((Number(extendTime) / ticks + 1) - sum(subLengths) - 3) / (extend - contain) * 4;

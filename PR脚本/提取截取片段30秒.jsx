@@ -1,6 +1,11 @@
+// 此脚本不可include使用
+
+
 #include "json2.js"
 #include "pr.jsx"
 
+
+var mainSeconds = 30;
 
 var project = app.project;
 var rootItem = project.rootItem;

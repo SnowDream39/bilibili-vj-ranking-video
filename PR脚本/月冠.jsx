@@ -1,7 +1,7 @@
 #include 'pr.jsx'
-var contain = 17;
-var name = "PICKUP"
-var clipLength = 30
+var contain = 88;
+var name = "特刊"
+
 
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
 
@@ -40,10 +40,11 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
         startRank = data.length - 1;
     }
 
-    for (var i = startRank; i > endRank; i--) {
+    // 排名升序
+    for (var i = 1; i < 89; i++) {
         var bvid = jsonGet(data, 'rank', i).bvid;
         videoFiles.push(currentFolder + '视频\\' + bvid + '.mp4');
-        lengths.push(clipLength); 
+        lengths.push(20); 
         videoData.push(data[i - 1]);
         imageFiles.push(currentFolder + name + '图片\\' + i + '.png');
     }
@@ -59,7 +60,7 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
 
 
 // 导入主榜
-videoTime = makeRanks(contain, 0, videoTrack, imageTrack, mainVideoBin, mainImageBin, name, videoTime, allData);
+videoTime = makeRanks(1, 103, videoTrack, imageTrack, mainVideoBin, mainImageBin, name, videoTime, allData);
 audioTime.ticks = videoTime.ticks;
 
 

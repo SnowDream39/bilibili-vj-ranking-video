@@ -436,20 +436,6 @@ class RankingMaker:
                     songs_data_today.at[i, "point_before"] = "--"
                     songs_data_today.at[i, "change"] = "up"
     def local_videos(self):
-        """
-        会保存每天新增视频的文件。具体逻辑还没想好。
-        """
-        def delete_videos(days):
-            file_path = os.path.join("视频", f"{(self.today - timedelta(days=days)).strftime('%Y%m%d')}视频.json")
-            if os.path.exists(file_path):
-                with open(file_path, "r") as file:
-                    old_videos = json.load(file)
-                for old_video in old_videos:
-                    if old_video not in rank_videos and os.path.exists(
-                        f"视频/{old_video}.mp4"
-                    ):
-                        os.remove(f"视频/{old_video}.mp4")
-
         
         downloaded_videos = os.listdir("./视频")
 
@@ -473,6 +459,7 @@ class RankingMaker:
                 print(f"下载进度：{i+1}/{total}")
 
         print("现在清您去截取片段")
+    @staticmethod
     def top_count(counts, number):
         top_tuple = sorted(counts.items(), key=lambda item: item[1], reverse=True)
         top_tuple = tuple((k,v) for (k,v) in top_tuple if v>1)
@@ -884,20 +871,17 @@ class SpecialRankingMaker(RankingMaker):
             }
             json.dump(self.metadata, file, indent=4, ensure_ascii=False)
         self.songs_data = pd.read_excel(os.path.join("特刊","数据", f"{self.special_name}.xlsx"))
+
     def local_videos(self):
-        """
-        会保存每天新增视频的文件。具体逻辑还没想好。
-        """
         
         downloaded_videos = os.listdir("./视频")
 
-        songs_data = self.songs_data
-        rank_videos = songs_data['bvid'].to_list()
+        rank_videos = self.songs_data["bvid"].to_list()
 
         rank_videos = list(map(lambda x:x + ".mp4", rank_videos))
         videos_to_download = list(set(rank_videos) - set(downloaded_videos))
         
-        file_path = os.path.join("视频",f"{self.special_name}视频.json")
+        file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}视频.json")
 
         with open(file_path, "w") as file:
             json.dump(rank_videos, file, ensure_ascii=False, indent=4)
@@ -910,6 +894,7 @@ class SpecialRankingMaker(RankingMaker):
                 print(f"下载进度：{i+1}/{total}")
 
         print("现在清您去截取片段")
+  
     def make_resources(self):
         self.songs_data = self.songs_data.head(self.contain)
         self.make_fixes([self.songs_data])
