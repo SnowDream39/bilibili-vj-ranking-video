@@ -631,6 +631,7 @@ class WeeklyRankingMaker(RankingMaker):
         self.achievement_data = pd.read_excel("周刊/数据/成就"+(self.today + timedelta(days=1)).strftime("%Y-%m-%d")+".xlsx", dtype={"pubdate": str})
         self.statistic_file_path = os.path.join(self.folder, "新版统计", f"{self.today.strftime('%Y-%m-%d')}.json")
         self.statistic_before_path = os.path.join(self.folder, "新版统计", f"{(self.today - timedelta(days=7)).strftime('%Y-%m-%d')}.json")
+        self.history_file = pd.read_excel(os.path.join(self.folder, '数据', f"历史{(self.today + timedelta(days=1)).strftime('%Y-%m-%d')}.xlsx"))
         self.before_start_time = self.today - timedelta(6)
         self.statistic_new_days = 14
     def insert_seperate(self):
@@ -665,6 +666,11 @@ class WeeklyRankingMaker(RankingMaker):
             else:
                 self.today_pics[million_data.at[i, 'bvid']] = self.songs_data_today[self.songs_data_today['bvid'] == million_data.at[i, 'bvid']].iloc[0]['image_url']
         million_data.to_json("百万达成.json", orient='records', force_ascii=False, indent=4)
+    def history(self):
+        history_file = self.history_file
+        with open("历史数据.json", "w", encoding="utf-8") as f:
+            json.dump(history_file.to_dict(orient='records'), f, ensure_ascii=False, indent=4)
+
     def achievements(self):
         data = self.achievement_data
         for i in data.index:
@@ -689,6 +695,7 @@ class WeeklyRankingMaker(RankingMaker):
         self.insert_main_rank()
         self.insert_seperate()
         self.million_reach()
+        self.history()
         self.achievements()
         self.songs_data_today = self.songs_data_today.head(self.extend)
         self.insert_vocal_colors()
