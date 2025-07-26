@@ -138,8 +138,8 @@ if (MODE == 'daily'){
             subLengths.push(6);
         }
     }
-    subImages.push(currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png");
-    subLengths.push(8,3);
+    subImages.push(currentFolder + "其他图片\\" + "历史回顾.png", currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\" +  "副榜.png");
+    subLengths.push(6,8,3);
 
 }else if (MODE == 'monthly'){
     var subImages = [currentFolder + "其他图片\\" + "统计歌手.png",currentFolder + "其他图片\\" +  "统计数据.png",currentFolder + "其他图片\\" +  "制作.png",currentFolder + "其他图片\\月刊\\" +  "副榜.png"];
