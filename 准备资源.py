@@ -50,7 +50,7 @@ async def download_video(bvid):
             codecs=[video.VideoCodecs.AVC, video.VideoCodecs.HEV, video.VideoCodecs.AV1],
         )
         # 有 MP4 流 / FLV 流两种可能
-        if detecter.check_flv_stream() == True:
+        if detecter.check_flv_mp4_stream() == True:
             # FLV 流下载
             await download_url(streams[0].url, "视频/flv_temp.flv", "FLV 音视频流")
             # 转换文件格式

@@ -1,6 +1,6 @@
 #include 'pr.jsx'
 
-var MODE = 'weekly';
+var MODE = 'monthly';
 
 if (MODE == 'daily' || MODE == 'weekly') {
     var contain = 20;

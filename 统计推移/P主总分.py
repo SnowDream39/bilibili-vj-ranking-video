@@ -4,9 +4,9 @@ import json
 
 data = pd.DataFrame(columns=['name','type','value','date'])
 
-today = datetime(2024,7,20)
+today = datetime(2024,7,1)
 
-while today < datetime(2024,9,26):
+while today < datetime(2025,7,28):
     print(today.strftime("%Y-%m-%d"))
     file_path = f"日刊/P主测试统计/{today.strftime('%Y%m%d')}.json"
     with open(file_path, encoding='utf-8') as file:
@@ -17,7 +17,10 @@ while today < datetime(2024,9,26):
         song_data = {'name':name_data['name'],
                     'value':name_data['point'],
                     'date':today.strftime("%Y-%m-%d")}
-        data = data._append(song_data, ignore_index=True)
+        # 将字典转换为包含一行的新 DataFrame
+        new_row = pd.DataFrame([song_data])
+        # 合并
+        data = pd.concat([data, new_row], ignore_index=True)
         i += 1
 
     today += timedelta(days=1)
