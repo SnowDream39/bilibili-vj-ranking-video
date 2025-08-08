@@ -12,6 +12,7 @@ import os
 import shutil
 import argparse
 from typing import List
+from abc import ABC, abstractmethod
 
 themes = {
     0: "周日主题色",
@@ -165,7 +166,15 @@ def json_find(data, key, value):
             return data[i]
     return None
 
-class RankingMaker:
+class RankingMaker(ABC):
+    folder: str
+    metadata: dict
+    preferences: dict
+    file_today: str
+    file_before: str
+    file_new: str
+    file_new_before: str
+
     def __init__(self, now: datetime) -> None:
         self.make_date(now)
         self.statistic_new_days = 5
@@ -175,6 +184,14 @@ class RankingMaker:
         self.statistic_file_path = os.path.join('日刊', "新版统计", f"{self.today.strftime('%Y%m%d')}.json")
         self.statistic_before_path = os.path.join('日刊', "新版统计", f"{(self.today - timedelta(1)).strftime('%Y%m%d')}.json")
         self.prepare()
+
+
+    # 以下是需要在子类实现的方法
+
+    @abstractmethod
+    def prepare(self) -> None:
+        pass
+
     def make_date(self, now):
         self.now = now.replace(hour=0, minute=0, second=0, microsecond=0)
         self.today = self.now - timedelta(days=1)
@@ -683,7 +700,7 @@ class WeeklyRankingMaker(RankingMaker):
     def cover_thumbnail(self):
         songs_data_today = self.songs_data_today
         if self.preferences.get("thumbnail", False):
-            thumbnail_bvid = self.preferences["thumbnail"]
+            thumbnail_bvid: str = self.preferences["thumbnail"]
             thumbnail_url = songs_data_today.loc[songs_data_today['bvid'] == thumbnail_bvid, 'image_url'].values[0]
         else:
             thumbnail_url = songs_data_today.loc[songs_data_today['change'] == 'new', 'image_url'].values[0]

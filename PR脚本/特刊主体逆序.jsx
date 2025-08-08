@@ -1,7 +1,7 @@
 #include 'pr.jsx'
-var contain = 18;
+var contain = 10;
 var name = "PICKUP"
-var clipLength = 30
+var clipLength = 20
 
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
 

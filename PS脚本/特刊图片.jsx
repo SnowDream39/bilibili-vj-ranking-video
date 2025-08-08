@@ -18,7 +18,7 @@ function newImages() {
         // 确保读取的 JSON 数据有效
         if (data) {
             layers.getByName("上期排名").layers.getByName("标题").textItem.contents = metadata.title;
-            for (var i = 0; i < 50; i++) {
+            for (var i = 0; i < data.length; i++) {
                 var songData = data[i];
 
                 layers.getByName("排名").textItem.contents = songData.rank;
@@ -33,7 +33,7 @@ function newImages() {
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
                 $.writeln('完成第' + (i+1) + "张图片");
-                savePic(doc, currentFolder + '主榜图片\\' + (songData.rank) + ".png");
+                savePic(doc, currentFolder + metadata.title + '图片\\' + (songData.rank) + ".png");
             }
 
             // doc.close(SaveOptions.SAVECHANGES);
