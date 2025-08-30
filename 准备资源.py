@@ -27,6 +27,11 @@ themes = {
 with open("截取片段.json", "r", encoding="utf-8") as file:
     clip_points = json.load(file)
 
+async def get_thumbnail(bvid) -> str:
+    v = video.Video(bvid=bvid)
+    response = await v.get_info()
+    return response["pic"]
+
 async def download_url(url: str, out: str, info: str):
     # 下载函数
     async with httpx.AsyncClient(headers=HEADERS, verify=False) as sess:
@@ -284,6 +289,7 @@ class RankingMaker(ABC):
                 else:
                     counts[i]['rank'] = prev_rank
                 prev_value = value
+                
             
             
             counts = tuple(counts)
@@ -454,13 +460,14 @@ class RankingMaker(ABC):
                     songs_data_today.at[i, "change"] = "up"
     def local_videos(self):
         
-        downloaded_videos = os.listdir("./视频")
+        downloaded_videos = list(map(lambda x: x.split('.')[0], os.listdir("./视频")))
+
 
         songs_data_today = self.songs_data_today.head(self.main)
         songs_data_new = self.songs_data_new.head(self.new)
         rank_videos = list(set(songs_data_today["bvid"].to_list()).union(set(songs_data_new["bvid"].to_list())))
 
-        rank_videos = list(map(lambda x:x + ".mp4", rank_videos))
+
         videos_to_download = list(set(rank_videos) - set(downloaded_videos))
         
         file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}视频.json")
@@ -468,14 +475,11 @@ class RankingMaker(ABC):
         with open(file_path, "w") as file:
             json.dump(rank_videos, file, ensure_ascii=False, indent=4)
 
-        total = len(videos_to_download)
-        for i in range(total):
-            bvid = videos_to_download[i][:12]
-            if bvid + ".mp4" not in downloaded_videos:
-                asyncio.run(download_video(bvid=bvid))
-                print(f"下载进度：{i+1}/{total}")
+        with open("urls.txt", "w", encoding="utf-8") as file:
+            for video in videos_to_download:
+                file.write(f"https://www.bilibili.com/video/{video}" + "\n")
 
-        print("现在清您去截取片段")
+
     @staticmethod
     def top_count(counts, number):
         top_tuple = sorted(counts.items(), key=lambda item: item[1], reverse=True)
@@ -518,7 +522,10 @@ class RankingMaker(ABC):
         for i in range(self.extend):
             bvid = self.songs_data_today.at[i, 'bvid']
             if bvid + '.png' not in local_pics:
-                self.today_pics[bvid] = self.songs_data_today.at[i, 'image_url']
+                image_url = self.songs_data_today.at[i, 'image_url']
+                if len(image_url) == 0:
+                    image_url = asyncio.run(get_thumbnail(bvid))
+                self.today_pics[bvid] = image_url
         
         with open('新增封面.json', 'w', encoding='utf-8') as file:
             json.dump(self.today_pics, file, indent=4, ensure_ascii=False)
@@ -663,6 +670,7 @@ class WeeklyRankingMaker(RankingMaker):
             songs_data['daily_ranks'] = [[] for _ in range(len(songs_data))]
             song_names = songs_data['name'].to_list()
             for i in range(7,0,-1):
+                
                 print(f"正在插入第{8-i}天排名")
                 songs_data_daily = daily_files[i]
                 daily_ranks = []
@@ -679,7 +687,7 @@ class WeeklyRankingMaker(RankingMaker):
         for i in million_data.index:
             song_record = self.songs_data_today[self.songs_data_today['bvid'] == million_data.at[i, 'bvid']]
             if (song_record.empty):
-                self.today_pics[million_data.at[i, 'bvid']] = ''
+                self.today_pics[million_data.at[i, 'bvid']] = asyncio.run(get_thumbnail(million_data.at[i, 'bvid']))
             else:
                 self.today_pics[million_data.at[i, 'bvid']] = self.songs_data_today[self.songs_data_today['bvid'] == million_data.at[i, 'bvid']].iloc[0]['image_url']
         million_data.to_json("百万达成.json", orient='records', force_ascii=False, indent=4)
@@ -693,17 +701,21 @@ class WeeklyRankingMaker(RankingMaker):
         for i in data.index:
             song_record = self.songs_data_today[self.songs_data_today['bvid'] == data.at[i, 'bvid']]
             if (song_record.empty):
-                self.today_pics[data.at[i, 'bvid']] = ''
+                self.today_pics[data.at[i, 'bvid']] = asyncio.run(get_thumbnail(data.at[i, 'bvid']))
             else:
                 self.today_pics[data.at[i, 'bvid']] = self.songs_data_today[self.songs_data_today['bvid'] == data.at[i, 'bvid']].iloc[0]['image_url']
         data.to_json("成就.json", orient='records', force_ascii=False, indent=4)
     def cover_thumbnail(self):
+        """
+        选择主榜内上榜次数最少的歌曲作为封面。
+        """
         songs_data_today = self.songs_data_today
         if self.preferences.get("thumbnail", False):
             thumbnail_bvid: str = self.preferences["thumbnail"]
             thumbnail_url = songs_data_today.loc[songs_data_today['bvid'] == thumbnail_bvid, 'image_url'].values[0]
         else:
-            thumbnail_url = songs_data_today.loc[songs_data_today['change'] == 'new', 'image_url'].values[0]
+            sort_by_count = songs_data_today.head(20).sort_values("count", ascending=True)
+            thumbnail_url = sort_by_count.iloc[0]['image_url']
         asyncio.run(download_thumbnail_special(thumbnail_url))
     def make_resources(self):
         self.make_audio()
@@ -914,6 +926,7 @@ class SpecialRankingMaker(RankingMaker):
         for i in range(total):
             bvid = videos_to_download[i][:12]
             if bvid + ".mp4" not in downloaded_videos:
+                print(f"正在下载视频：{bvid}")
                 asyncio.run(download_video(bvid=bvid))
                 print(f"下载进度：{i+1}/{total}")
 

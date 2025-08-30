@@ -1,6 +1,6 @@
 #include 'pr.jsx'
-var contain = 15;
-var name = "语调"
+var contain = 28;
+var name = "非官方MV";
 var clipLength = 20
 
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
