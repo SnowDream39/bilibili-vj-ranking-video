@@ -213,7 +213,7 @@ class RankingMaker(ABC):
         destination_path = os.path.join(os.getcwd(), destination_file)
         shutil.copyfile(source_path, destination_path)
     def get_normal_datas(self):
-        self.songs_data_today = pd.read_excel(os.path.join(self.folder, "数据", self.file_today), dtype={"author":str, "vocal":str, "pubdate": str})
+        self.songs_data_today = pd.read_excel(os.path.join(self.folder, "数据", self.file_today), dtype={"author":str, "vocal":str, "pubdate": str, "count": int})
         self.songs_data_today["pic"] = self.songs_data_today["bvid"] + ".png"
         self.songs_data_before = pd.read_excel(os.path.join(self.folder, "数据", self.file_before), dtype={"author":str,"vocal":str, "pubdate": str})
         self.songs_data_new = pd.read_excel(os.path.join(self.folder, "数据", self.file_new), dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)

@@ -3,7 +3,7 @@
 var currentFolder = "D:\\自制\\视频\\B站日V日刊\\"
 var contain = 20;
 var extend = 100; // 手动改
-var TEMP_MODE = 'monthly'; //需要临时运行一个脚本的话修改此处
+var TEMP_MODE = 'weekly'; //需要临时运行一个脚本的话修改此处
 
 function judgeMode() {
     if (typeof MODE === 'undefined'){
