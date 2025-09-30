@@ -1,1 +1,5 @@
-yt-dlp -a urls.txt -f "(bv*[height=480][vcodec^=avc]+ba/bv*[height=480][vcodec^=avc])/(bv*[height=480][vcodec^=hev]+ba/bv*[height=480][vcodec^=hev])/(bv*[height=480][vcodec^=av1]+ba/bv*[height=480][vcodec^=av1])"  --playlist-items 1 -o "./视频/%(webpage_url_basename)s.%(ext)s" -N 5
+yt-dlp -a urls.txt `
+  -f "bv*[height<=480][vcodec^=avc]+ba/bv*[height<=480][vcodec*=hev]+ba" `
+  --playlist-items 1 `
+  -o "./视频/%(webpage_url_basename)s.%(ext)s"  `
+  -N 5

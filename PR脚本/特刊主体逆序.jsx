@@ -1,5 +1,5 @@
 #include 'pr.jsx'
-var contain = 10;
+var contain = 14;
 var name = "PICKUP"
 var clipLength = 20
 

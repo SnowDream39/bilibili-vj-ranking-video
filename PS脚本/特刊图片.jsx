@@ -2,7 +2,7 @@
 
 
 function newImages() {
-    var fileRef = new File(currentFolder + "特刊图片\\基础样式.psd");
+    var fileRef = new File(currentFolder + "特刊图片\\梦的结唱样式3.psd");
     if (fileRef.exists) {
         app.open(fileRef);
     } else {
@@ -18,7 +18,7 @@ function newImages() {
         // 确保读取的 JSON 数据有效
         if (data) {
             layers.getByName("上期排名").layers.getByName("标题").textItem.contents = metadata.title;
-; i++) {
+            for (var i = 0; i < data.length; i++) {
                 var songData = data[i];
 
                 layers.getByName("排名").textItem.contents = songData.rank;

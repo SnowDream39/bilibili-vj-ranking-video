@@ -32,53 +32,6 @@ async def get_thumbnail(bvid) -> str:
     response = await v.get_info()
     return response["pic"]
 
-async def download_url(url: str, out: str, info: str):
-    # 下载函数
-    async with httpx.AsyncClient(headers=HEADERS, verify=False) as sess:
-        resp = await sess.get(url)
-        length = resp.headers.get("content-length")
-        with open(out, "wb") as f:
-            process = 0
-            print(f"{info} {length}")
-            for chunk in resp.iter_bytes(1024):
-                f.write(chunk)
-async def download_video(bvid):
-    try:
-        # 实例化 Video 类
-        v = video.Video(bvid=bvid)
-        # 获取视频下载链接
-        download_url_data = await v.get_download_url(0)
-        # 解析视频下载信息
-        detecter = video.VideoDownloadURLDataDetecter(data=download_url_data)
-        streams = detecter.detect_best_streams(
-            video_max_quality=video.VideoQuality._720P,
-            audio_max_quality=video.AudioQuality._192K,
-            codecs=[video.VideoCodecs.AVC, video.VideoCodecs.HEV, video.VideoCodecs.AV1],
-        )
-        # 有 MP4 流 / FLV 流两种可能
-        if detecter.check_flv_mp4_stream() == True:
-            # FLV 流下载
-            await download_url(streams[0].url, "视频/flv_temp.flv", "FLV 音视频流")
-            # 转换文件格式
-            os.system(f"ffmpeg -i 视频/flv_temp.flv -loglevel quiet 视频/{bvid}.mp4")
-            # 删除临时文件
-            os.remove("视频/flv_temp.flv")
-        else:
-            # MP4 流下载
-            await download_url(streams[0].url, "视频/video_temp.m4s", "视频流")
-            await download_url(streams[1].url, "视频/audio_temp.m4s", "音频流")
-            # 混流
-            os.system(
-                f"ffmpeg -i 视频/video_temp.m4s -i 视频/audio_temp.m4s -vcodec copy -acodec copy -loglevel quiet 视频/{bvid}.mp4"
-            )
-            # 删除临时文件
-            os.remove("视频/video_temp.m4s")
-            os.remove("视频/audio_temp.m4s")
-
-        print(f"已下载为：视频/{bvid}.mp4")
-    except Exception as e:
-        print(f"{bvid}:", e)
-        await download_video(bvid)
 async def download_thumbnail(bvid, image_url):
 
     print(f"正在下载封面：{bvid}")
@@ -213,7 +166,7 @@ class RankingMaker(ABC):
         destination_path = os.path.join(os.getcwd(), destination_file)
         shutil.copyfile(source_path, destination_path)
     def get_normal_datas(self):
-        self.songs_data_today = pd.read_excel(os.path.join(self.folder, "数据", self.file_today), dtype={"author":str, "vocal":str, "pubdate": str, "count": int})
+        self.songs_data_today = pd.read_excel(os.path.join(self.folder, "数据", self.file_today), dtype={"author":str, "vocal":str, "pubdate": str, "rank": int})
         self.songs_data_today["pic"] = self.songs_data_today["bvid"] + ".png"
         self.songs_data_before = pd.read_excel(os.path.join(self.folder, "数据", self.file_before), dtype={"author":str,"vocal":str, "pubdate": str})
         self.songs_data_new = pd.read_excel(os.path.join(self.folder, "数据", self.file_new), dtype={"author":str,"vocal":str, "pubdate": str}, nrows=self.new)
@@ -910,11 +863,12 @@ class SpecialRankingMaker(RankingMaker):
 
     def local_videos(self):
         
-        downloaded_videos = os.listdir("./视频")
+        downloaded_videos = list(map(lambda x: x.split('.')[0], os.listdir("./视频")))
+
 
         rank_videos = self.songs_data["bvid"].to_list()
 
-        rank_videos = list(map(lambda x:x + ".mp4", rank_videos))
+
         videos_to_download = list(set(rank_videos) - set(downloaded_videos))
         
         file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}视频.json")
@@ -922,13 +876,9 @@ class SpecialRankingMaker(RankingMaker):
         with open(file_path, "w") as file:
             json.dump(rank_videos, file, ensure_ascii=False, indent=4)
 
-        total = len(videos_to_download)
-        for i in range(total):
-            bvid = videos_to_download[i][:12]
-            if bvid + ".mp4" not in downloaded_videos:
-                print(f"正在下载视频：{bvid}")
-                asyncio.run(download_video(bvid=bvid))
-                print(f"下载进度：{i+1}/{total}")
+        with open("urls.txt", "w", encoding="utf-8") as file:
+            for video in videos_to_download:
+                file.write(f"https://www.bilibili.com/video/{video}" + "\n")
 
         print("现在清您去截取片段")
   
