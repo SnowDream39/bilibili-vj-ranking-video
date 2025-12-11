@@ -265,7 +265,7 @@ function fillSongInfo(layers, songData, mode, part) {
         layers.getByName("时长").textItem.contents = songData.duration + "/" + songData.page + "P";
     }
 
-    if (songData.copyright === 1 || songData.copyright === 4){
+    if (songData.copyright === 1 || songData.copyright === 3 || songData.copyright === 4 || songData.copyright === 100){
         var contents = "作者投稿";
     } else {
         var contents = "搬运：" + songData.uploader;
@@ -311,6 +311,7 @@ function fillBeforeRank (layers, songData, mode){
         layers.getByName("上期得分").visible = false;
     } else {
         rankLayers.getByName("上期").visible = true;
+        rankLayers.getByName("上期排名").visible = true;
         rankLayers.getByName("new").visible = false;
         layers.getByName("上期得分").visible = true;
         if (songData.change == "up") {

@@ -6,7 +6,6 @@ from bilibili_api import video, HEADERS
 import requests
 from PIL import Image
 from io import BytesIO
-import httpx
 import yaml
 import os
 import shutil

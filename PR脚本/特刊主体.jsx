@@ -1,6 +1,6 @@
 #include 'pr.jsx'
-var contain = 5;
-var name = "语调";
+var contain = 20;
+var name = "主榜";
 var clipLength = 20
 
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
