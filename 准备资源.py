@@ -1,11 +1,6 @@
 import pandas as pd
 import json
-import asyncio
 from datetime import datetime, timedelta
-from bilibili_api import video, HEADERS
-import requests
-from PIL import Image
-from io import BytesIO
 import yaml
 import os
 import shutil
@@ -26,77 +21,8 @@ themes = {
 with open("截取片段.json", "r", encoding="utf-8") as file:
     clip_points = json.load(file)
 
-async def get_thumbnail(bvid) -> str:
-    v = video.Video(bvid=bvid)
-    response = await v.get_info()
-    return response["pic"]
-
-async def download_thumbnail(bvid, image_url):
-
-    print(f"正在下载封面：{bvid}")
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        image = Image.open(BytesIO(response.content))
-    else:
-        print("图片下载失败，状态码：", response.status_code)
-        exit()
-
-    if image.width / image.height > 16 / 9:
-        left = image.width / 2 - image.height / 9 * 8
-        right = image.width / 2 + image.height / 9 * 8
-        top = 0
-        bottom = image.height
-    else:
-        top = image.height / 2 - image.width / 32 * 9
-        bottom = image.height / 2 + image.width / 32 * 9
-        left = 0
-        right = image.width
-
-    cropped_image = image.crop((left, top, right, bottom))
-    resized_image = cropped_image.resize((352, 199))
-
-    resized_image.save("封面/" + bvid + ".png", "PNG")
-async def download_thumbnail_special(image_url):
-
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        image = Image.open(BytesIO(response.content))
-
-        # 4比3裁剪
-        if image.width / image.height > 4 / 3:
-            left = image.width / 2 - image.height / 3 * 2
-            right = image.width / 2 + image.height / 3 * 2
-            top = 0
-            bottom = image.height
-        else:
-            top = image.height / 2 - image.width / 8 * 3
-            bottom = image.height / 2 + image.width / 8 * 3
-            left = 0
-            right = image.width
-
-        cropped_image = image.crop((left, top, right, bottom))
-        resized_image = cropped_image.resize((1920, 1440))
-        resized_image.save("其他图片/最高新曲封面4比3.png", "PNG")
-
-        # 16比9裁剪
-        if image.width / image.height > 16 / 9:
-            left = image.width / 2 - image.height / 9 * 8
-            right = image.width / 2 + image.height / 9 * 8
-            top = 0
-            bottom = image.height
-        else:
-            top = image.height / 2 - image.width / 32 * 9
-            bottom = image.height / 2 + image.width / 32 * 9
-            left = 0
-            right = image.width
-
-        cropped_image = image.crop((left, top, right, bottom))
-        resized_image = cropped_image.resize((1920, 1080))
-        resized_image.save("其他图片/最高新曲封面16比9.png", "PNG")
-
-    else:
-        print("图片下载失败，状态码：", response.status_code)
-        exit()
+# 封面下载功能已移至 下载封面.py
+# 网络获取URL功能已移除，统一使用数据文件中的image_url
 def detect_language(character):
     code = ord(character)
     if (0x4E00 <= code <= 0x9FFF) or (0x3400 <= code <= 0x4DBF):
@@ -470,21 +396,21 @@ class RankingMaker(ABC):
 
         local_pics = os.listdir("./封面")
 
-        # 下载封面
+        # 收集需要下载封面的视频BV号和URL
         for i in range(self.extend):
             bvid = self.songs_data_today.at[i, 'bvid']
             if bvid + '.png' not in local_pics:
                 image_url = self.songs_data_today.at[i, 'image_url']
                 if len(image_url) == 0:
-                    image_url = asyncio.run(get_thumbnail(bvid))
+                    print(f"警告：{bvid} 缺少image_url，跳过下载")
+                    continue
                 self.today_pics[bvid] = image_url
         
         with open('新增封面.json', 'w', encoding='utf-8') as file:
             json.dump(self.today_pics, file, indent=4, ensure_ascii=False)
         
-        for pic in self.today_pics:
-            if pic + '.png' not in local_pics:
-                asyncio.run(download_thumbnail(pic, self.today_pics[pic]))
+        print(f"已输出 {len(self.today_pics)} 个需要下载封面的视频BV号到 新增封面.json")
+        print("请运行 'python 下载封面.py' 来下载这些封面")
     def insert_vocal_colors(self):
         '''
         对songs_data_today操作
@@ -557,7 +483,11 @@ class DailyTextMaker(RankingMaker):
         self.before_start_time = self.today
     def cover_thumbnail(self):
         thumbnail_url = self.songs_data_new.at[0, 'image_url']
-        asyncio.run(download_thumbnail_special(thumbnail_url))         
+        # 输出特殊封面信息到JSON文件
+        with open('特殊封面.json', 'w', encoding='utf-8') as file:
+            json.dump({'special_thumbnail_url': thumbnail_url}, file, indent=4, ensure_ascii=False)
+        print("已输出特殊封面信息到 特殊封面.json")
+        print("请运行 'python 下载封面.py' 来下载特殊封面")         
     def make_resources(self):
         self.get_normal_datas()
         self.make_statistics()
@@ -639,7 +569,12 @@ class WeeklyRankingMaker(RankingMaker):
         for i in million_data.index:
             song_record = self.songs_data_today[self.songs_data_today['bvid'] == million_data.at[i, 'bvid']]
             if (song_record.empty):
-                self.today_pics[million_data.at[i, 'bvid']] = asyncio.run(get_thumbnail(million_data.at[i, 'bvid']))
+                # 如果在今日数据中找不到，使用百万记录数据中的image_url
+                image_url = million_data.at[i, 'image_url'] if 'image_url' in million_data.columns else ""
+                if len(image_url) == 0:
+                    print(f"警告：百万记录 {million_data.at[i, 'bvid']} 缺少image_url，跳过")
+                    continue
+                self.today_pics[million_data.at[i, 'bvid']] = image_url
             else:
                 self.today_pics[million_data.at[i, 'bvid']] = self.songs_data_today[self.songs_data_today['bvid'] == million_data.at[i, 'bvid']].iloc[0]['image_url']
         million_data.to_json("百万达成.json", orient='records', force_ascii=False, indent=4)
@@ -653,7 +588,12 @@ class WeeklyRankingMaker(RankingMaker):
         for i in data.index:
             song_record = self.songs_data_today[self.songs_data_today['bvid'] == data.at[i, 'bvid']]
             if (song_record.empty):
-                self.today_pics[data.at[i, 'bvid']] = asyncio.run(get_thumbnail(data.at[i, 'bvid']))
+                # 如果在今日数据中找不到，使用成就数据中的image_url
+                image_url = data.at[i, 'image_url'] if 'image_url' in data.columns else ""
+                if len(image_url) == 0:
+                    print(f"警告：成就记录 {data.at[i, 'bvid']} 缺少image_url，跳过")
+                    continue
+                self.today_pics[data.at[i, 'bvid']] = image_url
             else:
                 self.today_pics[data.at[i, 'bvid']] = self.songs_data_today[self.songs_data_today['bvid'] == data.at[i, 'bvid']].iloc[0]['image_url']
         data.to_json("成就.json", orient='records', force_ascii=False, indent=4)
@@ -668,7 +608,11 @@ class WeeklyRankingMaker(RankingMaker):
         else:
             sort_by_count = songs_data_today.head(20).sort_values("count", ascending=True)
             thumbnail_url = sort_by_count.iloc[0]['image_url']
-        asyncio.run(download_thumbnail_special(thumbnail_url))
+        # 输出特殊封面信息到JSON文件
+        with open('特殊封面.json', 'w', encoding='utf-8') as file:
+            json.dump({'special_thumbnail_url': thumbnail_url}, file, indent=4, ensure_ascii=False)
+        print("已输出特殊封面信息到 特殊封面.json")
+        print("请运行 'python 下载封面.py' 来下载特殊封面")
     def make_resources(self):
         self.make_audio()
         self.get_normal_datas()
@@ -829,12 +773,12 @@ class MonthReviewMaker(RankingMaker):
         with open(file_path, "w") as file:
             json.dump(rank_videos, file, ensure_ascii=False, indent=4)
 
-        total = len(videos_to_download)
-        for i in range(total):
-            bvid = videos_to_download[i][:12]
-            if bvid + ".mp4" not in downloaded_videos:
-                asyncio.run(download_video(bvid=bvid))
-                print(f"下载进度：{i+1}/{total}")
+        # 输出视频下载列表，不执行实际下载
+        if videos_to_download:
+            print(f"发现 {len(videos_to_download)} 个需要下载的视频")
+            print("请使用其他下载工具下载以下视频：")
+            for video_bvid in videos_to_download:
+                print(f"  https://www.bilibili.com/video/{video_bvid}")
 
     def make_resources(self):
         self.songs_data.to_json("月回顾数据.json", force_ascii=False, orient="records", indent=4)
