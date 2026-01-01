@@ -2,7 +2,7 @@
 
 
 function newImages() {
-    var fileRef = new File(currentFolder + "特刊图片\\梦的结唱样式3.psd");
+    var fileRef = new File(currentFolder + "特刊图片\\基础样式.psd");
     if (fileRef.exists) {
         app.open(fileRef);
     } else {
@@ -33,7 +33,7 @@ function newImages() {
                 fillData(songData, layers.getByName("点赞").layers, ["like", "likeR", "like_rank"]);
 
                 $.writeln('完成第' + (i+1) + "张图片");
-                savePic(doc, currentFolder + metadata.title + '图片\\' + (songData.rank) + ".png");
+                savePic(doc, currentFolder + '特刊图片\\' + (songData.rank) + ".png");
             }
 
             // doc.close(SaveOptions.SAVECHANGES);

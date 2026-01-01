@@ -1,6 +1,6 @@
 #include 'pr.jsx'
-var contain = 200;
-var name = "特刊";
+var contain = 12;
+var name = "月冠"
 var clipLength = 20
 
 var metadata = readJSONFile(currentFolder + '基本信息数据.json');
@@ -40,8 +40,8 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
         startRank = data.length - 1;
     }
 
-    for (var i = startRank; i > endRank; i--) {
-        var bvid = jsonGet(data, 'rank', i).bvid;
+    for (var i = startRank; i < endRank; i++) {
+        var bvid = jsonGet(data, 'month', i).bvid;
         videoFiles.push(currentFolder + '视频\\' + bvid + '.mp4');
         lengths.push(clipLength); 
         videoData.push(data[i - 1]);
@@ -59,7 +59,7 @@ function makeRanks(startRank, endRank, videoTrack, imageTrack, videoBin, imageBi
 
 
 // 导入主榜
-videoTime = makeRanks(contain, 0, videoTrack, imageTrack, mainVideoBin, mainImageBin, name, videoTime, allData);
+videoTime = makeRanks(1, contain+1, videoTrack, imageTrack, mainVideoBin, mainImageBin, name, videoTime, allData);
 audioTime.ticks = videoTime.ticks;
 
 

@@ -1,7 +1,7 @@
 #include '../ps.jsx'
 
 var contain = 10;
-var fileRef = new File(currentFolder + "其他图片\\2024年终\\前十.psd");
+var fileRef = new File(currentFolder + "特刊图片\\2024年终\\前十.psd");
 app.open(fileRef);
 // 确保有活动文档
 if (app.documents.length > 0) {
@@ -15,7 +15,7 @@ if (app.documents.length > 0) {
             layers.getByName("排名").textItem.contents = i + 1;
             layers.getByName("分差").textItem.contents = comma(data[i].point - data[i+1].point);
             
-            savePic(doc, currentFolder + '其他图片\\2024年终\\' + (i+1) + '.png');
+            savePic(doc, currentFolder + '特刊图片\\2025年刊\\' + (i+1) + '.png');
         }
         // doc.close(SaveOptions.SAVECHANGES);
     } else {

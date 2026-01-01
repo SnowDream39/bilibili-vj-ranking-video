@@ -290,14 +290,15 @@ async def main():
             with open("特殊封面.json", "r", encoding="utf-8") as file:
                 special_data = json.load(file)
                 if 'special_thumbnail_url' in special_data:
-                    print("开始下载特殊封面...")
-                    start_time = time.time()
-                    success = await download_special_thumbnail(special_data['special_thumbnail_url'])
-                    end_time = time.time()
-                    if success:
+                    try:
+                        print("开始下载特殊封面...")
+                        start_time = time.time()
+                        await download_special_thumbnail(special_data['special_thumbnail_url'])
+                        end_time = time.time()
                         print(f"特殊封面下载完成，耗时: {end_time - start_time:.2f} 秒")
-                    else:
+                    except Exception as e:
                         total_success = False
+                        print(f"下载特殊封面时出错：{e}")
                 else:
                     print("特殊封面数据格式错误")
         else:

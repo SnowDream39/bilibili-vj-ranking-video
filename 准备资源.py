@@ -347,11 +347,7 @@ class RankingMaker(ABC):
 
 
         videos_to_download = list(set(rank_videos) - set(downloaded_videos))
-        
-        file_path = os.path.join("视频",f"{self.today.strftime('%Y%m%d')}视频.json")
 
-        with open(file_path, "w") as file:
-            json.dump(rank_videos, file, ensure_ascii=False, indent=4)
 
         with open("urls.txt", "w", encoding="utf-8") as file:
             for video in videos_to_download:
